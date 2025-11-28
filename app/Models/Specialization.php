@@ -19,4 +19,10 @@ class Specialization extends Model
     {
         return $this->hasMany(Question::class);
     }
+
+    public function centers()
+    {
+    return $this->belongsToMany(ClinicCenter::class, 'center_specialization');
+    }
+    
 }

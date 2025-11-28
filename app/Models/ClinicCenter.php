@@ -27,4 +27,9 @@ class ClinicCenter extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function specialties()
+    {
+    return $this->belongsToMany(Specialization::class, 'center_specialization');
+    }
 }

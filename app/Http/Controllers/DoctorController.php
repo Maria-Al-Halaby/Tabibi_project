@@ -39,6 +39,7 @@ class DoctorController extends Controller
         $request->validate([ "name" => "required|string|max:150",
         "email" => "required|email|unique:users,email",
         "password" => "required|min:7",
+        "phone" => "required",
         "specialization_id" => "required|exists:specializations,id",
         "profile_image" => "nullable|image"
     ]);
@@ -58,6 +59,7 @@ class DoctorController extends Controller
         $user = User::create([
             "name" => $request->name , 
             "email" => $request->email , 
+            "phone" => $request->phone,
             "password" => Hash::make($request->password), 
             "profile_image" => $imagePath
         ]);

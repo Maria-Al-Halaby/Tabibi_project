@@ -22,7 +22,17 @@ class AuthController extends Controller
         if(Auth::attempt(["email" => $request->email , "password" => $request->password]))
         {
             $request->session()->regenerate();
-            return redirect()->route("SuperAdmin.Detials.index");
+
+            /* return redirect()->route("SuperAdmin.Detials.index"); */
+            
+            if(auth()->user()->hasRole("super admin"))
+            {
+                return redirect()->route("SuperAdmin.Detials.index");
+            }
+            elseif(auth()->user()->hasRole("admin") || auth()->user()->hasRole("secretary"))
+            {
+                return redirect()->route("Admin.index");
+            }
         }
 
         return back()->withErrors(["message" => "Invalid email/password"]);

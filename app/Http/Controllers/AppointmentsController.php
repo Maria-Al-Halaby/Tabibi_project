@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use App\Models\Appointments;
 use Illuminate\Http\Request;
 
@@ -10,10 +11,20 @@ class AppointmentsController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
-        //
+    $center = auth()->user()->clinic_center;
+
+    $appointments = Appointment::where('clinic_center_id', $center->id)
+        ->where('status', 'pending')
+        ->latest() 
+        ->get();
+
+    return view('Admin.Appointment.index', compact('appointments'));
     }
+
+    
 
     /**
      * Show the form for creating a new resource.

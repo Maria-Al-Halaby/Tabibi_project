@@ -33,9 +33,7 @@ return new class extends Migration
 
             $table->dateTime("end_at")->nullable();
 
-           // $table->flaot("score")->nullable();
-
-           // $table->boolean("emergency")->default(false);
+            
 
             $table->enum('status', ['pending','canceled','completed'])->default('pending');
 

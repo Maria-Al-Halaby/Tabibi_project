@@ -11,6 +11,7 @@ class Appointment extends Model
         "doctor_id",
         "clinic_center_id", 
         "start_at" , 
+        "status"
     ];
 
     protected $casts = [

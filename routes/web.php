@@ -1,12 +1,20 @@
 <?php
 
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClinicCenterController;
+use App\Http\Controllers\ClinicManagement;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\DoctorSchedulesController;
+use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\SuperAdminDashboardController;
+use App\Models\Appointment;
 use App\Models\ClinicCenter;
+use App\Models\DoctorSchedules;
 use App\Models\Specialization;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /* Route::get('/', function () {
@@ -28,8 +36,8 @@ Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/
 
     /* specialization route */
 
-    Route::get("/       " , [SpecializationController::class , "index"])->name("SuperAdmin.specialization.index");
-    Route::get("/AddNew/Specialization" , [SpecializationController::class , "create"])->name("SuperAdmin.specialization.create");
+    Route::get("specialization/" , [SpecializationController::class , "index"])->name("SuperAdmin.specialization.index");
+    Route::get("/AddNew/specialization" , [SpecializationController::class , "create"])->name("SuperAdmin.specialization.create");
     Route::post("/AddNew/Specialization" , [SpecializationController::class , "store"])->name("SuperAdmin.specialization.store");
     Route::get("/update/specialization/{specialization}" , [SpecializationController::class , "edit"])->name("SuperAdmin.specialization.edit");
     Route::put("/update/specialization/{specialization}" , [SpecializationController::class , "update"])->name("SuperAdmin.specialization.update");
@@ -60,6 +68,31 @@ Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/
 
 Route::middleware("auth")->group(function(){
     Route::post("/logout" , [AuthController::class , "logout"])->name("logout");
+    Route::get("/notification" , [FirebaseController::class , "notification"]);
+
 });
+
+/* admin route */
+
+Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(function(){
+    Route::get("/" , [AdminDashboardController::class , "index"])->name("Admin.index");
+    Route::get("/clinic_management" , [ClinicManagement::class , "index"])->name("Admin.ClinicManagement.index");
+    Route::get("/clinic_management/create" , [ClinicManagement::class , "create"])->name("Admin.ClinicManagement.create");
+    
+    /* doctor schedule route */
+    Route::get("/doctor_schedule/{doctor}" , [DoctorSchedulesController::class , "show"])->name("Admin.DoctorSchedule.show");
+    Route::get("/doctor_schedule/create/{doctor}" , [DoctorSchedulesController::class , "create"] )->name("Admin.DoctorSchedule.create");
+    Route::post("/doctor_schedule/store/{doctor}" , [DoctorSchedulesController::class , "store"])->name("Admin.DoctorSchedule.store");
+    Route::get("/doctor_schedule/edit/{doctor}" , [DoctorSchedulesController::class , "edit"])->name("Admin.DoctorSchedule.edit");
+    Route::put("/doctor_schedule/edit/{doctor}" , [DoctorSchedulesController::class , "update"])->name("Admin.DoctorSchedule.update");
+    Route::delete("/doctor_schedule/delete/{doctor}" , [DoctorSchedulesController::class , "destroy"])->name("Admin.DoctorSchedule.destroy");
+
+
+    /* appointment route  */
+
+    Route::get("/appointment" , [AppointmentsController::class , "index"])->name("Admin.Appointment.index");
+
+});
+
 
 

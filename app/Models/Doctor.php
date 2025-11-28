@@ -19,7 +19,7 @@ class Doctor extends Model
     {
         return $this->belongsTo(User::class);
     }
- /*    public function specializtion()  
+    /*public function specializtion()  
     {
         return $this->hasOne(Specialization::class);
     } */
@@ -38,6 +38,16 @@ class Doctor extends Model
     public function appointments()
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function ratings()
+    {
+    return $this->hasMany(DoctorRating::class);
+    } 
+    
+    public function schedules()
+    {
+        return $this->hasMany(DoctorSchedules::class);
     }
 
 

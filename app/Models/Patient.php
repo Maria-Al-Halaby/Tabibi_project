@@ -14,8 +14,10 @@ class Patient extends Model
         "marital_status" , 
         "has_children" , 
         "number_of_children" , 
-        "type_of_birth", 
-        "profile_image"
+        "birth_date", 
+        "profile_image" , 
+        "address" , 
+        "is_smoke"
     ]; 
     
     protected $casts = [
@@ -36,5 +38,10 @@ class Patient extends Model
     public function answers()
     {
         return $this->hasMany(Answer::class);
+    }
+
+    public function ratings()
+    {
+    return $this->hasMany(DoctorRating::class);
     }
 }

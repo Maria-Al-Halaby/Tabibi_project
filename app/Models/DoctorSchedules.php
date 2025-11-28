@@ -12,4 +12,10 @@ class DoctorSchedules extends Model
         "start_time", 
         "end_time",
     ];
+
+
+    public function doctor()  
+    {
+        $this->belongsTo(Doctor::class);
+    }
 }
