@@ -45,7 +45,9 @@ class ProfileSettingController extends Controller
         if($request->hasFile("profile_image"))
         {
             $path = $request->file("profile_image")->store("patients/patients_profile_image" , "public");
-            $image_path = "storage/" . $path;
+            $image = "storage/" . $path;
+            $image_path = url($image);
+            
 
 
         }else
