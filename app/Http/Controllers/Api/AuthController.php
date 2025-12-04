@@ -121,15 +121,17 @@ class AuthController extends Controller
         return response()->json([
             "message"  => "Patient registered successfully.",
             "status"   => true,
-            "patient"  => [
-                "id"         => $user->id, 
-                "first_name" => $user->name, 
-                "last_name"  => $user->last_name, 
-                "phone"      => $user->phone, 
-                "role"       => "patient",
-            ],
-            "more_info" => $patient,
-            "token"     => $token,
+            "user"  => [
+                "main_data " => [
+                        "id"         => $user->id, 
+                        "first_name" => $user->name, 
+                        "last_name"  => $user->last_name, 
+                        "phone"      => $user->phone, 
+                        "role"       => "patient",
+                        "token" => $token
+                ],
+                "more_data" => $patient
+            ]
         ], 201);
 
     } catch (\Throwable $e) {
@@ -168,20 +170,34 @@ class AuthController extends Controller
 
             return response()->json([ "message" =>"welcome back doctor ,$user->name" , 
             "status" => true , 
-            "role" => "doctor",
-            "token" => $token] , 200);
+            "user" => [
+                "main_data" => [
+                    "role" => "doctor",
+                    "token" => $token
+                ],
+                "more_data" =>  null
+                ]
+            ] , 200);
         }
         elseif($user->hasRole("patient"))
         {
             $patient = Patient::where("user_id" , $user->id)->first();
             return response(["message" =>"welcome back $user->name" ,
             "status" => true , 
-            "token" => $token ,
-            "role" => "patient"] , 200);
+            "user" => [
+                "main_data" => [
+                "token" => $token ,
+                "role" => "patient"
+                ],
+                "more_data" => null
+            ]
+                ] , 200);
         }
         else
         {
-            return response()->json(["error" => "Invalid login!!" ] , 403);
+            return response()->json(["message" => "Invalid login!!",
+                                            "status" => false 
+                                        ] , 403);
         }
     }
 
@@ -191,7 +207,7 @@ class AuthController extends Controller
 
         if (!$user) 
         {
-        return response()->json(["error" => "Unauthenticated." , 
+        return response()->json(["message" => "Unauthenticated." , 
         "status" => false ], 401);
         }
 

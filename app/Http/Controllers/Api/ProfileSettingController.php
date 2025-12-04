@@ -73,15 +73,20 @@ class ProfileSettingController extends Controller
         
 
         return response()->json(["message" => "information updated successfully!!" , 
-        "patient_basic_info_after_update" => [
+        "status" => true ,
+        "user" => [
+            "main_data_after_update" => [
+            "role" => "patient" ,
             "id" => $user->id , 
             "first_name" =>  $user->name , 
             "last_name" => $user->last_name , 
             "phone" => $user->phone , 
             "profile_image" => $user->profile_image,  
-            "role" => "patient"
+            
         ] , 
-        "patient_more_info_after_update" =>  $patient] , 200);
+        "more_data_after_update" =>  $patient
+        ],
+        ] , 200);
     }
 
 
@@ -92,15 +97,19 @@ class ProfileSettingController extends Controller
         $patient = $user->patient;
 
         return response()->json(["message" => "profile information" , 
-        "patient_basic_info" => [
+        "status" => true , 
+        "user" => [
+            "main_data" => [
             "id" => $user->id , 
             "first_name" =>  $user->name , 
             "last_name" => $user->last_name , 
             "phone" => $user->phone , 
             "profile_image" => $user->profile_image,  
             "role" => "patient"
-        ] , 
-        "patient_more_info" =>  $patient] , 200);
+            ],
+            "more_data" =>  $patient
+        ] 
+        ] , 200);
     }
 
     public function delete_account(Request $request)
@@ -120,7 +129,8 @@ class ProfileSettingController extends Controller
         $user->delete();
 
         return response()->json([
-        "message" => "Account deleted successfully"
+        "message" => "Account deleted successfully" , 
+        "status" => true 
         ], 200);
     }
 }
