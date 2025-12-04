@@ -121,17 +121,19 @@ class AuthController extends Controller
         return response()->json([
             "message"  => "Patient registered successfully.",
             "status"   => true,
-            "user"  => [
-                "main_data " => [
-                        "id"         => $user->id, 
-                        "first_name" => $user->name, 
-                        "last_name"  => $user->last_name, 
-                        "phone"      => $user->phone, 
-                        "profile_image" => $user->profile_image ,
-                        "role"       => "patient",
-                        "token" => $token
-                ],
-                "more_data" => $patient
+            "data" => [
+                "user"  => [
+                        "main_data " => [
+                            "id"         => $user->id, 
+                            "first_name" => $user->name, 
+                            "last_name"  => $user->last_name, 
+                            "phone"      => $user->phone, 
+                            "profile_image" => $user->profile_image ,
+                            "role"       => "patient",
+                            "token" => $token
+                        ],
+                        "more_data" => $patient
+            ]
             ]
         ], 201);
 
@@ -141,7 +143,8 @@ class AuthController extends Controller
         return response()->json([
             "message" => "Registration failed.",
             "status"  => false,
-            "error"   => $e->getMessage()       
+            "data"   =>
+            ["error" =>  $e->getMessage()]       
         ], 500);
     }
 }
@@ -157,7 +160,7 @@ class AuthController extends Controller
 
         if(empty($user) || !Hash::check(   $request->password , $user->password))
         {
-            return response()->json(["error" => "Invalid phone/password!!" ,
+            return response()->json(["message" => "Invalid phone/password!!" ,
             "status" => false] , 401);
         }
 
@@ -171,13 +174,15 @@ class AuthController extends Controller
 
             return response()->json([ "message" =>"welcome back doctor ,$user->name" , 
             "status" => true , 
-            "user" => [
-                "main_data" => [
-                    "role" => "doctor",
-                    "token" => $token
-                ],
-                "more_data" =>  null
-                ]
+            "data" => [
+                    "user" => [
+                        "main_data" => [
+                        "role" => "doctor",
+                        "token" => $token
+                        ],
+                    "more_data" =>  null
+                    ]
+            ]
             ] , 200);
         }
         elseif($user->hasRole("patient"))
@@ -185,12 +190,14 @@ class AuthController extends Controller
             $patient = Patient::where("user_id" , $user->id)->first();
             return response(["message" =>"welcome back $user->name" ,
             "status" => true , 
-            "user" => [
-                "main_data" => [
-                "token" => $token ,
-                "role" => "patient"
-                ],
-                "more_data" => null
+            "data" => [
+                "user" => [
+                    "main_data" => [
+                    "token" => $token ,
+                    "role" => "patient"
+                    ],
+                    "more_data" => null
+                ]
             ]
                 ] , 200);
         }

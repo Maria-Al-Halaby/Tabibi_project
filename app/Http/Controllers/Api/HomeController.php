@@ -56,10 +56,14 @@ class HomeController extends Controller
             ->get(['id', 'name', 'address']);
 
         return response()->json([
-            'promot'      => $promot,
-            'specialties' => $specialties,
-            'doctors'     => $doctors,
-            'centers'     => $centers,
+            "message" => "get home screen data" , 
+            "status" => true , 
+            "data" => [
+                'promot'      => $promot,
+                'specialties' => $specialties,
+                'doctors'     => $doctors,
+                'centers'     => $centers,
+            ]
         ], 200);
     }
 }

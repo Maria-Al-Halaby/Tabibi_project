@@ -28,7 +28,11 @@ class ClinicCenterController extends Controller
         ];
 
         return response()->json([
-            'center' => $data,
+            "message" => "get clinic center information" , 
+            "status" => true , 
+            "data" => [
+                'center' => $data,
+            ]
         ], 200);
     }
 }

@@ -76,18 +76,19 @@ class ProfileSettingController extends Controller
 
         return response()->json(["message" => "information updated successfully!!" , 
         "status" => true ,
-        "user" => [
-            "main_data_after_update" => [
-            "role" => "patient" ,
-            "id" => $user->id , 
-            "first_name" =>  $user->name , 
-            "last_name" => $user->last_name , 
-            "phone" => $user->phone , 
-            "profile_image" => $user->profile_image,  
-            
-        ] , 
-        "more_data_after_update" =>  $patient
-        ],
+        "data" => [
+                "user" => [
+                    "main_data_after_update" => [
+                    "role" => "patient" ,
+                    "id" => $user->id , 
+                    "first_name" =>  $user->name , 
+                    "last_name" => $user->last_name , 
+                    "phone" => $user->phone , 
+                    "profile_image" => $user->profile_image,  
+                ] , 
+                "more_data_after_update" =>  $patient
+            ],
+        ]
         ] , 200);
     }
 
@@ -100,17 +101,19 @@ class ProfileSettingController extends Controller
 
         return response()->json(["message" => "profile information" , 
         "status" => true , 
-        "user" => [
-            "main_data" => [
-            "id" => $user->id , 
-            "first_name" =>  $user->name , 
-            "last_name" => $user->last_name , 
-            "phone" => $user->phone , 
-            "profile_image" => $user->profile_image,  
-            "role" => "patient"
-            ],
-            "more_data" =>  $patient
-        ] 
+        "data" => [
+                "user" => [
+                "main_data" => [
+                "id" => $user->id , 
+                "first_name" =>  $user->name , 
+                "last_name" => $user->last_name , 
+                "phone" => $user->phone , 
+                "profile_image" => $user->profile_image,  
+                "role" => "patient"
+                ],
+                "more_data" =>  $patient
+            ] 
+        ]
         ] , 200);
     }
 

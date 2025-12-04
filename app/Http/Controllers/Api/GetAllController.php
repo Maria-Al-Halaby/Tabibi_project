@@ -14,8 +14,11 @@ class GetAllController extends Controller
     {
         $specialties = Specialization::select('id', 'name', 'image as img')->get();
 
-        return response()->json([
-                "specialties" => $specialties 
+        return response()->json([ "message" => "get all specialties" , 
+                "status" => true , 
+                "data" => [
+                    "specialties" => $specialties 
+                ]
         ], 200);
     }
 
@@ -110,11 +113,15 @@ class GetAllController extends Controller
     })->values(); 
 
     return response()->json([
-        'current_page' => $doctors->currentPage(),
-        'per_page'     => $doctors->perPage(),
-        'last_page'    => $doctors->lastPage(),
-        'total'        => $doctors->total(),
-        'doctors'      => $data,
+        "message" => "get all doctors" , 
+        "status" => true , 
+        "data" => [
+                'current_page' => $doctors->currentPage(),
+                'per_page'     => $doctors->perPage(),
+                'last_page'    => $doctors->lastPage(),
+                'total'        => $doctors->total(),
+                'doctors'      => $data,
+        ]
     ], 200);
 }
 
@@ -151,11 +158,15 @@ class GetAllController extends Controller
     })->values(); 
 
     return response()->json([
-        'current_page' => $centers->currentPage(),
-        'per_page'     => $centers->perPage(),
-        'last_page'    => $centers->lastPage(),
-        'total'        => $centers->total(),
-        'centers'      => $data,
+        "message" => "get all centers" , 
+        "status" => true ,
+        "data" => [
+            'current_page' => $centers->currentPage(),
+            'per_page'     => $centers->perPage(),
+            'last_page'    => $centers->lastPage(),
+            'total'        => $centers->total(),
+            'centers'      => $data,
+        ]
     ], 200);
 }
 
