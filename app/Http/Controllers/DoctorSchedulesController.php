@@ -39,6 +39,7 @@ class DoctorSchedulesController extends Controller
         'day_of_week.*' => ['integer','between:0,6'],
         'start_time'    => ['required','date_format:H:i'],
         'end_time'      => ['required','date_format:H:i','after:start_time'],
+        
         ]);
 
         $center = auth()->user()->clinic_center;
@@ -57,6 +58,7 @@ class DoctorSchedulesController extends Controller
         'day_of_week' => $day,
         'start_time'  => $data['start_time'],
         'end_time'    => $data['end_time'],
+        'doctor_id' => $doctor->id
         ]);
         }
 
