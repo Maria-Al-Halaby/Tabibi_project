@@ -30,9 +30,14 @@ class Doctor extends Model
         }
 
 
-    public function clinic_centers()
+    public function clinic_center()
     {
-        return $this->belongsToMany(ClinicCenter::class);
+        return $this->belongsToMany(
+        ClinicCenter::class,
+        'clinic_center_doctor',
+        'doctor_id',
+        'clinic_center_id'
+        )->withPivot('price');
     }
 
     public function appointments()

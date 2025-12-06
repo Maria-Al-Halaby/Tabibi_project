@@ -76,14 +76,33 @@
                         @enderror
                     </div>
                 </div>
+
+                <div class="row mb-4">
+
+                    <div class="col-md-6">
+                        <label for="priceInput" class="form-label fw-bold">Price:</label>
+                        <input type="number" class="form-control price-input-custom rounded-pill size border-b-2"  id="priceInput" name="price" placeholder="Enter Price for Appointment" value="{{ old('price') }}"
+                            class="form-control form-control-lg rounded-pill @error('price') is-invalid @enderror">
+                        @error('price')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                
+                    </div>
                 
                 <hr>
+                
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-tabibi btn-lg shadow-sm">
                         <i class="fas fa-save me-2"></i> Update Schedule
                     </button>
                 </div>
+
+            
+
+                
+
             </form>
         </div>
     </div>

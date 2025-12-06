@@ -20,7 +20,13 @@ class ClinicCenter extends Model
 
     public function doctors()
     {
-        return $this->belongsToMany(Doctor::class);
+            return $this->belongsToMany(
+            Doctor::class,
+            'clinic_center_doctor',  
+            'clinic_center_id',     
+            'doctor_id'            
+        );
+
     }
 
     public function appointments()

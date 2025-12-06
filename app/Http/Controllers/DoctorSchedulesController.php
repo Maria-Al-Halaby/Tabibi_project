@@ -39,14 +39,16 @@ class DoctorSchedulesController extends Controller
         'day_of_week.*' => ['integer','between:0,6'],
         'start_time'    => ['required','date_format:H:i'],
         'end_time'      => ['required','date_format:H:i','after:start_time'],
-        
+        "price" => ["required" ]
         ]);
 
         $center = auth()->user()->clinic_center;
 
         $pivot = ClinicCenterDoctor::firstOrCreate([
         'clinic_center_id' => $center->id,
-        'doctor_id' => $doctor->id]);
+        'doctor_id' => $doctor->id , 
+        "price" => $data["price"]
+        ]);
 
         DoctorSchedules::where('clinic_center_doctor_id', $pivot->id)
         ->whereIn('day_of_week', $data['day_of_week'])
@@ -101,6 +103,7 @@ class DoctorSchedulesController extends Controller
             'day_of_week.*' => ['integer','between:0,6'],
             'start_time'    => ['required','date_format:H:i'],
             'end_time'      => ['required','date_format:H:i','after:start_time'],
+            "price" => ["required"]
         ]);
 
         $user = auth()->user();

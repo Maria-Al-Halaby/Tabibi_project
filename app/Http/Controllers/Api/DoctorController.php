@@ -8,55 +8,65 @@ use Illuminate\Http\Request;
 
 class DoctorController extends Controller
 {
-    public function get_doctor($doctor_id) 
+    public function get_doctor($doctor_id)
     {
-        $doctor = Doctor::with([
+    $doctor = Doctor::with([
             'user',
             'specialization',
-            'clinic_centers',
-            'schedules' 
+            'clinic_center',                           
+            'schedules.clinicCenterDoctor.clinic_center', 
         ])
         ->withAvg('ratings', 'rating')
         ->withCount('ratings')
         ->findOrFail($doctor_id);
 
-    $data = [
-        'id'         => $doctor->id,
-        'first_name' => $doctor->user->name,
-        'last_name'  => $doctor->user->last_name,
-        'phone'      => $doctor->user->phone,
-        'email'      => $doctor->user->email,
-        'img'        => $doctor->user->profile_image,
-        'rate'       => $doctor->ratings_avg_rating
-                            ? round($doctor->ratings_avg_rating, 1)
-                            : 0,
-        'rate_count' => $doctor->ratings_count,
+    $groupedSchedules = $doctor->schedules
+        ->filter(function ($schedule) {
+            return $schedule->clinicCenterDoctor && $schedule->clinicCenterDoctor->clinic_center_id;
+        })
+        ->groupBy(function ($schedule) {
+            return $schedule->clinicCenterDoctor->clinic_center_id;
+        });
 
-        'specialty' => [
+    $centers = $doctor->clinic_center->map(function ($center) use ($groupedSchedules) {
+        $schedules = $groupedSchedules->get($center->id, collect());
+
+        $days = $schedules->pluck('day_of_week')->unique()->values()->all();
+
+        $firstSchedule = $schedules->first();
+
+        return [
+            'id'        => $center->id,
+            'name'      => $center->name,
+            'price'     => $center->pivot->price ?? null,         
+            'days'      => $days,                                 
+            'time_from' => optional($firstSchedule)->start_time,  
+            'time_to'   => optional($firstSchedule)->end_time,    
+        ];
+    });
+
+    $data = [
+        'id'               => $doctor->id,
+        'img'              => $doctor->user->profile_image,
+        'name'             => trim($doctor->user->name . ' ' . $doctor->user->last_name),
+        'rate'             => $doctor->ratings_avg_rating
+                                ? round($doctor->ratings_avg_rating, 1)
+                                : 0,
+        'experience_years' => $doctor->experience_years ?? null,
+        'specialty'        => [
             'id'   => $doctor->specialization?->id,
             'name' => $doctor->specialization?->name,
         ],
-
-        'centers' => $doctor->centers->map(function ($center) {
-            return [
-                'id'      => $center->id,
-                'name'    => $center->name,
-                'address' => $center->address,
-            ];
-        }),
-
-        'working_times' => $doctor->schedules->map(function ($schedule) {
-            return [
-                'day'        => $schedule->day_of_week,       
-                'start_time' => $schedule->start_time, 
-                'end_time'   => $schedule->end_time,   
-                'center_id'  => $schedule->clinic_center_doctor_id,  
-            ];
-        }),
+        'bio'              => $doctor->bio ?? null,
+        'centers'          => $centers,
     ];
 
     return response()->json([
-        'doctor' => $data
+        "message" => "doctor information" , 
+        "status" => true ,
+        "data" => $data
     ], 200);
-}
+    }
+
+
 }

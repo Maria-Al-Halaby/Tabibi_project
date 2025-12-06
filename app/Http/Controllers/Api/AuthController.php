@@ -123,7 +123,7 @@ class AuthController extends Controller
             "status"   => true,
             "data" => [
                 "user"  => [
-                        "main_data " => [
+                        "main_data" => [
                             "id"         => $user->id, 
                             "first_name" => $user->name, 
                             "last_name"  => $user->last_name, 

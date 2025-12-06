@@ -41,14 +41,20 @@ class DoctorController extends Controller
         "password" => "required|min:7",
         "phone" => "required",
         "specialization_id" => "required|exists:specializations,id",
-        "profile_image" => "nullable|image"
+        "profile_image" => "nullable|image" , 
+        "bio" => "required|string" , 
+        "experience_years" => "required|min:0|max:80"
     ]);
 
     $imagePath = "";
 
     if ($request->hasFile('profile_image')) {
-        $imagePath = $request->file('profile_image')
+        $path = $request->file('profile_image')
         ->store('doctors/doctors_profile_images', 'public'); 
+
+        $completePath = "storage/" . $path ;
+        
+        $imagePath = url($completePath);
     }
     else
     {
@@ -61,14 +67,16 @@ class DoctorController extends Controller
             "email" => $request->email , 
             "phone" => $request->phone,
             "password" => Hash::make($request->password), 
-            "profile_image" => $imagePath
+            "profile_image" => $imagePath , 
         ]);
 
         $user->assignRole("doctor");
 
         Doctor::create([
             "user_id" => $user->id, 
-            "specialization_id" => $request->specialization_id
+            "specialization_id" => $request->specialization_id , 
+            "bio" => $request->bio , 
+            "experience_years" => $request->experience_years
         ]);
 
         return redirect()->route("SuperAdmin.doctor.index")->with('message', 'Doctor added successfully!');
@@ -103,7 +111,9 @@ class DoctorController extends Controller
             "specialization_id" => "required|exists:specializations,id",
             "password" => "nullable|min:7",
             "phone" => "required|string", 
-            "profile_image" => "nullable|image"
+            "profile_image" => "nullable|image" , 
+            "bio" => "required|string" , 
+            "experience_years" => "required|min:0|max:80"
         ]);
 
         $user = $doctor->user;
@@ -114,7 +124,9 @@ class DoctorController extends Controller
         {
             $path = $request->file("profile_image")->store('doctors/doctors_profile_images', 'public');
 
-            $imagePath = "storage/". $path;
+            $completePath = "storage/" . $path ;
+
+            $imagePath = url($completePath);
         }
 
         $user->update([
@@ -126,7 +138,9 @@ class DoctorController extends Controller
         ]);
 
         $doctor->update([
-            "specialization_id" => $data["specialization_id"]
+            "specialization_id" => $data["specialization_id"], 
+            "bio" => $request->bio , 
+            "experience_years" => $request->experience_years
         ]);
 
         return redirect()->route("SuperAdmin.doctor.index")->with("message" , "doctor updated successfully!!");

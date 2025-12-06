@@ -19,4 +19,10 @@ class DoctorSchedules extends Model
     {
         $this->belongsTo(Doctor::class);
     }
+
+    public function clinicCenterDoctor()
+    {   
+    return $this->belongsTo(ClinicCenterDoctor::class);
+    }
+
 }

@@ -76,7 +76,7 @@ class GetAllController extends Controller
 
     public function get_all_doctor($specialization_id = 0, $center_id = 0) 
 {
-    $query = Doctor::with(['user', 'specialization', 'clinic_centers'])
+    $query = Doctor::with(['user', 'specialization', 'clinic_center'])
         ->withAvg('ratings', 'rating')
         ->withCount('ratings');
 
@@ -85,8 +85,8 @@ class GetAllController extends Controller
     }
 
     if ($center_id != 0) {
-        $query->whereHas('clinic_centers', function ($q) use ($center_id) {
-            $q->where('clinic_centers.id', $center_id);
+        $query->whereHas('clinic_center', function ($q) use ($center_id) {
+            $q->where('clinic_center.id', $center_id);
         });
     }
 
@@ -94,21 +94,24 @@ class GetAllController extends Controller
     $data = $doctors->getCollection()->map(function ($doctor) {
         return [
             'id'         => $doctor->id,
-            'first_name' => $doctor->user->name,
-            'last_name'  => $doctor->user->last_name,
-            'phone'      => $doctor->user->phone,
-            'email'      => $doctor->user->email,
+            'name' => $doctor->user->name,
+            //'last_name'  => $doctor->user->last_name,
+            //'phone'      => $doctor->user->phone,
+            //'email'      => $doctor->user->email,
             'img'        => $doctor->user->profile_image,
             'rate'       => $doctor->ratings_avg_rating ? round($doctor->ratings_avg_rating, 1) : 0,
+
+            'is_active'  => $doctor->clinic_center->isNotEmpty() ? 1 : 0,
+
             'specialty'  => [
-                'id'   => $doctor->specialization?->id,
+                //'id'   => $doctor->specialization?->id,
                 'name' => $doctor->specialization?->name,
-            ],
-            'center'     => [
+            ]
+            /*'center'     => [
                 'id'      => $doctor->center?->id ?? null,
                 'name'    => $doctor->center?->name ?? null,
                 'address' => $doctor->center?->address ?? null,
-            ],
+            ],*/
         ];
     })->values(); 
 
@@ -116,10 +119,12 @@ class GetAllController extends Controller
         "message" => "get all doctors" , 
         "status" => true , 
         "data" => [
-                'current_page' => $doctors->currentPage(),
-                'per_page'     => $doctors->perPage(),
-                'last_page'    => $doctors->lastPage(),
-                'total'        => $doctors->total(),
+                "page_info" => [
+                    'current_page' => $doctors->currentPage(),
+                    'per_page'     => $doctors->perPage(),
+                    'last_page'    => $doctors->lastPage(),
+                    'total'        => $doctors->total(),
+                ], 
                 'doctors'      => $data,
         ]
     ], 200);
@@ -152,8 +157,8 @@ class GetAllController extends Controller
             'id'      => $center->id,
             'img'     => $center->user->profile_image ?? null, 
             'name'    => $center->name,
-            'address' => $center->address,
-            'bio'     => $center->bio ?? null   
+            'location' => $center->address,
+            //'bio'     => $center->bio ?? null   
         ];
     })->values(); 
 
@@ -161,11 +166,13 @@ class GetAllController extends Controller
         "message" => "get all centers" , 
         "status" => true ,
         "data" => [
-            'current_page' => $centers->currentPage(),
-            'per_page'     => $centers->perPage(),
-            'last_page'    => $centers->lastPage(),
-            'total'        => $centers->total(),
-            'centers'      => $data,
+            "page_info" => [
+                'current_page' => $centers->currentPage(),
+                'per_page'     => $centers->perPage(),
+                'last_page'    => $centers->lastPage(),
+                'total'        => $centers->total(),
+            ],
+            'centers'     => $data,
         ]
     ], 200);
 }

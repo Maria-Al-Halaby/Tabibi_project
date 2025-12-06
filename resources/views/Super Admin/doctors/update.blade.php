@@ -155,6 +155,24 @@
                 @enderror
             </div>
 
+            <div class="mb-4">
+                <input type="number" name="experience_years"
+                    class="form-control form-control-custom @error('experience_years') is-invalid @enderror"
+                    placeholder="enter doctor experience years" value="{{ old( "experience_years" , $doctor->experience_years) }}">
+                @error('experience_years')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <input type="text" name="bio"
+                    class="form-control form-control-custom @error('bio') is-invalid @enderror"
+                    placeholder="enter doctor bio" value="{{ old("bio" , $doctor->bio) }}">
+                @error('bio')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- حقل كلمة المرور (Password) -->
             <div class="mb-4">
                 <input type="password" name="password"
@@ -165,6 +183,9 @@
                 @enderror
             </div>
 
+
+
+
             <!-- حقل صورة الملف الشخصي (Profile Image) -->
             <div class="mb-4 text-center">
                 <label for="profile_image_input" class="form-label fw-semibold text-muted">Change Doctor Image</label>
@@ -172,7 +193,7 @@
                 <!-- حاوية الصورة الحالية القابلة للنقر -->
                 <div class="img-preview-container" onclick="document.getElementById('profile_image_input').click()">
 
-                    <img src="{{ asset($doctor->user->profile_image) }}" alt="doctor profile image" class="img-preview"
+                    <img src="{{ /* asset($doctor->user->profile_image) */ $doctor->user->profile_image }}" alt="doctor profile image" class="img-preview"
                         onerror="this.onerror=null; this.src='https://placehold.co/120x120/008080/ffffff?text=DR';">
                 </div>
 

@@ -185,9 +185,9 @@
                 <!-- صورة البروفايل -->
                 <div class="profile-img-container">
                     <!-- يرجى التأكد من أن المسار $doctor->user->profile_image صحيح ومتاح -->
-                    <img src="{{ asset($doctor->user->profile_image) }}" alt="{{ $doctor->user->name }} profile image"
+                    <img src="{{ asset($doctor->user->profile_image)  /* $doctor->user->profile_image  */}}" alt="{{ $doctor->user->name }} profile image"
                         class="profile-img"
-                        onerror="this.onerror=null; this.src='https://placehold.co/80x80/6c757d/ffffff?text=DR'">
+                        onerror="this.onerror=null; this.src='https://placehold.co/80x80/6c757d/ffffff?text=DR' ">
                 </div>
 
                 <!-- المعلومات -->
