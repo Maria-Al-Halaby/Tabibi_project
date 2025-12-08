@@ -11,7 +11,9 @@ class Doctor extends Model
         "specialization_id", 
         "bio" , 
         "is_active" , 
-        "profile_image" 
+        "profile_image" , 
+        "bio" ,
+        "experience_years"
     ];
 
 
