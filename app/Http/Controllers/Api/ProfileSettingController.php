@@ -78,7 +78,7 @@ class ProfileSettingController extends Controller
         "status" => true ,
         "data" => [
                 "user" => [
-                    "main_data_after_update" => [
+                    "main_data" => [
                     "role" => "patient" ,
                     "id" => $user->id , 
                     "first_name" =>  $user->name , 
@@ -86,7 +86,7 @@ class ProfileSettingController extends Controller
                     "phone" => $user->phone , 
                     "profile_image" => $user->profile_image,  
                 ] , 
-                "more_data_after_update" =>  $patient
+                "more_data" =>  $patient
             ],
         ]
         ] , 200);
