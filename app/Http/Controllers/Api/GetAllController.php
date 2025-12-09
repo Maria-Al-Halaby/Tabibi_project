@@ -157,7 +157,7 @@ class GetAllController extends Controller
             'id'      => $center->id,
             'img'     => $center->user->profile_image ?? null, 
             'name'    => $center->name,
-            'location' => $center->address,
+            'address' => $center->address,
             //'bio'     => $center->bio ?? null   
         ];
     })->values(); 

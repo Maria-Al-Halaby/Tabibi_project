@@ -21,7 +21,7 @@ class HomeController extends Controller
 
         if ($randomPromot) {
             $promot[] = [
-                'img'         => $randomPromot->img,
+                'img'         => $randomPromot->image,
                 'information' => $randomPromot->information,
             ];
         }
@@ -29,7 +29,7 @@ class HomeController extends Controller
         $specialties = Specialization::select('id', 'name')->get();
 
         $doctors = FacadesCache::remember('home_doctors', 60 * 60, function () {
-            return Doctor::with(['specialization'])
+            return Doctor::with(['specialization' , 'clinic_center' , 'user'])
                 ->withAvg('ratings', 'rating')   
                 ->orderByDesc('ratings_avg_rating')
                 ->inRandomOrder()
@@ -40,8 +40,10 @@ class HomeController extends Controller
                         'id'    => $doctor->id,
                         'name'  => $doctor->user->name,          
                         'img'   => $doctor->user->profile_image, 
-                        'rate'  => round($doctor->ratings_avg_rating, 1),  
-                        'specialties' => [
+                        'rate'  => round($doctor->ratings_avg_rating, 1), 
+                        'is_active'  => $doctor->clinic_center->isNotEmpty() ? 1 : 0,
+
+                        'specialty' => [
                             'id'   => $doctor->specialization?->id,
                             'name' => $doctor->specialization?->name,
                         ],
@@ -49,11 +51,26 @@ class HomeController extends Controller
                 });
         });
 
-        $centersQuery = ClinicCenter::inRandomOrder();
+    /*        $centersQuery = ClinicCenter::inRandomOrder();
+            */
+
+        $centersQuery= ClinicCenter::with('user')->inRandomOrder();
 
         $centers = $centersQuery
             ->take(10)
-            ->get(['id', 'name', 'address']);
+            ->get(); 
+
+
+
+        $dataCenters = $centers->map(function ($center) {
+        return [
+            'id'      => $center->id,
+            'img'     => $center->user->profile_image ?? null, 
+            'name'    => $center->name,
+            'address' => $center->address,
+            //'bio'     => $center->bio ?? null   
+        ];
+        })->values(); 
 
         return response()->json([
             "message" => "get home screen data" , 
@@ -62,8 +79,11 @@ class HomeController extends Controller
                 'promot'      => $promot,
                 'specialties' => $specialties,
                 'doctors'     => $doctors,
-                'centers'     => $centers,
+                'centers'     => $dataCenters,
             ]
         ], 200);
     }
+
+
+
 }
