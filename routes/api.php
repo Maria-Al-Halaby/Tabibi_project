@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AppointmentsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClinicCenterController;
 use App\Http\Controllers\Api\DoctorController;
@@ -28,7 +29,7 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
     Route::post("delete_account" , [ProfileSettingController::class , "delete_account"]);
 
     /* home screen api route */
-    Route::get("/home" , [HomeController::class , "home"]);
+   // Route::get("/home" , [HomeController::class , "home"]);
 
     /* get all api's route */
     Route::get("/get_all_specialties" , [GetAllController::class , "get_all_specialties"]);
@@ -37,6 +38,20 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
 
     Route::get("/get_doctor/{doctor_id}" , [DoctorController::class , "get_doctor"]);
     Route::get("/get_clinic_center/{clinic_center_id}" , [ClinicCenterController::class , "show"]);
+
+
+    /* appointments route */
+
+    Route::get("/get_doctor_centers/{doctor}" , [AppointmentsController::class , "get_doctor_centers"]);
+    Route::get("/get_30_days/{doctor}/{center}" , [AppointmentsController::class , "getAtLeast30DaysAfterTodayForTheDoctorInThisCenter"]);
+    Route::get("/get_times_today/{doctor}/{center}/{date}" , [AppointmentsController::class , "getAvailableTimes"]);
+    Route::post("/appointment/{doctor}/{center}/{date}/{period}" , [AppointmentsController::class , "storeAppointment"]);
+    Route::get("/appointments" , [AppointmentsController::class , "index"]);
+});
+
+/* doctor api route  */
+Route::middleware(["auth:sanctum" , "role:doctor|patient"])->group(function(){
+    Route::get("/home" , [HomeController::class , "home"]);
 });
 
 Route::middleware("auth:sanctum")->group(function(){
