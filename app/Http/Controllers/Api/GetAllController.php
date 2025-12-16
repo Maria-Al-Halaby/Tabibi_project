@@ -86,8 +86,10 @@ class GetAllController extends Controller
 
     if ($center_id != 0) {
         $query->whereHas('clinic_center', function ($q) use ($center_id) {
-            $q->where('clinic_center.id', $center_id);
-        });
+            $q->where('clinic_centers.id', $center_id);
+        }); 
+        
+        
     }
 
     $doctors = $query->paginate(10);
