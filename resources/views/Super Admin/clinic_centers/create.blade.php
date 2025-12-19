@@ -73,7 +73,7 @@
             <i class="bi bi-hospital-fill me-2"></i> Add New Clinic Center
         </h3>
 
-        <form action="{{ route('SuperAdmin.clinic_center.store') }}" method="POST">
+        <form action="{{ route('SuperAdmin.clinic_center.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <!-- حقل اسم المركز (Name) -->
@@ -122,6 +122,15 @@
                     class="form-control form-control-custom @error('address') is-invalid @enderror"
                     placeholder="enter clinic center address" value="{{ old('address') }}" required>
                 @error('address')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="profile_image" class="form-label fw-semibold text-muted">Icon Image</label>
+                <input type="file" name="profile_image" id="profile_image"
+                    class="form-control @error('profile_image') is-invalid @enderror">
+                @error('profile_image')
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
             </div>

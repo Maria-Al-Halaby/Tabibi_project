@@ -128,6 +128,28 @@
                 @enderror
             </div>
 
+
+            <!-- حقل صورة الملف الشخصي (Profile Image) -->
+            <div class="mb-4 text-center">
+                <label for="profile_image_input" class="form-label fw-semibold text-muted">Change Image Icon</label>
+
+                <!-- حاوية الصورة الحالية القابلة للنقر -->
+                <div class="img-preview-container" onclick="document.getElementById('profile_image_input').click()">
+
+                    <img src="{{ /* asset($doctor->user->profile_image) */ $clinicCenter->user->profile_image }}"
+                        alt="Clinic Center image Icon" class="img-preview"
+                        onerror="this.onerror=null; this.src='https://placehold.co/120x120/008080/ffffff?text=DR';">
+                </div>
+
+                <!-- حقل إدخال الملف الفعلي (مخفي) -->
+                <input type="file" name="profile_image" id="profile_image_input"
+                    class="@error('profile_image') is-invalid @enderror">
+
+                @error('profile_image')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- زر الإرسال (Update) -->
             <div class="d-grid">
                 <input type="submit" value="Update" class="btn btn-main">

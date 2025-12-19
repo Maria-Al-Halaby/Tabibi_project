@@ -38,14 +38,21 @@ class ClinicCenterController extends Controller
             "email" => "required|email|unique:users,email", 
             "phone" => "required|string|unique:users,phone", 
             "password" => "required|string|min:7" , 
-            "address" => "required|string"
+            "address" => "required|string" ,
+            "profile_image" => "required|image"
         ]);
+
+        $image = $request->file("profile_image")->store("clinic_centers/icons/" , 'public');
+        $path = "storage/" . $image ;
+
+        $completePath = url($path);
 
         $user = User::create([
             "name" => $request->name , 
             "email" => $request->email , 
             "phone" => $request->phone , 
-            "password" => Hash::make($request->password) 
+            "password" => Hash::make($request->password) ,
+            "profile_image" => $completePath
         ]);
 
         $user->assignRole("admin");
@@ -87,15 +94,28 @@ class ClinicCenterController extends Controller
             'email'    => ['required','email', Rule::unique('users','email')->ignore($userId)],
             'phone'    => ['required','string', Rule::unique('users','phone')->ignore($userId)],
             "password" => "nullable|min:7" , 
-            "address" => "required|string"
+            "address" => "required|string" , 
+            "profile_image" => "nullable|image"
         ]);
+
+        if($request->hasFile("profile_image"))
+        {
+            $image = $request->file("profile_image")->store("clinic_centers/icons/" , 'public');
+            $path = "storage/" . $image ;
+
+            $completePath = url($path);
+        }else
+        {
+            $completePath = $clinicCenter->user->profile_image;
+        }
 
         $clinicCenter->user->update([
             "name" => $validateData["name"] , 
             "email" => $validateData["email"], 
             "phone" => $validateData["phone"], 
             "password" => empty($validateData["password"]) ? $clinicCenter->user->password 
-            : Hash::make($validateData["password"]) 
+            : Hash::make($validateData["password"]) , 
+            "profile_image" => $completePath 
         ]);
 
         $clinicCenter->update([

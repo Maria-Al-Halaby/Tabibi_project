@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('doctor_schedules', function (Blueprint $table) {
-            $table->foreignId("doctor_id")->constrained("doctors")->cascadeOnDelete()->
-            cascadeOnUpdate()->change(); 
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->float("result_ratio")->nullable();
+            $table->string("expected_disease")->nullable();
+            $table->boolean("is_risk")->nullable();
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('doctor_schedules', function (Blueprint $table) {
+        Schema::table('appointments', function (Blueprint $table) {
             //
         });
     }

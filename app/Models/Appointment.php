@@ -11,7 +11,10 @@ class Appointment extends Model
         "doctor_id",
         "clinic_center_id", 
         "start_at" , 
-        "status"
+        "status" , 
+        "result_ratio" , 
+        "expected_disease" , 
+        "is_risk"
     ];
 
     protected $casts = [
@@ -32,4 +35,15 @@ class Appointment extends Model
     {
         return $this->belongsTo(ClinicCenter::class);
     }
+
+    public function answers()  
+    {
+        return $this->hasMany(Answer::class);
+    }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
 }

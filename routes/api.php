@@ -3,10 +3,13 @@
 use App\Http\Controllers\Api\AppointmentsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClinicCenterController;
+use App\Http\Controllers\Api\DoctorAppointmentController;
 use App\Http\Controllers\Api\DoctorController;
+use App\Http\Controllers\Api\ForgetPasswordController;
 use App\Http\Controllers\Api\GetAllController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProfileSettingController;
+use App\Http\Controllers\Api\ResetPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +21,10 @@ use Illuminate\Support\Facades\Route;
 /* auth api'n route */
 Route::post("/register" , [AuthController::class , "register"]);
 Route::post("/login" , [AuthController::class , "login"]);
+
+ /* reset password api's */
+Route::post("password/forget_password" , [ForgetPasswordController::class , "forgetPassword"]);
+Route::post("password/reset_password" , [ResetPasswordController::class , "resetPassword"]);
 
 
 /* patient api's route  */
@@ -49,9 +56,21 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
     Route::get("/appointments" , [AppointmentsController::class , "index"]);
 });
 
-/* doctor api route  */
+/* doctor home screen route and appointments */
 Route::middleware(["auth:sanctum" , "role:doctor|patient"])->group(function(){
     Route::get("/home" , [HomeController::class , "home"]);
+    Route::get("/appointment_details/{appointment}" , [AppointmentsController::class , "appointment_details"]);
+    Route::post('/appointments/cancel', [AppointmentsController::class, 'cancel_appointment']);
+
+
+   
+});
+
+
+/* doctor api's */
+Route::middleware(["auth:sanctum" , "role:doctor"])->group(function(){
+    Route::get("/doctor/appointments/{center?}/{date?}" , [DoctorAppointmentController::class , "index"]);
+    Route::post('/doctor/appointments/end', [DoctorAppointmentController::class, 'end_appointment']);
 });
 
 Route::middleware("auth:sanctum")->group(function(){

@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('doctor_schedules', function (Blueprint $table) {
-            $table->foreignId("doctor_id")->constrained("doctors")->cascadeOnDelete()->
-            cascadeOnUpdate()->change(); 
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->text("doctor_note")->nullable();
         });
     }
 
@@ -22,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('doctor_schedules', function (Blueprint $table) {
+        Schema::table('appointments', function (Blueprint $table) {
             //
         });
     }

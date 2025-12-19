@@ -2,32 +2,31 @@
 
 namespace App\Notifications;
 
-use Ichtrojan\Otp\Otp;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-//use Otp;
-class ResetPasswordVerificationNotification extends Notification
+class SendPasswordNotification extends Notification
 {
     use Queueable;
-    public $message ;
+
+
+    public $message;
     public $subject;
     public $fromEmail;
-    public $malier;
-    private $otp;
+
+    public $mailer;
+
     /**
      * Create a new notification instance.
      */
     public function __construct()
     {
-        $this->message = "Use the below code for resetting your password";
-        $this->subject = "Password reseting";
+        $this->message = "you password is the word \'password\'";
+        $this->subject = "send your password in our system";
         $this->fromEmail = "hello@example.com";
-        $this->malier = "smtp";
-
-        $this->otp = new Otp;
+        $this->mailer = "smtp";
     }
 
     /**
@@ -45,18 +44,14 @@ class ResetPasswordVerificationNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-
-        $otp = $this->otp->generate($notifiable->email , "numeric", 6 , 15); 
-
         return (new MailMessage)
-            /* ->line('The introduction to the notification.')
+        /*       ->line('The introduction to the notification.')
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!'); */
-            ->mailer('smtp')
+            ->mailer("smtp")
             ->subject($this->subject)
-            ->greeting("Hello " . $notifiable->name)
-            ->line($this->message)
-            ->line("code : " . $otp->token);
+            ->greeting("Hi there how are you today...")
+            ->line($this->message);
     }
 
     /**
@@ -70,4 +65,4 @@ class ResetPasswordVerificationNotification extends Notification
             //
         ];
     }
-}   
+}

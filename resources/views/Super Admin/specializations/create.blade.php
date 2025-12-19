@@ -66,7 +66,7 @@
             <i class="bi bi-tag-fill me-2"></i> Add New Specialization
         </h3>
 
-        <form action="{{ route('SuperAdmin.specialization.store') }}" method="POST">
+        <form action="{{ route('SuperAdmin.specialization.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <!-- حقل اسم الاختصاص (Name) -->
@@ -75,6 +75,16 @@
                     class="form-control form-control-custom @error('name') is-invalid @enderror"
                     placeholder="enter specialization name" value="{{ old('name') }}" required>
                 @error('name')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+
+            <div class="mb-4">
+                <label for="image" class="form-label fw-semibold text-muted">Image</label>
+                <input type="file" name="image" id="image"
+                    class="form-control @error('image') is-invalid @enderror">
+                @error('image')
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
             </div>

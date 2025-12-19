@@ -68,7 +68,8 @@
             <i class="bi bi-pencil-square me-2"></i> Update Specialization
         </h3>
 
-        <form action="{{ route('SuperAdmin.specialization.update', $specialization->id) }}" method="POST">
+        <form action="{{ route('SuperAdmin.specialization.update', $specialization->id) }}" method="POST"
+            enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -78,6 +79,26 @@
                     class="form-control form-control-custom @error('name') is-invalid @enderror"
                     placeholder="enter specialization name" value="{{ old('name', $specialization->name) }}" required>
                 @error('name')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+
+            <div class="mb-4 text-center">
+                <label for="image_input" class="form-label fw-semibold text-muted">Change Image</label>
+
+                <!-- حاوية الصورة الحالية القابلة للنقر -->
+                <div class="img-preview-container" onclick="document.getElementById('image_input').click()">
+
+                    <img src="{{ /* asset($doctor->user->profile_image) */ $specialization->image }}" alt="image"
+                        class="img-preview"
+                        onerror="this.onerror=null; this.src='https://placehold.co/120x120/008080/ffffff?text=DR';">
+                </div>
+
+                <!-- حقل إدخال الملف الفعلي (مخفي) -->
+                <input type="file" name="image" id="image_input" class="@error('image') is-invalid @enderror">
+
+                @error('image')
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
             </div>

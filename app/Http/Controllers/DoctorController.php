@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\Specialization;
 use App\Models\User;
+use App\Notifications\SendPasswordNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Contracts\Role;
@@ -78,6 +79,8 @@ class DoctorController extends Controller
             "bio" => $request->bio , 
             "experience_years" => $request->experience_years
         ]);
+
+        //$user->notify(new SendPasswordNotification);
 
         return redirect()->route("SuperAdmin.doctor.index")->with('message', 'Doctor added successfully!');
 

@@ -366,4 +366,107 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
     });
 }
 
+    public function  appointment_details(Appointment $appointment)
+    {
+        $user = auth()->user();
+
+        $isPatientOwner = $user->hasRole('patient') && optional($user->patient)->id === $appointment->patient_id;
+        $isDoctorOwner  = $user->hasRole('doctor') && optional($user->doctor)->id === $appointment->doctor_id;
+
+    if (!$isPatientOwner && !$isDoctorOwner) {
+        return response()->json(['message' => 'Unauthorized' , 
+    "status" => false 
+        ],
+    403);
+    }
+
+    $appointment->load([
+        'patient.user',
+        'answers.question',  
+    ]);
+
+    $patient = $appointment->patient;
+    $patientUser = $patient?->user;
+
+    $diagnose = null;
+
+    $hasDiagnoseColumns =
+        isset($appointment->result_ratio) ||
+        isset($appointment->expected_disease) ||
+        isset($appointment->is_risk);
+
+    if ($hasDiagnoseColumns || ($appointment->relationLoaded('answers') && $appointment->answers->isNotEmpty())) {
+        $diagnose = [
+            'result_ratio'      => $appointment->result_ratio ?? null,
+            'expected_disease'  => $appointment->expected_disease ?? null,
+            'is_risk'           => $appointment->is_risk ?? null,
+            'answers' => $appointment->answers?->map(function ($a) {
+                return [
+                    'question' => $a->question?->question ?? $a->question?->title ?? null,
+                    'answer'   => $a->answer ?? null,
+                ];
+            })->values() ?? [],
+        ];
+    }
+
+    return response()->json([
+        'appointment' => [
+            'status' => $appointment->status,
+            'patient' => [
+                'img'       => $patientUser?->profile_image ?? null,
+                'full_name' => $patientUser?->name  . " " . $patientUser?->last_name ?? '',
+                'gender'    => $patient?->gender ?? null,
+                //'age'       => $patient?->age ?? null,
+                'height'    => $patient?->height ?? null,
+                'weight'    => $patient?->weight ?? null,
+                'has_children' => $patient->has_children ?? null ,
+                'number_of_children' => $patient->number_of_children ?? null , 
+                'birth_date' => $patient->birth_date ?? null ,
+                'smoker'    => $patient?->smoker ?? null,
+                'marital_status' => $patient?->marital_status ?? null,
+            ],
+            'note' => $appointment->note ?? null, 
+            'diagnose' => $diagnose, // nullable
+
+            'date' => Carbon::parse($appointment->start_at)->toDateString(),
+            'time' => Carbon::parse($appointment->start_at)->format('H:i'),
+        ]
+    ]);
+    }
+
+    public function cancel_appointment(Request $request)
+    {
+        $data = $request->validate([
+        'appointment_id' => 'required|exists:appointments,id',
+    ]);
+
+    $appointment = Appointment::findOrFail($data['appointment_id']);
+    $user = auth()->user();
+
+    $isPatientOwner = $user->hasRole('patient') && optional($user->patient)->id === $appointment->patient_id;
+    $isDoctorOwner  = $user->hasRole('doctor') && optional($user->doctor)->id === $appointment->doctor_id;
+
+    if (!$isPatientOwner && !$isDoctorOwner) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    if ($appointment->status === 'finished') {
+        return response()->json(['message' => 'Cannot cancel a finished appointment',
+    "status" => false
+    ], 422);
+    }
+
+    $appointment->update(['status' => 'canceled']);
+
+    return response()->json([
+        'message' => 'Appointment canceled',
+        'status' => true,
+        'data' => [
+            'appointment_id' => $appointment->id,
+            'new_status' => $appointment->status,
+        ]
+    ]);
+    }
+
+
 }

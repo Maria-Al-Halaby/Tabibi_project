@@ -31,10 +31,21 @@ class SpecializationController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(["name" => "required|string"]);
+        $request->validate([
+        "name" => "required|string" , 
+        "image" => "required|image"
+        ]);
+
+
+        $image = $request->file("image")->store("/specializations/icon" , "public");
+
+        $path = "storage/" . $image ;
+        
+        $completeImagePath = url($path);
 
         Specialization::create([
-            "name" => $request->name
+            "name" => $request->name , 
+            "image" => $completeImagePath
         ]);
 
         return redirect()->route("SuperAdmin.specialization.index")->with("message" , "specialization created successfully!!");
@@ -61,9 +72,24 @@ class SpecializationController extends Controller
      */
     public function update(Request $request, Specialization $specialization)
     {
-        $request->validate(["name" => "required|string"]);
+        $request->validate(["name" => "required|string" ,
+                                    "image" => "nullable|image"
+                                ]);
 
-        $specialization->update(["name" => $request->name]);
+        if($request->hasFile("image"))
+        {
+            $image = $request->file("image")->store('/specializations/icon' , "public");
+            $path = "storage/" . $image;
+            $completePath = url($path);
+        }
+        else
+        {
+            $completePath =  $specialization->image;
+        }
+
+        $specialization->update(["name" => $request->name ,
+                                            "image" => $completePath
+                                            ]);
 
         return redirect()->route("SuperAdmin.specialization.index")->with("message" , "specializtion updated successfully!!");
     }

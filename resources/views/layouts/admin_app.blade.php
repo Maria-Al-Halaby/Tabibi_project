@@ -109,11 +109,11 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
+                    {{--   <li class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-calendar-check me-1"></i> Secretary
                         </a>
-                    </li>
+                    </li> --}}
                 </ul>
 
                 <form action="{{ route('logout') }}" method="POST" class="d-flex ms-auto">

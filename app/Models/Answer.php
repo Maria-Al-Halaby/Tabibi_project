@@ -15,4 +15,10 @@ class Answer extends Model
     {
         return $this->belongsTo(Patient::class);
     }
+
+    public function question()
+    { 
+        return $this->belongsTo(Question::class); 
+    }
+
 }
