@@ -14,7 +14,8 @@ class Appointment extends Model
         "status" , 
         "result_ratio" , 
         "expected_disease" , 
-        "is_risk"
+        "is_risk" , 
+        "doctor_note"
     ];
 
     protected $casts = [

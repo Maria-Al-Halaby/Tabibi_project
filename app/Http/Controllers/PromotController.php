@@ -12,7 +12,9 @@ class PromotController extends Controller
      */
     public function index()
     {
-        //
+        $promots = Promot::all();
+
+        return view("Super Admin.promot.index" , compact("promots"));
     }
 
     /**
@@ -20,7 +22,7 @@ class PromotController extends Controller
      */
     public function create()
     {
-        //
+        return view("Super Admin.promot.create");
     }
 
     /**
@@ -28,7 +30,23 @@ class PromotController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'information' => ["required" , 'string'] , 
+            'image' => ["required" , 'file']
+        ]);
+
+        $image = $request->file("image")->store("Promot/Images" , "public");
+
+        $imagePath = "storage/" . $image ;
+
+        $imageCompletePath = url($imagePath);
+
+        Promot::create([
+            "information" => $request->information , 
+            "image" => $imageCompletePath
+        ]);
+
+        return redirect()->route("SuperAdmin.Promot.index")->with("message" , "promot added successfully!!");
     }
 
     /**
@@ -44,7 +62,7 @@ class PromotController extends Controller
      */
     public function edit(Promot $promot)
     {
-        //
+        return view("Super Admin.promot.edit" , compact('promot'));
     }
 
     /**
@@ -52,7 +70,33 @@ class PromotController extends Controller
      */
     public function update(Request $request, Promot $promot)
     {
-        //
+        $request->validate([
+            "information" => ["required" , "string"], 
+            "image" => ["nullable" , 'file']
+        ]);
+
+        $imageCompletePath = null;
+
+        if($request->hasFile("image"))
+        {
+            $image = $request->file("image")->store("Promot/Images" , "public");
+
+            $imagePath = "storage/" . $image ;
+
+            $imageCompletePath = url($imagePath);
+        }
+        else
+        {
+            $imageCompletePath = $promot->image;
+        }
+
+
+        $promot->update([
+            'information' => $request->information , 
+            "imgage" => $imageCompletePath
+        ]);
+
+        return redirect()->route("SuperAdmin.Promot.index")->with("message" , "promot updated successfully!!");
     }
 
     /**
@@ -60,6 +104,8 @@ class PromotController extends Controller
      */
     public function destroy(Promot $promot)
     {
-        //
+        $promot->delete();
+
+        return redirect()->route("SuperAdmin.Promot.index")->with("message" , "promot deleted successfully!!");
     }
 }

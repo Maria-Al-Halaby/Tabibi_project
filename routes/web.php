@@ -8,11 +8,13 @@ use App\Http\Controllers\ClinicManagement;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorSchedulesController;
 use App\Http\Controllers\FirebaseController;
+use App\Http\Controllers\PromotController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\DoctorSchedules;
+use App\Models\Promot;
 use App\Models\Specialization;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -62,7 +64,12 @@ Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/
     Route::delete("/delete/clinic_center/{clinicCenter}" , [ClinicCenterController::class ,"destroy"])->name("SuperAdmin.clinic_center.destroy");
 
 
-    
+    Route::get("/promot" , [PromotController::class , 'index'])->name("SuperAdmin.Promot.index");
+    Route::get("/add_new/promot" , [PromotController::class , 'create'])->name("SuperAdmin.Promot.create");
+    Route::post("/add_new/promot" , [PromotController::class , "store"])->name("SuperAdmin.Promot.store");
+    Route::get("/update/promot/{promot}" , [PromotController::class , 'edit'])->name("SuperAdmin.Promot.edit");
+    Route::put("/update/promot/{promot}" , [PromotController::class , 'update'])->name("SuperAdmin.Promot.update");
+    Route::get("delete/promot/{promot}" , [PromotController::class , 'destroy'])->name("SuperAdmin.Promot.destroy");
 
 });
 

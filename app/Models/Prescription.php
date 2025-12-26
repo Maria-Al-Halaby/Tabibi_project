@@ -10,7 +10,8 @@ class Prescription extends Model
         'appointment_id', 
         'medicine', 
         'dose', 
-        'duration'
+        'duration' , 
+        'prescriptions_note'
         ];
 
     public function appointment()

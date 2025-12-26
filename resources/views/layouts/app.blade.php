@@ -112,6 +112,12 @@
                             <i class="bi bi-hospital-fill"></i> Clinic Centers
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('SuperAdmin.Promot.index') }}">
+                            <i class="bi bi-boxes"></i> Promot
+                        </a>
+                    </li>
                 </ul>
 
                 <form action="{{ route('logout') }}" method="POST" class="d-flex ms-auto">

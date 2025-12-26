@@ -20,7 +20,7 @@ class DoctorAppointmentController extends Controller
         $centerId = ($center === null || $center === '0') ? null : (int) $center;
         $date = $date ?? 'today';
 
-        $query = Appointment::with(['patient.user'])
+        $query = Appointment::with(['patient.user' , 'clinic_center:id,name'])
             ->where('doctor_id', $doctor->id);
 
         if ($centerId) {
@@ -73,6 +73,7 @@ class DoctorAppointmentController extends Controller
                 'status' => $a->status,
                 'date' => Carbon::parse($a->start_at)->toDateString(),
                 'time' => Carbon::parse($a->start_at)->format('H:i'),
+                'clinic_center_name' => $a->clinic_center?->name
             ];
         })->values();
 
@@ -83,7 +84,7 @@ class DoctorAppointmentController extends Controller
         ]);
     }
 
-    public function end_appointment(Request $request)
+/*     public function end_appointment(Request $request)
     {
         $data = $request->validate([
         'appointment_id' => 'required|exists:appointments,id',
@@ -150,7 +151,59 @@ class DoctorAppointmentController extends Controller
             ]
         ], 200);
     });
+    } */
+
+
+    public function end_appointment(Request $request)
+    {
+    $data = $request->validate([
+        'appointment_id'     => 'required|exists:appointments,id',
+        'note'               => 'nullable|string|max:2000',
+        'prescription_note'  => 'nullable|string|max:5000',
+    ]);
+
+    $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+
+    $appointment = Appointment::where('id', $data['appointment_id'])
+        ->where('doctor_id', $doctor->id)
+        ->firstOrFail();
+
+    if ($appointment->status === 'canceled') {
+        return response()->json([
+            'message' => 'Cannot end a canceled appointment',
+            'status' => false
+        ], 422);
     }
+
+    if ($appointment->status === 'completed') {
+        return response()->json([
+            'message' => 'Appointment already finished',
+            'status' => false
+        ], 422);
+    }
+
+    DB::transaction(function () use ($appointment, $data) {
+
+        $appointment->update([
+            'status'      => 'completed',
+            'end_at'      => now(),
+            'doctor_note' => $data['note'] ?? null,
+        ]);
+
+        $appointment->prescriptions()->delete();
+
+        if (!empty($data['prescription_note'])) {
+            $appointment->prescriptions()->create([
+                'note' => $data['prescription_note'], 
+            ]);
+        }
+    });
+
+    return response()->json([
+        'message' => 'Appointment finished successfully',
+        'status'  => true,
+    ], 200);
+    }   
 
 }
 
