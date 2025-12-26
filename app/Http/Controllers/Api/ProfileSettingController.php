@@ -129,13 +129,18 @@ class ProfileSettingController extends Controller
 
             return response()->json(["message" => "doctor profile setting" , 
             "status" => true ,
-            "user" => [
-                "main_data" => [
-                    "id" => $doctor->id , 
-                    "name" => $user->name , 
-                    "profile_image" => $user->profile_image ?? null , 
-                    "centers" => $centers
-                ], 
+            "data" => [
+                "user" => [
+                    "main_data" => [
+                        "id" => $doctor->id , 
+                        "first_name" => $user->name , 
+                        "last_name" => $user->last_name, 
+                        "phone" => $user->phone , 
+                        "role" => "doctor" , 
+                        "profile_image" => $user->profile_image ?? null , 
+                        "centers" => $centers
+                        ], 
+                ] ,
                 "more_data" => null 
             ]] , 200);
         }else
