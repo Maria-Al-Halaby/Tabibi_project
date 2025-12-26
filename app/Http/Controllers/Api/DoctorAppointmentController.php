@@ -28,19 +28,34 @@ class DoctorAppointmentController extends Controller
         }
 
         if ($date === 'today') {
-            $query->whereDate('start_at', Carbon::today());
+            //$query->whereDate('start_at', Carbon::today());
+            $query->whereBetween('start_at', [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()]);
+
         } elseif ($date === 'tomorrow') {
-            $query->whereDate('start_at', Carbon::tomorrow());
+            //$query->whereDate('start_at', Carbon::tomorrow());
+            $query->whereBetween('start_at', [Carbon::tomorrow()->startOfDay(), Carbon::tomorrow()->endOfDay()]);
+
         } elseif ($date === 'this_week') {
-            $query->whereBetween('start_at', [
+            /* $query->whereBetween('start_at', [
                 Carbon::today()->startOfDay(),
                 Carbon::today()->endOfWeek()->endOfDay(),
+            ]); */
+            $query->whereBetween('start_at', 
+            [Carbon::today()->startOfWeek()->startOfDay(), 
+            Carbon::today()->endOfWeek()->endOfDay()
             ]);
+
         } else {
             // YYYY-MM-DD
             try {
                 $day = Carbon::createFromFormat('Y-m-d', $date);
-                $query->whereDate('start_at', $day);
+                //$query->whereDate('start_at', $day);
+                $query->whereBetween('start_at', 
+        [
+                    $day->startOfDay(), 
+                    $day->endOfDay()
+                ]);
+
             } catch (\Exception $e) {
                 return response()->json([
                     'message' => 'Invalid date. Use today|tomorrow|this_week|YYYY-MM-DD'
@@ -54,6 +69,7 @@ class DoctorAppointmentController extends Controller
             return [
                 'id' => $a->id,
                 'patient_name' => $a->patient?->user?->name ?? '',
+                'patient_profile' => $a->patient?->user?->profile_image ?? null , 
                 'status' => $a->status,
                 'date' => Carbon::parse($a->start_at)->toDateString(),
                 'time' => Carbon::parse($a->start_at)->format('H:i'),
@@ -90,7 +106,6 @@ class DoctorAppointmentController extends Controller
     ], 422);
     }
 
-    // لا تعيد إنهاء موعد منتهي
     if ($appointment->status === 'finished') {
         return response()->json(['message' => 'Appointment already finished', 
     "status" => false 

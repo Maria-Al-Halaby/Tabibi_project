@@ -32,7 +32,7 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
 {
     /* profile api's route */
     Route::put("update_profile" , [ProfileSettingController::class , "update"]);
-    Route::get("get_profile" , [ProfileSettingController::class , "get_profile"]);
+    //Route::get("get_profile" , [ProfileSettingController::class , "get_profile"]);
     Route::post("delete_account" , [ProfileSettingController::class , "delete_account"]);
 
     /* home screen api route */
@@ -60,10 +60,14 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
 Route::middleware(["auth:sanctum" , "role:doctor|patient"])->group(function(){
     Route::get("/home" , [HomeController::class , "home"]);
     Route::get("/appointment_details/{appointment}" , [AppointmentsController::class , "appointment_details"]);
-    Route::post('/appointments/cancel', [AppointmentsController::class, 'cancel_appointment']);
+    Route::post('/appointments/cancel', [AppointmentsController::class, "cancelAppointment"]);
+
+    /* get profile api */
+
+    Route::get("get_profile" , [ProfileSettingController::class , "get_profile"]);
 
 
-   
+
 });
 
 

@@ -32,7 +32,7 @@ class HomeController extends Controller
                 ];
             }
 
-            $specialties = Specialization::select('id', 'name')->get();
+            $specialties = Specialization::select('id', 'name' , 'image')->get();
 
             $doctors = FacadesCache::remember('home_doctors', 60 * 60, function () {
                 return Doctor::with(['specialization' , 'clinic_center' , 'user'])
@@ -52,6 +52,8 @@ class HomeController extends Controller
                             'specialty' => [
                                 'id'   => $doctor->specialization?->id,
                                 'name' => $doctor->specialization?->name,
+                                //'img' => $doctor->specialization?->image
+                                
                             ],
                         ];
                     });

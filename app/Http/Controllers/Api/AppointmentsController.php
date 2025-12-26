@@ -434,7 +434,7 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
     ]);
     }
 
-    public function cancel_appointment(Request $request)
+    public function cancelAppointment(Request $request)
     {
         $data = $request->validate([
         'appointment_id' => 'required|exists:appointments,id',

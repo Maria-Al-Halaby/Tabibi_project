@@ -97,24 +97,52 @@ class ProfileSettingController extends Controller
     {
         $user = $request->user();
 
-        $patient = $user->patient;
+        if(auth()->user()->hasRole("patient"))
+        {
+            $patient = $user->patient;
 
-        return response()->json(["message" => "profile information" , 
-        "status" => true , 
-        "data" => [
-                "user" => [
+            return response()->json(["message" => "profile information" , 
+                "status" => true , 
+                "data" => [
+                    "user" => [
+                        "main_data" => [
+                        "id" => $user->id , 
+                        "first_name" =>  $user->name , 
+                        "last_name" => $user->last_name , 
+                        "phone" => $user->phone , 
+                        "profile_image" => $user->profile_image,  
+                        "role" => "patient"
+                        ],
+                        "more_data" =>  $patient
+                            ] 
+                    ]
+                                        ] , 200);
+        }elseif(auth()->user()->hasRole("doctor"))
+        {
+            $doctor = $user->doctor;
+
+            $centers = $doctor->clinic_center()
+            ->select('clinic_centers.id', 'clinic_centers.name')
+            ->get()
+            ->makeHidden('pivot');;
+
+
+            return response()->json(["message" => "doctor profile setting" , 
+            "status" => true ,
+            "user" => [
                 "main_data" => [
-                "id" => $user->id , 
-                "first_name" =>  $user->name , 
-                "last_name" => $user->last_name , 
-                "phone" => $user->phone , 
-                "profile_image" => $user->profile_image,  
-                "role" => "patient"
-                ],
-                "more_data" =>  $patient
-            ] 
-        ]
-        ] , 200);
+                    "id" => $doctor->id , 
+                    "name" => $user->name , 
+                    "profile_image" => $user->profile_image ?? null , 
+                    "centers" => $centers
+                ], 
+                "more_data" => null 
+            ]] , 200);
+        }else
+        {
+            return response()->json(["message" => "Invalid request!!" , 
+            "status" => false] , 403);
+        }
     }
 
     public function delete_account(Request $request)

@@ -45,7 +45,7 @@ class AppointmentsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Appointments $appointments)
+    public function show(Appointment $appointments)
     {
         //
     }
@@ -53,7 +53,7 @@ class AppointmentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Appointments $appointments)
+    public function edit(Appointment $appointments)
     {
         //
     }
@@ -61,7 +61,7 @@ class AppointmentsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Appointments $appointments)
+    public function update(Request $request, Appointment $appointments)
     {
         //
     }
@@ -69,7 +69,7 @@ class AppointmentsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Appointments $appointments)
+    public function destroy(Appointment $appointments)
     {
         //
     }
