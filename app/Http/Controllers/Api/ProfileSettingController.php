@@ -140,8 +140,8 @@ class ProfileSettingController extends Controller
                         "profile_image" => $user->profile_image ?? null , 
                         "centers" => $centers
                         ], 
-                ] ,
-                "more_data" => null 
+                        "more_data" => null 
+                ] 
             ]] , 200);
         }else
         {
