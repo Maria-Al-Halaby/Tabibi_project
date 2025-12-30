@@ -12,7 +12,7 @@ class GetAllController extends Controller
 {
     public function get_all_specialties()  
     {
-        $specialties = Specialization::select('id', 'name', 'image as img')->get();
+        $specialties = Specialization::select('id', 'name', 'image')->get();
 
         return response()->json([ "message" => "get all specialties" , 
                 "status" => true , 

@@ -15,7 +15,8 @@ class Appointment extends Model
         "result_ratio" , 
         "expected_disease" , 
         "is_risk" , 
-        "doctor_note"
+        "doctor_note" , 
+        "note"
     ];
 
     protected $casts = [
@@ -44,7 +45,12 @@ class Appointment extends Model
 
     public function prescriptions()
     {
-        return $this->hasMany(Prescription::class);
+        return $this->hasMany(Prescription::class , 'appointment_id');
+    }
+
+    public function rating()
+    {
+        return $this->hasOne(DoctorRating::class, 'appointment_id');
     }
 
 }

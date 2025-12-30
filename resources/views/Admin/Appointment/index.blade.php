@@ -27,7 +27,7 @@
                         <div class="mb-2">
                             <p class="mb-0 text-muted small">Patient Name:</p>
                             <p class="fw-bold mb-0 text-dark">
-                                <i class="fas fa-user me-2 text-secondary"></i> {{ $appointment->user->name }}
+                                <i class="fas fa-user me-2 text-secondary"></i> {{ $appointment->patient->user->name }}
                             </p>
                         </div>
 
@@ -49,12 +49,13 @@
                     </div>
 
                     <div class="card-footer bg-light border-0 text-end">
-                        <a href="#" class="btn btn-sm btn-outline-danger rounded-pill">
+                        <a href="{{ route('Admin.Appointment.cancel', $appointment->id) }}"
+                            class="btn btn-sm btn-outline-danger rounded-pill">
                             <i class="fas fa-times-circle me-1"></i> Cancel
                         </a>
-                        <a href="#" class="btn btn-sm btn-outline-warning rounded-pill">
+                        {{--   <a href="#" class="btn btn-sm btn-outline-warning rounded-pill">
                             <i class="fas fa-info-circle me-1"></i> Details
-                        </a>
+                        </a> --}}
                     </div>
                 </div>
             </div>

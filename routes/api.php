@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClinicCenterController;
 use App\Http\Controllers\Api\DoctorAppointmentController;
 use App\Http\Controllers\Api\DoctorController;
+use App\Http\Controllers\Api\DoctorRatingController;
 use App\Http\Controllers\Api\ForgetPasswordController;
 use App\Http\Controllers\Api\GetAllController;
 use App\Http\Controllers\Api\HomeController;
@@ -54,6 +55,12 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
     Route::get("/get_times_today/{doctor}/{center}/{date}" , [AppointmentsController::class , "getAvailableTimes"]);
     Route::post("/appointment/{doctor}/{center}/{date}/{period}" , [AppointmentsController::class , "storeAppointment"]);
     Route::get("/appointments" , [AppointmentsController::class , "index"]);
+
+    /* patient rating doctor api */
+
+    Route::post('/patient/appointments/rate', [DoctorRatingController::class, 'rateAppointment']);
+    Route::get('/patient/appointments/{appointment_id}/rating', [DoctorRatingController::class, 'showAppointmentRating']);
+    //Route::get('patient_has_rating/{doctor}' , [DoctorRatingController::class , 'hasRated']);
 });
 
 /* doctor home screen route and appointments */
@@ -61,6 +68,10 @@ Route::middleware(["auth:sanctum" , "role:doctor|patient"])->group(function(){
     Route::get("/home" , [HomeController::class , "home"]);
     Route::get("/appointment_details/{appointment}" , [AppointmentsController::class , "appointment_details"]);
     Route::post('/appointments/cancel', [AppointmentsController::class, "cancelAppointment"]);
+
+    /* reset password inside app */
+
+    Route::post('/reset_password_after_auth' , [ResetPasswordController::class , "reset_password_after_auth"]);
 
     /* get profile api */
 

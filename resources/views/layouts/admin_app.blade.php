@@ -14,7 +14,7 @@
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJ8uR2dIQ7dFwF4yE4fJbQ/jA7J0n6m7n+2x5tK5F5d5f5m5z5A5q5u5z5Q=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <style>
+    <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">    <style>
         /* 🎨 تنسيقات مخصصة لتطابق تصميم Tabibi */
         :root {
             --tabibi-primary-color: #20b2aa;

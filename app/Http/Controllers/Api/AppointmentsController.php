@@ -23,22 +23,24 @@ class AppointmentsController extends Controller
 
     if (!$patientId) {
         return response()->json(['message' => 'Patient not found' ,
-    "status" => false], 422);
-    }
+        "status" => false], 422);
+        }
 
     $appointments = Appointment::with([
             'doctor.user',
             'doctor.specialization',
             'doctor.ratings',
+            'prescriptions'
         ])
         ->where('patient_id', $patientId)
         ->orderByDesc('start_at')
         ->get();
 
     $grouped = [
-        'finished' => [],
+        //'finished' => [],
         'pending'  => [],
         'canceled' => [],
+        'completed' => []
     ];
 
     foreach ($appointments as $appointment) {
@@ -61,11 +63,16 @@ class AppointmentsController extends Controller
             ],
         ];
 
-        // finished فقط
-        if ($appointment->status === 'finished') {
+        // completed 
+        if ($appointment->status === 'completed') {
             $base['doctor_notes'] = [
                 'note' => $appointment->doctor_note ?? null, 
-                'prescription' => $appointment->prescription ?? [], // array
+                'prescription' => $appointment->prescriptions->first()->prescriptions_note  ?? '', 
+                /*    'prescription' => $appointment->prescriptions->map(fn($p) => [
+                    // 'id' => $p->id,
+                    'note' => $p->prescriptions_note, //
+                ])->values(), */
+
             ];
         }
 

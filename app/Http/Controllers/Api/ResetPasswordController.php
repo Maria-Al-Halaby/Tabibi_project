@@ -37,4 +37,20 @@ class ResetPasswordController extends Controller
         return response()->json(["message" => "success" ,
         "status" => true] , 200);
     }
+
+    public function reset_password_after_auth(Request $request)
+    {
+        $request->validate([
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        auth()->user()->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'message' => 'Password reset successfully',
+            'status'  => true,
+        ], 200);
+    }
 }

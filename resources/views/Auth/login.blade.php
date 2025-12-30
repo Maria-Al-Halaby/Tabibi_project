@@ -41,6 +41,8 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">    
+
     <style>
         /* اللون الأساسي للتصميم */
         :root {

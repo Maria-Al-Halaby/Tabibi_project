@@ -6,7 +6,7 @@ use App\Models\Appointment;
 use App\Models\Appointments;
 use Illuminate\Http\Request;
 
-class AppointmentsController extends Controller
+class AppointmentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -71,6 +71,18 @@ class AppointmentsController extends Controller
      */
     public function destroy(Appointment $appointments)
     {
-        //
+        
+    }
+
+    public function cancel(Appointment $appointments) {
+        $appointments->status = "canceled";
+
+        $appointments->update([
+            "status" => $appointments->status
+        ]);
+
+
+        return redirect()->route("Admin.Appointment.index")->with("message" , "appointment canceled successfully!!");
+
     }
 }

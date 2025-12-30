@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClinicCenterController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\DoctorSchedulesController;
 use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\PromotController;
 use App\Http\Controllers\SpecializationController;
+use App\Http\Controllers\SuperAdmin\DoctorRatingController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
@@ -71,11 +73,24 @@ Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/
     Route::put("/update/promot/{promot}" , [PromotController::class , 'update'])->name("SuperAdmin.Promot.update");
     Route::get("delete/promot/{promot}" , [PromotController::class , 'destroy'])->name("SuperAdmin.Promot.destroy");
 
+
+    /* doctor rating section */
+    Route::get('/doctor-ratings', [DoctorRatingController::class, 'index'])->name('doctor_ratings.index');
+    Route::post('/doctors/{doctor}/deactivate', [DoctorRatingController::class, 'deactivateDoctor'])->name('doctors.deactivate');
+    Route::delete('/doctors/{doctor}', [DoctorRatingController::class, 'destroyDoctor'])->name('doctors.destroy');
+
+
+    /* end point is not exists */
+    Route::fallback(function () {
+        return view("Super Admin.404_not_found_page");
+    });
+
 });
 
 Route::middleware("auth")->group(function(){
     Route::post("/logout" , [AuthController::class , "logout"])->name("logout");
     Route::get("/notification" , [FirebaseController::class , "notification"]);
+
 
 });
 
@@ -97,7 +112,13 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
 
     /* appointment route  */
 
-    Route::get("/appointment" , [AppointmentsController::class , "index"])->name("Admin.Appointment.index");
+    Route::get("/appointment" , [AppointmentController::class , "index"])->name("Admin.Appointment.index");
+    Route::get("/appointment/canceled/{appointments}" , [AppointmentController::class , "cancel"])->name("Admin.Appointment.cancel");
+
+    /* end point is not exists */
+    Route::fallback(function () {
+        return view("Admin.404_not_found_page");
+    });
 
 });
 

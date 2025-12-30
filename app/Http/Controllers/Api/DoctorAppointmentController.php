@@ -158,8 +158,8 @@ class DoctorAppointmentController extends Controller
     {
     $data = $request->validate([
         'appointment_id'     => 'required|exists:appointments,id',
-        'note'               => 'nullable|string|max:2000',
-        'prescription_note'  => 'nullable|string|max:5000',
+        'note'               => 'required|string|max:2000',
+        'prescription_note'  => 'required|string|max:5000',
     ]);
 
     $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
@@ -194,13 +194,13 @@ class DoctorAppointmentController extends Controller
 
         if (!empty($data['prescription_note'])) {
             $appointment->prescriptions()->create([
-                'note' => $data['prescription_note'], 
+                'prescriptions_note' => $data['prescription_note'], 
             ]);
         }
     });
 
     return response()->json([
-        'message' => 'Appointment finished successfully',
+        'message' => 'Appointment completed successfully',
         'status'  => true,
     ], 200);
     }   

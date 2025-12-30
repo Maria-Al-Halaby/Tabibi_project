@@ -85,7 +85,7 @@ public function show($center_id)
             return [
                 'id'   => $sp->id,
                 'name' => $sp->name,
-                //'img'  => $sp->image ?? null,
+                'imgae'  => $sp->image ?? null,
             ];
         });
 
