@@ -22,8 +22,8 @@ return new class extends Migration
 
 
             //this for third step
-            $table->foreign('doctor_id')->references('id')->on('doctors')->cascadeOnDelete();
-            $table->foreign('patient_id')->references('id')->on('patients')->cascadeOnDelete();
+            //$table->foreign('doctor_id')->references('id')->on('doctors')->cascadeOnDelete();
+            //$table->foreign('patient_id')->references('id')->on('patients')->cascadeOnDelete();
 
         });
     }
