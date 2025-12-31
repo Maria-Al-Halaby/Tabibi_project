@@ -193,7 +193,7 @@ class DoctorRatingController extends Controller
         'data' => [
             'appointment_id' => $appointment->id,
             'has_rated' => (bool) $appointment->rating,
-            'can_rate'  => $appointment->status === 'finished' && !$appointment->rating,
+            'can_rate'  => $appointment->status === 'completed' && !$appointment->rating,
             'rating'    => $appointment->rating ? [
                 'rating'  => $appointment->rating->rating,
                 'comment' => $appointment->rating->comment,

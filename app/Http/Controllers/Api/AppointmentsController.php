@@ -55,6 +55,7 @@ class AppointmentsController extends Controller
             'doctor' => [
                 'id'   => $doctor->id,
                 'name' => $doctor->user->name ?? '',
+                'image' => $doctor->user->profile_image ?? null ,
                 'rate' => round($doctor->ratings->avg('rating'), 1),
                 'specialty' => [
                     'id'   => $doctor->specialization->id ?? null,
