@@ -153,7 +153,7 @@
 
                         <!-- نموذج الحذف (Delete) -->
                         <form action="{{ route('SuperAdmin.clinic_center.destroy', $clinic_center->id) }}" method="POST"
-                            class="d-inline-block m-0">
+                            class="d-inline-block m-0" >
                             @csrf
                             @method('DELETE')
                             <!-- تم استبدال input بـ button مع أيقونة -->

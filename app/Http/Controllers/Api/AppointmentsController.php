@@ -276,13 +276,13 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
         'time' => 'required|date_format:H:i',
         'note' => 'nullable|string|max:500',
 
-        'diagnose' => 'nullable|array',
-        'diagnose.result_ratio' => 'nullable|numeric|min:0|max:1',
-        'diagnose.expected_disease' => 'nullable|string|max:255',
-        'diagnose.is_risk' => 'nullable|boolean',
-        'diagnose.answers' => 'nullable|array',
-        'diagnose.answers.*.question_id' => 'required_with:diagnose.answers|exists:questions,id',
-        'diagnose.answers.*.answer' => 'required_with:diagnose.answers|string|max:255',
+        'diagnosis' => 'nullable|array',
+        'diagnosis.diagnosis_ratio' => 'nullable|numeric|min:0|max:1',
+        'diagnosis.diagnosis_name' => 'nullable|string|max:255',
+        'diagnosis.is_emergency' => 'nullable|boolean',
+        //'diagnose.answers' => 'nullable|array',
+        //'diagnose.answers.*.question_id' => 'required_with:diagnose.answers|exists:questions,id',
+        //'diagnose.answers.*.answer' => 'required_with:diagnose.answers|string|max:255',
     ]);
 
     $patientId = auth()->user()->patient->id ?? null;
@@ -366,7 +366,7 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
                     //'period'    => $period,
                     //'note'      => $data['note'] ?? null,
                     //'status'    => $appointment->status,
-                    'diagnose'  => $data['diagnose'] ?? null,
+                    'diagnosis'  => $data['diagnosis'] ?? null,
                 ]
             ]
         ], 201);
@@ -404,9 +404,9 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
 
     if ($hasDiagnoseColumns || ($appointment->relationLoaded('answers') && $appointment->answers->isNotEmpty())) {
         $diagnose = [
-            'result_ratio'      => $appointment->result_ratio ?? null,
-            'expected_disease'  => $appointment->expected_disease ?? null,
-            'is_risk'           => $appointment->is_risk ?? null,
+            'diagnosis.diagnosis_ratio'      => $appointment->diagnosis_ratio ?? null,
+            'diagnosis_name'  => $appointment->diagnosis_name ?? null,
+            'is_emergency'           => $appointment->is_emergency ?? null,
             'answers' => $appointment->answers?->map(function ($a) {
                 return [
                     'question' => $a->question?->question ?? $a->question?->title ?? null,
@@ -433,7 +433,7 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
                 'marital_status' => $patient?->marital_status ?? null,
             ],
             'note' => $appointment->note ?? null, 
-            'diagnose' => $diagnose, // nullable
+            'diagnosis' => $diagnose, // nullable
 
             'date' => Carbon::parse($appointment->start_at)->toDateString(),
             'time' => Carbon::parse($appointment->start_at)->format('H:i'),

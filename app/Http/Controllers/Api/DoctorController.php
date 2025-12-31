@@ -38,6 +38,7 @@ class DoctorController extends Controller
         return [
             'id'        => $center->id,
             'name'      => $center->name,
+            'image' =>     $center->user->profile_image , 
             'price'     => $center->pivot->price ?? null,         
             'days'      => $days,                                 
             'time_from' => optional($firstSchedule)->start_time,  
@@ -47,7 +48,7 @@ class DoctorController extends Controller
 
     $data = [
         'id'               => $doctor->id,
-        'img'              => $doctor->user->profile_image,
+        'image'              => $doctor->user->profile_image,
         'name'             => trim($doctor->user->name . ' ' . $doctor->user->last_name),
         'rate'             => $doctor->ratings_avg_rating
                                 ? round($doctor->ratings_avg_rating, 1)

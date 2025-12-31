@@ -74,7 +74,8 @@
             <i class="bi bi-pencil-square me-2"></i> Update Clinic Center
         </h3>
 
-        <form action="{{ route('SuperAdmin.clinic_center.update', $clinicCenter->id) }}" method="POST">
+        <form action="{{ route('SuperAdmin.clinic_center.update', $clinicCenter->id) }}" method="POST"
+            enctype="multipart/form-data">
             @csrf
             @method('PUT')
 

@@ -85,14 +85,14 @@ public function show($center_id)
             return [
                 'id'   => $sp->id,
                 'name' => $sp->name,
-                'imgae'  => $sp->image ?? null,
+                'image'  => $sp->image ?? null,
             ];
         });
 
     $data = [
         'id'      => $center->id,
         'name' => $center->user->name ,
-        'img'     => $center->user->profile_image,
+        'image'     => $center->user->profile_image,
         'address' => $center->address,
         'bio'     => $center->bio,
 
