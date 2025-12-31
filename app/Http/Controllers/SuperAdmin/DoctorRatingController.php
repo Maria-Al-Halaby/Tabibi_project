@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class DoctorRatingController extends Controller
 {
-      public function index(Request $request)
+    public function index(Request $request)
     {
         $negativeMaxStars = (int) ($request->get('negative_max', 2)); // 1-2 سلبي افتراضيًا
         $minNegativeCount = (int) ($request->get('min_negative', 3)); // 3+ تنبيه افتراضيًا
@@ -60,3 +60,5 @@ class DoctorRatingController extends Controller
         return back()->with('success', 'doctor deleted successfully from our system!!');
     }
 }
+
+//test 
