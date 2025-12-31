@@ -27,7 +27,7 @@ class HomeController extends Controller
 
             if ($randomPromot) {
                 $promot[] = [
-                    'img'         => $randomPromot->image,
+                    'image'         => $randomPromot->image,
                     'information' => $randomPromot->information,
                 ];
             }
@@ -45,7 +45,7 @@ class HomeController extends Controller
                         return [
                             'id'    => $doctor->id,
                             'name'  => $doctor->user->name,          
-                            'img'   => $doctor->user->profile_image, 
+                            'image'   => $doctor->user->profile_image, 
                             'rate'  => round($doctor->ratings_avg_rating, 1), 
                             'is_active'  => $doctor->clinic_center->isNotEmpty() ? 1 : 0,
 
@@ -73,7 +73,7 @@ class HomeController extends Controller
         $dataCenters = $centers->map(function ($center) {
         return [
             'id'      => $center->id,
-            'img'     => $center->user->profile_image ?? null, 
+            'image'     => $center->user->profile_image ?? null, 
             'name'    => $center->name,
             'address' => $center->address,
             //'bio'     => $center->bio ?? null   

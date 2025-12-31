@@ -100,7 +100,7 @@ class GetAllController extends Controller
             //'last_name'  => $doctor->user->last_name,
             //'phone'      => $doctor->user->phone,
             //'email'      => $doctor->user->email,
-            'img'        => $doctor->user->profile_image,
+            'image'        => $doctor->user->profile_image,
             'rate'       => $doctor->ratings_avg_rating ? round($doctor->ratings_avg_rating, 1) : 0,
 
             'is_active'  => $doctor->clinic_center->isNotEmpty() ? 1 : 0,
@@ -157,7 +157,7 @@ class GetAllController extends Controller
     $data = $centers->getCollection()->map(function ($center) {
         return [
             'id'      => $center->id,
-            'img'     => $center->user->profile_image ?? null, 
+            'image'     => $center->user->profile_image ?? null, 
             'name'    => $center->name,
             'address' => $center->address,
             //'bio'     => $center->bio ?? null   

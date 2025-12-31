@@ -420,7 +420,7 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
         'appointment' => [
             'status' => $appointment->status,
             'patient' => [
-                'img'       => $patientUser?->profile_image ?? null,
+                'image'       => $patientUser?->profile_image ?? null,
                 'full_name' => $patientUser?->name  . " " . $patientUser?->last_name ?? '',
                 'gender'    => $patient?->gender ?? null,
                 //'age'       => $patient?->age ?? null,
