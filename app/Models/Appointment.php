@@ -12,9 +12,9 @@ class Appointment extends Model
         "clinic_center_id", 
         "start_at" , 
         "status" , 
-        "diagnosis_ratio" , 
-        "diagnosis_name" , 
-        "is_emergency" , 
+        "result_ratio" , 
+        "expected_disease" , 
+        "emergency" , 
         "doctor_note" , 
         "note"
     ];
