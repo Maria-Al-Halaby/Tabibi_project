@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\Api\FCMController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\AuthController;
@@ -121,6 +122,10 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
     });
 
 });
+
+
+//test route 
+/* Route::get("send-notification" , [FCMController::class , "send_notification"]); */
 
 
 

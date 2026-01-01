@@ -110,6 +110,7 @@ class ProfileSettingController extends Controller
                         "first_name" =>  $user->name , 
                         "last_name" => $user->last_name , 
                         "phone" => $user->phone , 
+                        "email" => $user->email , 
                         "profile_image" => $user->profile_image,  
                         "role" => "patient"
                         ],
@@ -136,6 +137,7 @@ class ProfileSettingController extends Controller
                         "first_name" => $user->name , 
                         "last_name" => $user->last_name, 
                         "phone" => $user->phone , 
+                        "email" => $user->email , 
                         "role" => "doctor" , 
                         "profile_image" => $user->profile_image ?? null , 
                         "centers" => $centers
