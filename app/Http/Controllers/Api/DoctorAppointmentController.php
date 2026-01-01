@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\Doctor;
+use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DoctorAppointmentController extends Controller
 {
-    
+    use PushNotification;
     public function index($center = null, $date = null)
     {
         $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
@@ -199,11 +200,38 @@ class DoctorAppointmentController extends Controller
         }
     });
 
+    //send notification
+    $this->notifyPatientAppointmentCompleted($appointment);
+
     return response()->json([
         'message' => 'Appointment completed successfully',
         'status'  => true,
     ], 200);
     }   
+
+
+    private function notifyPatientAppointmentCompleted(Appointment $appointment): void
+    {
+        $user  = $appointment->patient->user;
+        $token = $user->fcm_token;
+
+        if (!$token) {
+            return;
+        }
+
+        $title = 'Appointment Completed';
+
+        $body = 'Your appointment on '
+            . $appointment->start_at->format('Y-m-d H:i')
+            . ' has been completed. We hope you are feeling better.';
+
+        $data = [
+            'type' => 'appointment_completed',
+            'appointment_id' => (string) $appointment->id,
+        ];
+
+        $this->sendNotification($token, $title, $body, $data);
+    }
 
 }
 

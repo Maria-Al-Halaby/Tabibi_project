@@ -82,6 +82,9 @@ class AppointmentController extends Controller
         ]);
 
 
+        
+
+
         return redirect()->route("Admin.Appointment.index")->with("message" , "appointment canceled successfully!!");
 
     }

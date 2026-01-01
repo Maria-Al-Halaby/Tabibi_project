@@ -77,6 +77,7 @@ class AuthController extends Controller
         "first_name"        => "required|string|max:100", 
         "last_name"         => "required|string|max:100" , 
         "phone"             => "required|string|max:15|unique:users,phone" ,
+        "email"             => "required|email|unique:users,email" ,
         "password"          => "required|string|min:7" , 
         "address"           => "required|string" , 
         "gender"            => "required|string|in:male,female" , 
@@ -86,7 +87,8 @@ class AuthController extends Controller
         "has_children"      => "required|boolean" , 
         "number_of_children"=> "nullable|integer|min:0" , 
         "birth_date"        => "required|date", 
-        "is_smoke"          => "required|boolean"
+        "is_smoke"          => "required|boolean" , 
+        "fcm_token"         => "required|string" , 
     ]);
 
     DB::beginTransaction();
@@ -96,7 +98,9 @@ class AuthController extends Controller
             "name"     => $request->first_name, 
             "last_name"=> $request->last_name, 
             "phone"    => $request->phone, 
+            "email"    => $request->email , 
             "password" => Hash::make($request->password), 
+            "fcm_token" => $request->fcm_token
         ]);
 
         $user->assignRole("patient");
@@ -153,7 +157,8 @@ class AuthController extends Controller
     {
         $request->validate([
             "phone" => "required|string|max:15" , 
-            "password" => "required|string"
+            "password" => "required|string" , 
+            "fcm_token" => "required|string"
         ]);
 
         $user = User::where("phone" , $request->phone)->first();
@@ -167,6 +172,8 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         $token = $user->createToken("api-token")->plainTextToken;
+
+        $user->update(["fcm_token" => $request->fcm_token]);
         
         if($user->hasRole("doctor"))
         {

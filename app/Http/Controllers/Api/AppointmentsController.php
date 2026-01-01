@@ -8,6 +8,7 @@ use App\Models\ClinicCenter;
 use App\Models\ClinicCenterDoctor;
 use App\Models\Doctor;
 use App\Models\DoctorSchedules;
+use App\Traits\PushNotification;
 use Illuminate\Http\Request;
 //use Illuminate\Support\Carbon;
 use Carbon\Carbon;
@@ -16,7 +17,8 @@ use Illuminate\Support\Facades\DB;
 
 class AppointmentsController extends Controller
 {
-    
+    use PushNotification;
+
     function index() 
     {
         $patientId = Auth::user()->patient->id ?? null;
@@ -354,6 +356,10 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
             'status'           => 'pending',
         ]);
 
+        //send notification 
+        $this->notifyDoctorNewAppointment($appointment);
+
+
         return response()->json([
             'message' => 'Appointment booked successfully',
             'status'  => true,
@@ -372,7 +378,33 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
             ]
         ], 201);
     });
-}
+    }
+
+
+    private function notifyDoctorNewAppointment(Appointment $appointment)
+    {
+        $doctorUser = $appointment->doctor->user;
+
+        $token = $doctorUser->fcm_token;
+        if (!$token) {
+            return;
+        }
+
+        $patientName = $appointment->patient->user->name;
+
+        $title = 'New Appointment Booked';
+        $body  = 'A new appointment has been booked by '
+            . $patientName
+            . ' on '
+            . $appointment->start_at->format('Y-m-d H:i');
+
+        $data = [
+            'type' => 'new_appointment',
+            'appointment_id' => (string) $appointment->id,
+        ];
+
+        $this->sendNotification($token, $title, $body, $data);
+    }
 
     public function  appointment_details(Appointment $appointment)
     {
@@ -399,9 +431,9 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
     $diagnose = null;
 
     $hasDiagnoseColumns =
-        isset($appointment->result_ratio) ||
-        isset($appointment->expected_disease) ||
-        isset($appointment->is_risk);
+        isset($appointment->diagnosis_ratio) ||
+        isset($appointment->diagnosis_name) ||
+        isset($appointment->is_emergency);
 
     if ($hasDiagnoseColumns || ($appointment->relationLoaded('answers') && $appointment->answers->isNotEmpty())) {
         $diagnose = [
@@ -430,7 +462,7 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
                 'has_children' => $patient->has_children ?? null ,
                 'number_of_children' => $patient->number_of_children ?? null , 
                 'birth_date' => $patient->birth_date ?? null ,
-                'smoker'    => $patient?->smoker ?? null,
+                'smoker'    => $patient?->is_smoke ?? null,
                 'marital_status' => $patient?->marital_status ?? null,
             ],
             'note' => $appointment->note ?? null, 
@@ -458,13 +490,17 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
         return response()->json(['message' => 'Unauthorized'], 403);
     }
 
-    if ($appointment->status === 'finished') {
+    if ($appointment->status === 'completed') {
         return response()->json(['message' => 'Cannot cancel a finished appointment',
     "status" => false
     ], 422);
     }
 
     $appointment->update(['status' => 'canceled']);
+
+    //send notification
+    $this->notifyPatientAppointmentCancelled($appointment);
+
 
     return response()->json([
         'message' => 'Appointment canceled',
@@ -476,5 +512,32 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
     ]);
     }
 
+
+    private function notifyPatientAppointmentCancelled($appointment)
+    {
+        $user = $appointment->patient->user;
+
+        $token = $user->fcm_token;
+
+        if (!$token) 
+        {
+            return; 
+        }
+
+        $title = 'Appointment Cancelled';
+
+        $body = 'Your appointment scheduled on '
+        . $appointment->start_at->format('Y-m-d H:i')
+        . ' has been cancelled by the doctor.';
+
+        $data = [
+        'type' => 'appointment_cancelled',
+        'appointment_id' => (string) $appointment->id,
+        ];
+
+        $this->sendNotification($token, $title, $body, $data);
+
+
+    }
 
 }
