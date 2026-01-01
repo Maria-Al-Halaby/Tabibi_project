@@ -88,7 +88,7 @@ class AuthController extends Controller
         "number_of_children"=> "nullable|integer|min:0" , 
         "birth_date"        => "required|date", 
         "is_smoke"          => "required|boolean" , 
-        "fcm_token"         => "required|string" , 
+        "fcm_token"         => "nullable|string" , 
     ]);
 
     DB::beginTransaction();
@@ -100,7 +100,7 @@ class AuthController extends Controller
             "phone"    => $request->phone, 
             "email"    => $request->email , 
             "password" => Hash::make($request->password), 
-            "fcm_token" => $request->fcm_token
+            "fcm_token" => $request->fcm_token ?? null 
         ]);
 
         $user->assignRole("patient");
@@ -158,7 +158,7 @@ class AuthController extends Controller
         $request->validate([
             "phone" => "required|string|max:15" , 
             "password" => "required|string" , 
-            "fcm_token" => "required|string"
+            "fcm_token" => "nullable|string"
         ]);
 
         $user = User::where("phone" , $request->phone)->first();
