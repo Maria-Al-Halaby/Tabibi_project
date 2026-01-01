@@ -458,6 +458,11 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
         ];
     }
 
+    if($appointment->result_ratio == null && $appointment->expected_disease== null && $appointment->emergency == null)
+    {
+        $diagnose = null ;
+    }
+
     return response()->json([
         'appointment' => [
             'status' => $appointment->status,
@@ -475,7 +480,7 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
                 'marital_status' => $patient?->marital_status ?? null,
             ],
             'note' => $appointment->note ?? null, 
-            'diagnosis' => $diagnose, // nullable
+            'diagnosis' => $diagnose ?? null , // nullable
 
             'date' => Carbon::parse($appointment->start_at)->toDateString(),
             'time' => Carbon::parse($appointment->start_at)->format('H:i'),
