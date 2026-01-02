@@ -54,6 +54,7 @@ class DoctorController extends Controller
                                 ? round($doctor->ratings_avg_rating, 1)
                                 : 0,
         'experience_years' => $doctor->experience_years ?? null,
+        'is_active' => $doctor->is_active , 
         'specialty'        => [
             'id'   => $doctor->specialization?->id,
             'name' => $doctor->specialization?->name,
