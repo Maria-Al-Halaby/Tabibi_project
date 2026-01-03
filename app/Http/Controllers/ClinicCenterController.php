@@ -90,7 +90,7 @@ class ClinicCenterController extends Controller
     {
         $userId = $clinicCenter->user_id ; 
         $validateData = $request->validate([
-            "name" => "required|string|max:255" , 
+            'name' => "required|string|max:255" , 
             'email'    => ['required','email', Rule::unique('users','email')->ignore($userId)],
             'phone'    => ['required','string', Rule::unique('users','phone')->ignore($userId)],
             "password" => "nullable|min:7" , 
@@ -109,8 +109,9 @@ class ClinicCenterController extends Controller
             $completePath = $clinicCenter->user->profile_image;
         }
 
-        $clinicCenter->user->update([
-            "name" => $validateData["name"] , 
+        //$user = User::where('id' , $userId)->get();
+
+        $clinicCenter->user()->update([
             "email" => $validateData["email"], 
             "phone" => $validateData["phone"], 
             "password" => empty($validateData["password"]) ? $clinicCenter->user->password 
@@ -118,7 +119,9 @@ class ClinicCenterController extends Controller
             "profile_image" => $completePath 
         ]);
 
+
         $clinicCenter->update([
+            "name" => $validateData["name"] , 
             "address" => $validateData["address"]
         ]);
 
