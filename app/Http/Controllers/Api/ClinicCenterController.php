@@ -91,7 +91,7 @@ public function show($center_id)
 
     $data = [
         'id'      => $center->id,
-        'name' => $center->name ,
+        'name' => $center->user->name ,
         'image'     => $center->user->profile_image,
         'address' => $center->address,
         'bio'     => $center->bio,
