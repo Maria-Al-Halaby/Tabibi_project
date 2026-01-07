@@ -74,7 +74,7 @@ class HomeController extends Controller
         return [
             'id'      => $center->id,
             'image'     => $center->user->profile_image ?? null, 
-            'name'    => $center->name,
+            'name'    => $center->user->name,
             'address' => $center->address,
             //'bio'     => $center->bio ?? null   
         ];
