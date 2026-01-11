@@ -41,7 +41,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">    
+    <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">
 
     <style>
         /* اللون الأساسي للتصميم */
@@ -125,7 +125,7 @@
     <div class="container login-card">
         <div class="text-center mb-4">
             <i class="bi bi-heart-pulse-fill display-3" style="color: var(--main-color);"></i>
-            <h1 class="h3 fw-bold mt-2" style="color: var(--main-color);">Tabibi</h1>
+            <h1 class="h3 fw-bold mt-2" style="color: var(--main-color);">Tabiby</h1>
         </div>
 
         <h2 class="mt-4 mb-5 fw-bold text-center" style="color: var(--main-color);">Log in</h2>

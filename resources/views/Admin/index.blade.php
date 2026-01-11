@@ -20,7 +20,7 @@
 
 @section('content')
 
-    <h2 class="mb-4 tabibi-text-primary">👋 Welcome to Tabibi Admin Panel</h2>
+    <h2 class="mb-4 tabibi-text-primary">👋 Welcome to Tabiby Admin Panel</h2>
     <p class="text-muted">Quick Overview of System Statistics:</p>
 
     <div class="row g-4">

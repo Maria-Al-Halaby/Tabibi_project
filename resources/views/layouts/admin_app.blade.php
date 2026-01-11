@@ -14,7 +14,8 @@
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJ8uR2dIQ7dFwF4yE4fJbQ/jA7J0n6m7n+2x5tK5F5d5f5m5z5A5q5u5z5Q=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">    <style>
+    <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">
+    <style>
         /* 🎨 تنسيقات مخصصة لتطابق تصميم Tabibi */
         :root {
             --tabibi-primary-color: #20b2aa;
@@ -80,7 +81,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 mb-4">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold tabibi-text-primary" href="{{ route('Admin.index') }}">
-                <i class="fas fa-heartbeat me-2"></i> Tabibi Admin
+                <i class="fas fa-heartbeat me-2"></i> Tabiby Admin
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
