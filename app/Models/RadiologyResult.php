@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class RadiologyResult extends Model
 {
+    protected $fillable = [
+        "appointment_id",
+        "image_path",
+        "ai_diagnosis",
+        "notes"
+    ];
+
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);

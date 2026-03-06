@@ -10,6 +10,7 @@ class Appointment extends Model
         "patient_id",
         "doctor_id",
         "clinic_center_id", 
+        "type",
         "start_at" , 
         "status" , 
         "result_ratio" , 
@@ -45,7 +46,7 @@ class Appointment extends Model
 
     public function prescriptions()
     {
-        return $this->hasMany(Prescription::class , 'appointment_id');
+        return $this->hasOne(Prescription::class , 'appointment_id');
     }
 
     public function radiologyResult()
@@ -68,9 +69,25 @@ class Appointment extends Model
         return $this->hasMany(DoctorLabRequest::class);
     }
 
+    public function radiologyAppointment()
+    {
+        return $this->hasOne(RadiologyAppointment::class);
+    }
+
+    public function labTests()
+    {
+        return $this->belongsToMany(
+            LabTest::class,
+            'appointment_lab_tests',
+            'appointment_id',
+            'lab_test_id'
+        );
+    }    
+
     public function rating()
     {
         return $this->hasOne(DoctorRating::class, 'appointment_id');
     }
+
 
 }
