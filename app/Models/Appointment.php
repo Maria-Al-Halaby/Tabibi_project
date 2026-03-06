@@ -48,6 +48,26 @@ class Appointment extends Model
         return $this->hasMany(Prescription::class , 'appointment_id');
     }
 
+    public function radiologyResult()
+    {
+        return $this->hasOne(RadiologyResult::class);
+    }
+
+    public function labResult()
+    {
+        return $this->hasOne(LabResult::class);
+    }
+
+    public function radiologyRequests()
+    {
+        return $this->hasMany(DoctorRadiologyRequest::class);
+    }
+
+    public function labRequests()
+    {
+        return $this->hasMany(DoctorLabRequest::class);
+    }
+
     public function rating()
     {
         return $this->hasOne(DoctorRating::class, 'appointment_id');

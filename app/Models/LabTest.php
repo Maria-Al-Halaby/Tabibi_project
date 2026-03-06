@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class LabTest extends Model
+{
+    public function results()
+    {
+        return $this->belongsToMany(LabResult::class);
+    }
+}
