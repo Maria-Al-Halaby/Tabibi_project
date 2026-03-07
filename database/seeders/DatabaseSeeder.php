@@ -28,5 +28,13 @@ class DatabaseSeeder extends Seeder
 
         /* هذا الخاص بالمعلومات التي تعرض بال home screen سيتم التعديل لاحقا ليتم ادخاله من ال main dashboard */
         //$this->call(PromotSeeder::class);
+
+        $this->call([
+            RolesSeeder::class,
+            UserSeeder::class,
+            LabTestSeeder::class,
+            TypeOfMedicalImageSeeder::class,
+            TestDataSeeder::class,
+        ]);
     }
 }

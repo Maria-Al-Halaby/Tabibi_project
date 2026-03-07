@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\Doctor;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
+use App\Models\DoctorRadiologyRequest;
+use App\Models\DoctorLabRequest;
 use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -85,7 +89,7 @@ class DoctorAppointmentController extends Controller
         ]);
     }
 
-/*     public function end_appointment(Request $request)
+    /*public function end_appointment(Request $request)
     {
         $data = $request->validate([
         'appointment_id' => 'required|exists:appointments,id',
@@ -94,27 +98,27 @@ class DoctorAppointmentController extends Controller
         'prescription.*.medicine' => 'required_with:prescription|string|max:255',
         'prescription.*.dose' => 'nullable|string|max:255',
         'prescription.*.duration' => 'nullable|string|max:255',
-    ]);
+        ]);
 
-    $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
 
-    $appointment = Appointment::where('id', $data['appointment_id'])
-        ->where('doctor_id', $doctor->id)
-        ->firstOrFail();
+        $appointment = Appointment::where('id', $data['appointment_id'])
+            ->where('doctor_id', $doctor->id)
+            ->firstOrFail();
 
-    if ($appointment->status === 'canceled') {
-        return response()->json(['message' => 'Cannot end a canceled appointment' , 
-    "status" => false 
-    ], 422);
-    }
+        if ($appointment->status === 'canceled') {
+            return response()->json(['message' => 'Cannot end a canceled appointment' , 
+        "status" => false 
+        ], 422);
+        }
 
-    if ($appointment->status === 'finished') {
-        return response()->json(['message' => 'Appointment already finished', 
-    "status" => false 
-    ], 422);
-    }
+        if ($appointment->status === 'finished') {
+            return response()->json(['message' => 'Appointment already finished', 
+        "status" => false 
+        ], 422);
+        }
 
-    return DB::transaction(function () use ($appointment, $data) {
+        return DB::transaction(function () use ($appointment, $data) {
 
         $appointment->update([
             'status' => 'finished',
@@ -148,65 +152,188 @@ class DoctorAppointmentController extends Controller
                     'medicine' => $p->medicine,
                     'dose' => $p->dose,
                     'duration' => $p->duration,
-                ])->values(),
-            ]
-        ], 200);
-    });
-    } */
+                    ])->values(),
+                ]
+            ], 200);
+        });
+    } 
+    */
 
+    /*public function end_appointment(Request $request)//Maria
+    {
+        $data = $request->validate([
+            'appointment_id'     => 'required|exists:appointments,id',
+            'note'               => 'required|string|max:2000',
+            'prescription_note'  => 'required|string|max:5000',
+        ]);
+
+        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+
+        $appointment = Appointment::where('id', $data['appointment_id'])
+            ->where('doctor_id', $doctor->id)
+            ->firstOrFail();
+
+        if ($appointment->status === 'canceled') {
+            return response()->json([
+                'message' => 'Cannot end a canceled appointment',
+                'status' => false
+            ], 422);
+        }
+
+        if ($appointment->status === 'completed') {
+            return response()->json([
+                'message' => 'Appointment already finished',
+                'status' => false
+            ], 422);
+        }
+
+        DB::transaction(function () use ($appointment, $data) {
+
+            $appointment->update([
+                'status'      => 'completed',
+                'end_at'      => now(),
+                'doctor_note' => $data['note'] ?? null,
+            ]);
+
+            $appointment->prescriptions()->delete();
+
+            if (!empty($data['prescription_note'])) {
+                $appointment->prescriptions()->create([
+                    'prescriptions_note' => $data['prescription_note'], 
+                ]);
+            }
+        });
+
+        //send notification
+        $this->notifyPatientAppointmentCompleted($appointment);
+
+        return response()->json([
+            'message' => 'Appointment completed successfully',
+            'status'  => true,
+        ], 200);
+    }*/
 
     public function end_appointment(Request $request)
     {
-    $data = $request->validate([
-        'appointment_id'     => 'required|exists:appointments,id',
-        'note'               => 'required|string|max:2000',
-        'prescription_note'  => 'required|string|max:5000',
-    ]);
+        $data = $request->validate([
+            'appointment_id' => 'required|exists:appointments,id',
+            'note' => 'required|string|max:2000', //ملاحظة الطبيب السريرية عن حالة المريض
 
-    $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+            'prescription_note' => 'nullable|string|max:5000', //ملاحظة عامة لوصفة الادوية ككل
+            'prescription_items' => 'nullable|array',
+            'prescription_items.*.medicine_name' => 'required_with:prescription_items|string|max:255',
+            'prescription_items.*.dose' => 'required_with:prescription_items|string|max:255',
+            'prescription_items.*.frequency' => 'required_with:prescription_items|string|max:255',
+            'prescription_items.*.start_date' => 'required_with:prescription_items|date',
+            'prescription_items.*.end_date' => 'required_with:prescription_items|date',
+            'prescription_items.*.instructions' => 'nullable|string|max:2000',  //ملاحظة خاصة لكل دواء
 
-    $appointment = Appointment::where('id', $data['appointment_id'])
-        ->where('doctor_id', $doctor->id)
-        ->firstOrFail();
+            'lab_request_note' => 'nullable|string|max:2000', // ملاحظة عامة عن التحاليل
+            'lab_tests' => 'nullable|array',
+            'lab_tests.*' => 'exists:lab_tests,id',
 
-    if ($appointment->status === 'canceled') {
-        return response()->json([
-            'message' => 'Cannot end a canceled appointment',
-            'status' => false
-        ], 422);
-    }
-
-    if ($appointment->status === 'completed') {
-        return response()->json([
-            'message' => 'Appointment already finished',
-            'status' => false
-        ], 422);
-    }
-
-    DB::transaction(function () use ($appointment, $data) {
-
-        $appointment->update([
-            'status'      => 'completed',
-            'end_at'      => now(),
-            'doctor_note' => $data['note'] ?? null,
+            'radiology_requests' => 'nullable|array',
+            'radiology_requests.*.type_of_medical_image_id' => 'required_with:radiology_requests|exists:type_of_medical_images,id',
+            'radiology_requests.*.notes' => 'nullable|string|max:2000',        
         ]);
 
-        $appointment->prescriptions()->delete();
+        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
 
-        if (!empty($data['prescription_note'])) {
-            $appointment->prescriptions()->create([
-                'prescriptions_note' => $data['prescription_note'], 
-            ]);
+        $appointment = Appointment::where('id', $data['appointment_id'])
+            ->where('doctor_id', $doctor->id)
+            ->where('type', 'doctor')
+            ->firstOrFail();
+
+        if ($appointment->status === 'canceled') {
+            return response()->json([
+                'message' => 'Cannot end a canceled appointment',
+                'status' => false
+            ], 422);
         }
-    });
 
-    //send notification
-    $this->notifyPatientAppointmentCompleted($appointment);
+        if ($appointment->status === 'completed') {
+            return response()->json([
+                'message' => 'Appointment already finished',
+                'status' => false
+            ], 422);
+        }
 
-    return response()->json([
-        'message' => 'Appointment completed successfully',
-        'status'  => true,
-    ], 200);
+        DB::transaction(function () use ($appointment, $data) {
+
+            $appointment->update([
+                'status'      => 'completed',
+                'end_at'      => now(),
+                'doctor_note' => $data['note'] ,
+            ]);
+
+            //$appointment->prescriptions()->delete();
+
+            if (!empty($data['prescription_note']) || !empty($data['prescription_items'])) {
+
+                $prescription = Prescription::create([
+                    'appointment_id' => $appointment->id,
+                    'general_note' => $data['prescription_note'] ?? null,
+                    'status' => 'pending'
+                ]);
+
+                if (!empty($data['prescription_items'])) {
+
+                    foreach ($data['prescription_items'] as $item) {
+                        PrescriptionItem::create([
+                            'prescription_id' => $prescription->id,
+                            'medicine_name' => $item['medicine_name'],
+                            'dose' => $item['dose'],
+                            'frequency' => $item['frequency'],
+                            'start_date' => $item['start_date'],
+                            'end_date' => $item['end_date'],
+                            'instructions' => $item['instructions'] ?? null
+                        ]);
+                    }
+                }
+            }  
+            
+            if (!empty($data['radiology_requests'])) {
+
+                foreach ($data['radiology_requests'] as $req) {
+
+                    DoctorRadiologyRequest::create([
+                        'appointment_id' => $appointment->id,
+                        'type_of_medical_image_id' => $req['type_of_medical_image_id'],
+                        'notes' => $req['notes'] ?? null
+                    ]);
+
+                }
+
+            }
+
+            if (!empty($data['lab_tests'])) {
+
+                // إنشاء طلب التحاليل
+                $labRequest = DoctorLabRequest::create([
+                    'appointment_id' => $appointment->id,
+                    'notes' => $data['lab_request_note'] ?? null
+                ]);
+                // ربط التحاليل بالطلب
+                $labRequest->tests()->attach($data['lab_tests']);
+
+            }
+            
+        });
+
+        $appointment->refresh();
+
+        //send notification
+        $this->notifyPatientAppointmentCompleted($appointment);
+
+        return response()->json([
+            'message' => 'Appointment completed successfully',
+            'status'  => true,
+            'data' => [
+                'appointment_id' => $appointment->id,
+                'appointment_status' => $appointment->status,
+                'doctor_note' => $appointment->doctor_note,
+            ]
+        ], 200);
     }   
 
 
