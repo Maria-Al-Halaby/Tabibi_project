@@ -17,7 +17,9 @@ class Appointment extends Model
         "expected_disease" , 
         "emergency" , 
         "doctor_note" , 
-        "note"
+        "note",
+        "attached_radiology_result_id",
+        "attached_lab_result_id"
     ];
 
     protected $casts = [
@@ -83,6 +85,15 @@ class Appointment extends Model
             'lab_test_id'
         );
     }    
+
+    public function attachedRadiologyResult()
+    {
+        return $this->belongsTo(RadiologyResult::class,'attached_radiology_result_id');
+    }
+
+    public function attachedLabResult() {
+        return $this->belongsTo(LabResult::class,'attached_lab_result_id');
+    }
 
     public function rating()
     {

@@ -35,6 +35,8 @@ class DatabaseSeeder extends Seeder
             LabTestSeeder::class,
             TypeOfMedicalImageSeeder::class,
             TestDataSeeder::class,
+            DoctorSchedulesSeeder::class,
         ]);
     }
 }
+

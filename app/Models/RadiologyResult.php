@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class RadiologyResult extends Model
 {
@@ -16,5 +17,12 @@ class RadiologyResult extends Model
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image_path
+            ? url(Storage::url($this->image_path))
+            : null;
     }
 }

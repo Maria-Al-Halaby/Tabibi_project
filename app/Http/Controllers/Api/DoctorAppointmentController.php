@@ -10,6 +10,8 @@ use App\Models\Prescription;
 use App\Models\PrescriptionItem;
 use App\Models\DoctorRadiologyRequest;
 use App\Models\DoctorLabRequest;
+use App\Models\RadiologyResult;
+use App\Models\LabResult;
 use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -212,6 +214,129 @@ class DoctorAppointmentController extends Controller
             'status'  => true,
         ], 200);
     }*/
+
+    public function end_lab_appointment(Request $request)
+    {
+        $data = $request->validate([
+        'appointment_id' => 'required|exists:appointments,id',
+        'result_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:6000',
+        'notes' => 'nullable|string|max:2000',
+        ]);
+
+        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+
+        $appointment = Appointment::where('id', $data['appointment_id'])
+            ->where('doctor_id', $doctor->id)
+            ->where('type', 'lab')
+            ->firstOrFail();
+
+        if ($appointment->status === 'canceled') {
+            return response()->json([
+                'message' => 'Cannot end a canceled appointment',
+                'status' => false
+            ], 422);
+        }
+
+        if ($appointment->status === 'completed') {
+            return response()->json([
+                'message' => 'Appointment already finished',
+                'status' => false
+            ], 422);
+        } 
+        
+        DB::transaction(function () use ($appointment, $request, $data) {
+
+            $filePath = $request->file('result_file')->store('lab_results','public');
+
+            $appointment->update([
+                'status'      => 'completed',
+                'end_at'      => now(),
+            ]);
+
+            LabResult::create([
+                'appointment_id' => $appointment->id,
+                'result_file' => $filePath,
+                'notes' => $data['notes'] ?? null,
+            ]);
+        }); 
+        
+        $appointment->refresh();
+
+        //send notification
+        $this->notifyPatientAppointmentCompleted($appointment);
+
+        return response()->json([
+            'message' => 'Appointment completed successfully',
+            'status'  => true,
+            'data' => [
+                'appointment_id' => $appointment->id,
+                'appointment_status' => $appointment->status,
+            ]
+        ], 200);
+    }     
+
+    public function end_radiology_appointment(Request $request)
+    {
+        $data = $request->validate([
+        'appointment_id' => 'required|exists:appointments,id',
+        'image_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:6000',
+        'notes' => 'nullable|string|max:2000',
+        ]);
+
+        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+
+        $appointment = Appointment::where('id', $data['appointment_id'])
+            ->where('doctor_id', $doctor->id)
+            ->where('type', 'radiology')
+            ->firstOrFail();
+
+        if ($appointment->status === 'canceled') {
+            return response()->json([
+                'message' => 'Cannot end a canceled appointment',
+                'status' => false
+            ], 422);
+        }
+
+        if ($appointment->status === 'completed') {
+            return response()->json([
+                'message' => 'Appointment already finished',
+                'status' => false
+            ], 422);
+        } 
+        
+        DB::transaction(function () use ($appointment, $request, $data) {
+
+            $filePath = $request->file('image_file')->store('radiology_results','public');
+
+            $appointment->update([
+                'status'      => 'completed',
+                'end_at'      => now(),
+            ]);
+
+            RadiologyResult::create([
+                'appointment_id' => $appointment->id,
+                'image_path' => $filePath,
+                'notes' => $data['notes'] ?? null,
+            ]);
+        }); 
+        
+        $appointment->refresh();
+
+        //send notification
+        $this->notifyPatientAppointmentCompleted($appointment);
+
+        return response()->json([
+            'message' => 'Appointment completed successfully',
+            'status'  => true,
+            'data' => [
+                'appointment_id' => $appointment->id,
+                'appointment_status' => $appointment->status,
+            ]
+        ], 200);
+
+        
+
+    }    
 
     public function end_appointment(Request $request)
     {
