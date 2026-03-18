@@ -86,6 +86,8 @@ Route::middleware(["auth:sanctum" , "role:doctor|patient"])->group(function(){
 Route::middleware(["auth:sanctum" , "role:doctor"])->group(function(){
     Route::get("/doctor/appointments/{center?}/{date?}" , [DoctorAppointmentController::class , "index"]);
     Route::post('/doctor/appointments/end', [DoctorAppointmentController::class, 'end_appointment']);
+    Route::post('/doctor/radiology_appointments/end', [DoctorAppointmentController::class, 'end_radiology_appointment']);
+    Route::post('/doctor/lab_appointments/end', [DoctorAppointmentController::class, 'end_lab_appointment']);
 });
 
 Route::middleware("auth:sanctum")->group(function(){

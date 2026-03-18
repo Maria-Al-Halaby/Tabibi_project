@@ -14,6 +14,9 @@ use App\Http\Controllers\PromotController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\SuperAdmin\DoctorRatingController;
 use App\Http\Controllers\SuperAdminDashboardController;
+use App\Http\Controllers\RadiologyDashboardController;
+use App\Http\Controllers\LabDashboardController;
+use App\Http\Controllers\PharmacyDashboardController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\DoctorSchedules;
@@ -123,6 +126,26 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
 
 });
 
+/* radiology dashboard */
+Route::middleware(['auth', 'role:radiologist'])->group(function () {
+    Route::get('/radiology/dashboard', [RadiologyDashboardController::class, 'index'])->name('radiology.dashboard');
+    Route::get('/radiology/appointments/{appointment}/complete', [RadiologyDashboardController::class, 'showCompleteForm'])->name('radiology.appointments.complete.form');
+    Route::post('/radiology/appointments/complete', [RadiologyDashboardController::class, 'complete'])->name('radiology.appointments.complete');
+});
+
+/* lab dashboard */
+Route::middleware(['auth', 'role:lab technician'])->group(function () {
+    Route::get('/lab/dashboard', [LabDashboardController::class, 'index'])->name('lab.dashboard');
+    Route::get('/lab/appointments/{appointment}/complete', [LabDashboardController::class, 'showCompleteForm'])->name('lab.appointments.complete.form');
+    Route::post('/lab/appointments/complete', [LabDashboardController::class, 'complete'])->name('lab.appointments.complete');
+});
+
+/* pharmacy dashboard */
+Route::middleware(['auth', 'role:pharmacist'])->group(function () {
+    Route::get('/pharmacy/dashboard', [PharmacyDashboardController::class, 'index'])->name('pharmacy.dashboard');
+    Route::get('/pharmacy/prescriptions/{prescription}', [PharmacyDashboardController::class, 'show'])->name('pharmacy.prescriptions.show');
+    Route::post('/pharmacy/prescriptions/{prescription}/update-status', [PharmacyDashboardController::class, 'updateStatus'])->name('pharmacy.prescriptions.updateStatus');
+});
 
 //test route 
 /* Route::get("send-notification" , [FCMController::class , "send_notification"]); */

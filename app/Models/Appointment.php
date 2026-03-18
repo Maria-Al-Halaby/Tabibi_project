@@ -10,13 +10,16 @@ class Appointment extends Model
         "patient_id",
         "doctor_id",
         "clinic_center_id", 
+        "type",
         "start_at" , 
         "status" , 
         "result_ratio" , 
         "expected_disease" , 
         "emergency" , 
         "doctor_note" , 
-        "note"
+        "note",
+        "attached_radiology_result_id",
+        "attached_lab_result_id"
     ];
 
     protected $casts = [
@@ -45,12 +48,57 @@ class Appointment extends Model
 
     public function prescriptions()
     {
-        return $this->hasMany(Prescription::class , 'appointment_id');
+        return $this->hasOne(Prescription::class , 'appointment_id');
+    }
+
+    public function radiologyResult()
+    {
+        return $this->hasOne(RadiologyResult::class);
+    }
+
+    public function labResult()
+    {
+        return $this->hasOne(LabResult::class);
+    }
+
+    public function radiologyRequests()
+    {
+        return $this->hasMany(DoctorRadiologyRequest::class);
+    }
+
+    public function labRequests()
+    {
+        return $this->hasMany(DoctorLabRequest::class);
+    }
+
+    public function radiologyAppointment()
+    {
+        return $this->hasOne(RadiologyAppointment::class);
+    }
+
+    public function labTests()
+    {
+        return $this->belongsToMany(
+            LabTest::class,
+            'appointment_lab_tests',
+            'appointment_id',
+            'lab_test_id'
+        );
+    }    
+
+    public function attachedRadiologyResult()
+    {
+        return $this->belongsTo(RadiologyResult::class,'attached_radiology_result_id');
+    }
+
+    public function attachedLabResult() {
+        return $this->belongsTo(LabResult::class,'attached_lab_result_id');
     }
 
     public function rating()
     {
         return $this->hasOne(DoctorRating::class, 'appointment_id');
     }
+
 
 }

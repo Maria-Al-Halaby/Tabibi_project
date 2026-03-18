@@ -9,7 +9,9 @@ use App\Models\ClinicCenterDoctor;
 use App\Models\Doctor;
 use App\Models\DoctorSchedules;
 use App\Traits\PushNotification;
+use App\Models\RadiologyAppointment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 //use Illuminate\Support\Carbon;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -23,69 +25,70 @@ class AppointmentsController extends Controller
     {
         $patientId = Auth::user()->patient->id ?? null;
 
-    if (!$patientId) {
-        return response()->json(['message' => 'Patient not found' ,
-        "status" => false], 422);
+        if (!$patientId) {
+            return response()->json(['message' => 'Patient not found' ,
+            "status" => false], 422);
         }
 
-    $appointments = Appointment::with([
-            'doctor.user',
-            'doctor.specialization',
-            'doctor.ratings',
-            'prescriptions'
+        $appointments = Appointment::with([
+                'doctor.user',
+                'doctor.specialization',
+                'doctor.ratings',
+                'prescriptions'
         ])
-        ->where('patient_id', $patientId)
-        ->orderByDesc('start_at')
-        ->get();
+            ->where('patient_id', $patientId)
+            ->orderByDesc('start_at')
+            ->get();
 
-    $grouped = [
+        $grouped = [
         //'finished' => [],
-        'pending'  => [],
-        'canceled' => [],
-        'completed' => []
-    ];
-
-    foreach ($appointments as $appointment) {
-
-        $doctor = $appointment->doctor;
-
-        $base = [
-            'id'   => $appointment->id,
-            'date' => Carbon::parse($appointment->start_at)->toDateString(),
-            'time' => Carbon::parse($appointment->start_at)->format('H:i'),
-
-            'doctor' => [
-                'id'   => $doctor->id,
-                'name' => $doctor->user->name ?? '',
-                'image' => $doctor->user->profile_image ?? null ,
-                'rate' => round($doctor->ratings->avg('rating'), 1),
-                'specialty' => [
-                    'id'   => $doctor->specialization->id ?? null,
-                    'name' => $doctor->specialization->name ?? null,
-                ],
-            ],
+            'pending'  => [],
+            'canceled' => [],
+            'completed' => []
         ];
 
-        // completed 
-        if ($appointment->status === 'completed') {
-            $base['doctor_notes'] = [
-                'note' => $appointment->doctor_note ?? null, 
-                'prescription' => $appointment->prescriptions->first()->prescriptions_note  ?? '', 
-                /*    'prescription' => $appointment->prescriptions->map(fn($p) => [
-                    // 'id' => $p->id,
-                    'note' => $p->prescriptions_note, //
-                ])->values(), */
+        foreach ($appointments as $appointment) {
 
+            $doctor = $appointment->doctor;
+
+            $base = [
+                'id'   => $appointment->id,
+                'date' => Carbon::parse($appointment->start_at)->toDateString(),
+                'time' => Carbon::parse($appointment->start_at)->format('H:i'),
+
+                'doctor' => [
+                    'id'   => $doctor->id,
+                    'name' => $doctor->user->name ?? '',
+                    'image' => $doctor->user->profile_image ?? null ,
+                    'rate' => round($doctor->ratings->avg('rating'), 1),
+                    'specialty' => [
+                        'id'   => $doctor->specialization->id ?? null,
+                        'name' => $doctor->specialization->name ?? null,
+                    ],
+                ],
             ];
+
+            // completed 
+            if ($appointment->status === 'completed') {
+                $base['doctor_notes'] = [
+                    'note' => $appointment->doctor_note ?? null, 
+                    'prescription' => $appointment->prescriptions->first()->prescriptions_note  ?? '', 
+                    /*    'prescription' => $appointment->prescriptions->map(fn($p) => [
+                        // 'id' => $p->id,
+                        'note' => $p->prescriptions_note, //
+                    ])->values(), */
+
+                ];
+            }
+
+            $grouped[$appointment->status][] = $base;
         }
 
-        $grouped[$appointment->status][] = $base;
+        return response()->json([
+            'appointment' => $grouped
+        ]);
     }
 
-    return response()->json([
-        'appointment' => $grouped
-    ]);
-    }
     function get_doctor_centers(Doctor $doctor)
     {
         $centers = $doctor->clinic_center()
@@ -108,212 +111,212 @@ class AppointmentsController extends Controller
 
     public function getAtLeast30DaysAfterTodayForTheDoctorInThisCenter(Request $request, Doctor $doctor, ClinicCenter $center)
     {
-    $wanted = (int) $request->query('days', 30); 
-    $maxLookAhead = 365;
+        $wanted = (int) $request->query('days', 30); 
+        $maxLookAhead = 365;
 
-    $pivot = ClinicCenterDoctor::where('doctor_id', $doctor->id)
-        ->where('clinic_center_id', $center->id)
-        ->first();
+        $pivot = ClinicCenterDoctor::where('doctor_id', $doctor->id)
+            ->where('clinic_center_id', $center->id)
+            ->first();
 
-    if (!$pivot) {
-        return response()->json(['days' => []]);
-    }
-
-    $availableWeekdays = DoctorSchedules::where('doctor_id', $doctor->id)
-        ->where('clinic_center_doctor_id', $pivot->id)
-        ->pluck('day_of_week')
-        ->unique()
-        ->values()
-        ->toArray();
-
-    if (empty($availableWeekdays)) {
-        return response()->json(['days' => []]);
-    }
-
-    $start = Carbon::today();
-    $days = [];
-    $checked = 0;
-    $i = 0;
-
-    while (count($days) < $wanted && $checked < $maxLookAhead) {
-        $date = $start->copy()->addDays($i);
-
-        if (in_array($date->dayOfWeek, $availableWeekdays, true)) {
-            $days[] = ['date' => $date->toDateString()];
+        if (!$pivot) {
+            return response()->json(['days' => []]);
         }
 
-        $i++;
-        $checked++;
-    }
+        $availableWeekdays = DoctorSchedules::where('doctor_id', $doctor->id)
+            ->where('clinic_center_doctor_id', $pivot->id)
+            ->pluck('day_of_week')
+            ->unique()
+            ->values()
+            ->toArray();
 
-    return response()->json(["message" => "Get at least 30 days after today for the doctor for this center", 
-    "status" => $days!=null ? true :false ,
-    "data" => [
-            "days" => [
-                "date" => $days
-            ]
-            ]
-    ]);
-    }
+        if (empty($availableWeekdays)) {
+            return response()->json(['days' => []]);
+        }
 
+        $start = Carbon::today();
+        $days = [];
+        $checked = 0;
+        $i = 0;
 
-public function getAvailableTimes(Doctor $doctor, ClinicCenter $center, string $date)
-{
-    try {
-        $dateObj = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Invalid date format. Use Y-m-d'], 422);
-    }
+        while (count($days) < $wanted && $checked < $maxLookAhead) {
+            $date = $start->copy()->addDays($i);
 
-    if ($dateObj->lt(Carbon::today())) {
-        return response()->json(['message' => 'Date must be today or later'], 422);
-    }
+            if (in_array($date->dayOfWeek, $availableWeekdays, true)) {
+                $days[] = ['date' => $date->toDateString()];
+            }
 
-    $step = 30;
+            $i++;
+            $checked++;
+        }
 
-    $pivot = ClinicCenterDoctor::where('doctor_id', $doctor->id)
-        ->where('clinic_center_id', $center->id)
-        ->first();
-
-    if (!$pivot) {
-        return response()->json([
-            'date' => $dateObj->toDateString(),
-            'periods' => ['morning'=>[], 'afternoon'=>[], 'evening'=>[]],
+        return response()->json(["message" => "Get at least 30 days after today for the doctor for this center", 
+        "status" => $days!=null ? true :false ,
+        "data" => [
+                "days" => [
+                    "date" => $days
+                ]
+                ]
         ]);
     }
 
-    $schedules = DoctorSchedules::where('doctor_id', $doctor->id)
-        ->where('clinic_center_doctor_id', $pivot->id)
-        ->where('day_of_week', $dateObj->dayOfWeek) // 0..6
-        ->get();
 
-    if ($schedules->isEmpty()) {
+    public function getAvailableTimes(Doctor $doctor, ClinicCenter $center, string $date)
+    {
+        try {
+            $dateObj = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid date format. Use Y-m-d'], 422);
+        }
+
+        if ($dateObj->lt(Carbon::today())) {
+            return response()->json(['message' => 'Date must be today or later'], 422);
+        }
+
+        $step = 30;
+
+        $pivot = ClinicCenterDoctor::where('doctor_id', $doctor->id)
+            ->where('clinic_center_id', $center->id)
+            ->first();
+
+        if (!$pivot) {
+            return response()->json([
+                'date' => $dateObj->toDateString(),
+                'periods' => ['morning'=>[], 'afternoon'=>[], 'evening'=>[]],
+            ]);
+        }
+
+        $schedules = DoctorSchedules::where('doctor_id', $doctor->id)
+            ->where('clinic_center_doctor_id', $pivot->id)
+            ->where('day_of_week', $dateObj->dayOfWeek) // 0..6
+            ->get();
+
+        if ($schedules->isEmpty()) {
+            return response()->json([
+                'date' => $dateObj->toDateString(),
+                'periods' => ['morning'=>[], 'afternoon'=>[], 'evening'=>[]],
+            ]);
+        }
+
+        $bookedTimes = Appointment::where('doctor_id', $doctor->id)
+            ->where('clinic_center_id', $center->id)
+            ->whereDate('start_at', $dateObj->toDateString())
+            ->where('status', '!=', 'canceled')
+            ->get()
+            ->map(fn($a) => Carbon::parse($a->start_at)->format('H:i'))
+            ->toArray();
+
+        $allSlots = [];
+        foreach ($schedules as $sch) {
+            $allSlots = array_merge(
+                $allSlots,
+                $this->buildSlots($sch->start_time, $sch->end_time, $step)
+            );
+        }
+
+        $allSlots = array_values(array_unique($allSlots));
+        sort($allSlots);
+
+        $availableSlots = array_values(array_diff($allSlots, $bookedTimes));
+
+        if ($dateObj->isSameDay(Carbon::today())) {
+            $now = Carbon::now();
+            $availableSlots = array_values(array_filter($availableSlots, function ($time) use ($dateObj, $now) {
+                $slotDT = Carbon::parse($dateObj->toDateString().' '.$time.':00');
+                return $slotDT->greaterThan($now);
+            }));
+        }
+
+        $periods = ['morning'=>[], 'afternoon'=>[], 'evening'=>[]];
+
+        foreach ($availableSlots as $t) {
+            $hour = (int) substr($t, 0, 2);
+
+            if ($hour < 12)      $periods['morning'][]   = ['time' => $t];
+            elseif ($hour < 17)  $periods['afternoon'][] = ['time' => $t];
+            else                 $periods['evening'][]   = ['time' => $t];
+        }
+
         return response()->json([
             'date' => $dateObj->toDateString(),
-            'periods' => ['morning'=>[], 'afternoon'=>[], 'evening'=>[]],
+            'periods' => $periods,
         ]);
     }
 
-    $bookedTimes = Appointment::where('doctor_id', $doctor->id)
-        ->where('clinic_center_id', $center->id)
-        ->whereDate('start_at', $dateObj->toDateString())
-        ->where('status', '!=', 'canceled')
-        ->get()
-        ->map(fn($a) => Carbon::parse($a->start_at)->format('H:i'))
-        ->toArray();
+    private function buildSlots(?string $startTime, ?string $endTime, int $stepMinutes = 30): array
+    {
+        if (!$startTime || !$endTime) return [];
 
-    $allSlots = [];
-    foreach ($schedules as $sch) {
-        $allSlots = array_merge(
-            $allSlots,
-            $this->buildSlots($sch->start_time, $sch->end_time, $step)
-        );
+        if (strlen($startTime) === 5) $startTime .= ':00';
+        if (strlen($endTime) === 5) $endTime .= ':00';
+
+        $start = Carbon::createFromFormat('H:i:s', $startTime);
+        $end   = Carbon::createFromFormat('H:i:s', $endTime);
+
+        $slots = [];
+        while ($start->lt($end)) {
+            $slots[] = $start->format('H:i');
+            $start->addMinutes($stepMinutes);
+        }
+
+        return $slots;
     }
+  
+    /*public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $center,string $date,string $period) //Maria
+    {
+        $allowedPeriods = ['morning', 'afternoon', 'evening'];
+        if (!in_array($period, $allowedPeriods, true)) {
+            return response()->json(['message' => 'Invalid period'], 422);
+        }
 
-    $allSlots = array_values(array_unique($allSlots));
-    sort($allSlots);
+        try {
+            $dateObj = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid date format'], 422);
+        }
 
-    $availableSlots = array_values(array_diff($allSlots, $bookedTimes));
+        if ($dateObj->lt(Carbon::today())) {
+            return response()->json(['message' => 'Date must be today or later'], 422);
+        }
 
-    if ($dateObj->isSameDay(Carbon::today())) {
-        $now = Carbon::now();
-        $availableSlots = array_values(array_filter($availableSlots, function ($time) use ($dateObj, $now) {
-            $slotDT = Carbon::parse($dateObj->toDateString().' '.$time.':00');
-            return $slotDT->greaterThan($now);
-        }));
-    }
+        $data = $request->validate([
+            'time' => 'required|date_format:H:i',
+            'note' => 'nullable|string|max:500',
 
-    $periods = ['morning'=>[], 'afternoon'=>[], 'evening'=>[]];
+            'diagnosis' => 'nullable|array',
+            'diagnosis_ratio' => 'nullable|numeric|min:0|max:100',
+            'diagnosis_name' => 'nullable|string|max:255',
+            'is_emergency' => 'nullable|boolean',
+            //'diagnose.answers' => 'nullable|array',
+            //'diagnose.answers.*.question_id' => 'required_with:diagnose.answers|exists:questions,id',
+            //'diagnose.answers.*.answer' => 'required_with:diagnose.answers|string|max:255',
+        ]);
 
-    foreach ($availableSlots as $t) {
-        $hour = (int) substr($t, 0, 2);
+        $patientId = auth()->user()->patient->id ?? null;
+        if (!$patientId) {
+            return response()->json(['message' => 'Patient not found'], 422);
+        }
 
-        if ($hour < 12)      $periods['morning'][]   = ['time' => $t];
-        elseif ($hour < 17)  $periods['afternoon'][] = ['time' => $t];
-        else                 $periods['evening'][]   = ['time' => $t];
-    }
+        $startAt = Carbon::createFromFormat('Y-m-d H:i', $dateObj->toDateString().' '.$data['time']);
 
-    return response()->json([
-        'date' => $dateObj->toDateString(),
-        'periods' => $periods,
-    ]);
-}
+        if ($startAt->lt(Carbon::now())) {
+            return response()->json(['message' => 'Cannot book past time'], 422);
+        }
 
-private function buildSlots(?string $startTime, ?string $endTime, int $stepMinutes = 30): array
-{
-    if (!$startTime || !$endTime) return [];
+        $hour = (int) $startAt->format('H');
 
-    if (strlen($startTime) === 5) $startTime .= ':00';
-    if (strlen($endTime) === 5) $endTime .= ':00';
+        $periodOk = match ($period) {
+            'morning'   => $hour < 12,
+            'afternoon' => $hour >= 12 && $hour < 17,
+            'evening'   => $hour >= 17,
+            default     => false,
+        };
 
-    $start = Carbon::createFromFormat('H:i:s', $startTime);
-    $end   = Carbon::createFromFormat('H:i:s', $endTime);
+        if (!$periodOk) {
+            return response()->json(['message' => 'Time does not match selected period',
+        "status" => false ], 422);
+        }
 
-    $slots = [];
-    while ($start->lt($end)) {
-        $slots[] = $start->format('H:i');
-        $start->addMinutes($stepMinutes);
-    }
-
-    return $slots;
-}
-
-
-public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $center,string $date,string $period) {
-    $allowedPeriods = ['morning', 'afternoon', 'evening'];
-    if (!in_array($period, $allowedPeriods, true)) {
-        return response()->json(['message' => 'Invalid period'], 422);
-    }
-
-    try {
-        $dateObj = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Invalid date format'], 422);
-    }
-
-    if ($dateObj->lt(Carbon::today())) {
-        return response()->json(['message' => 'Date must be today or later'], 422);
-    }
-
-    $data = $request->validate([
-        'time' => 'required|date_format:H:i',
-        'note' => 'nullable|string|max:500',
-
-        'diagnosis' => 'nullable|array',
-        'diagnosis_ratio' => 'nullable|numeric|min:0|max:100',
-        'diagnosis_name' => 'nullable|string|max:255',
-        'is_emergency' => 'nullable|boolean',
-        //'diagnose.answers' => 'nullable|array',
-        //'diagnose.answers.*.question_id' => 'required_with:diagnose.answers|exists:questions,id',
-        //'diagnose.answers.*.answer' => 'required_with:diagnose.answers|string|max:255',
-    ]);
-
-    $patientId = auth()->user()->patient->id ?? null;
-    if (!$patientId) {
-        return response()->json(['message' => 'Patient not found'], 422);
-    }
-
-    $startAt = Carbon::createFromFormat('Y-m-d H:i', $dateObj->toDateString().' '.$data['time']);
-
-    if ($startAt->lt(Carbon::now())) {
-        return response()->json(['message' => 'Cannot book past time'], 422);
-    }
-
-    $hour = (int) $startAt->format('H');
-
-    $periodOk = match ($period) {
-        'morning'   => $hour < 12,
-        'afternoon' => $hour >= 12 && $hour < 17,
-        'evening'   => $hour >= 17,
-        default     => false,
-    };
-
-    if (!$periodOk) {
-        return response()->json(['message' => 'Time does not match selected period',
-    "status" => false ], 422);
-    }
-
-    return DB::transaction(function () use ($doctor, $center, $dateObj, $request, $startAt, $patientId, $data, $period) {
+        return DB::transaction(function () use ($doctor, $center, $dateObj, $request, $startAt, $patientId, $data, $period) {
 
         $pivot = ClinicCenterDoctor::where('doctor_id', $doctor->id)
             ->where('clinic_center_id', $center->id)
@@ -359,11 +362,8 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
             'expected_disease' => $data['diagnosis_name']
         ]);
 
-
-
         //send notification 
         $this->notifyDoctorNewAppointment($appointment);
-
 
         return response()->json([
             'message' => 'Appointment booked successfully',
@@ -382,13 +382,189 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
                         'diagnosis_ratio' => $appointment->result_ratio , 
                         'diagnosis_name' => $appointment->expected_disease , 
                         'is_emergency' => $appointment->emergency 
-                    ],
+                        ],
+                    ]
                 ]
-            ]
-        ], 201);
-    });
-    }
+            ], 201);
+        });
+    }*/
 
+    public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $center,string $date,string $period) 
+    {
+        $allowedPeriods = ['morning', 'afternoon', 'evening'];
+        if (!in_array($period, $allowedPeriods, true)) {
+            return response()->json(['message' => 'Invalid period'], 422);
+        }
+
+        try {
+            $dateObj = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid date format'], 422);
+        }
+
+        if ($dateObj->lt(Carbon::today())) {
+            return response()->json(['message' => 'Date must be today or later'], 422);
+        }
+
+        $data = $request->validate([
+            'type' => 'required|in:doctor,radiology,lab',
+            'time' => 'required|date_format:H:i',
+            'note' => 'nullable|string|max:500',
+
+            'diagnosis' => 'nullable|array',
+            'diagnosis_ratio' => 'nullable|numeric|min:0|max:100',
+            'diagnosis_name' => 'nullable|string|max:255',
+            'is_emergency' => 'nullable|boolean',
+            //'diagnose.answers' => 'nullable|array',
+            //'diagnose.answers.*.question_id' => 'required_with:diagnose.answers|exists:questions,id',
+            //'diagnose.answers.*.answer' => 'required_with:diagnose.answers|string|max:255',
+
+            //  ربط مع التحاليل والصور الموجودة بالسجل
+            'attached_radiology_result_id' => 'nullable|exists:radiology_results,id',
+            'attached_lab_result_id' => 'nullable|exists:lab_results,id',
+
+            //   اختيار تحليل واحد أو أكثر
+            'lab_tests' => 'nullable|array',
+            'lab_tests.*' => 'exists:lab_tests,id',
+
+            //   اختيار نوع الصورة 
+            'type_of_medical_image_id' => 'nullable|exists:type_of_medical_images,id',
+        ]);
+
+        $patientId = auth()->user()->patient->id ?? null;
+        if (!$patientId) {
+            return response()->json(['message' => 'Patient not found'], 422);
+        }
+
+        if ($data['type'] === 'radiology' && empty($data['type_of_medical_image_id'])) {
+            return response()->json([
+                'message' => 'Type of medical image is required for radiology appointment',
+                'status' => false
+            ], 422);
+        }
+
+    
+        if ($data['type'] === 'lab' && empty($data['lab_tests'])) {
+            return response()->json([
+                'message' => 'At least one lab test is required for lab appointment',
+                'status' => false
+            ], 422);
+        }
+
+        $startAt = Carbon::createFromFormat('Y-m-d H:i', $dateObj->toDateString().' '.$data['time']);
+
+        if ($startAt->lt(Carbon::now())) {
+            return response()->json(['message' => 'Cannot book past time'], 422);
+        }
+
+        $hour = (int) $startAt->format('H');
+
+        $periodOk = match ($period) {
+            'morning'   => $hour < 12,
+            'afternoon' => $hour >= 12 && $hour < 17,
+            'evening'   => $hour >= 17,
+            default     => false,
+        };
+
+        if (!$periodOk) {
+            return response()->json(['message' => 'Time does not match selected period',
+        "status" => false ], 422);
+        }
+
+        return DB::transaction(function () use ($doctor, $center, $dateObj, $request, $startAt, $patientId, $data, $period) {
+
+            $pivot = ClinicCenterDoctor::where('doctor_id', $doctor->id)
+                ->where('clinic_center_id', $center->id)
+                ->first();
+
+            if (!$pivot) {
+                return response()->json(['message' => 'Doctor not available in this center'], 422);
+            }
+
+            $weekday = $dateObj->dayOfWeek;
+
+            $inSchedule = DoctorSchedules::where('doctor_id', $doctor->id)
+                ->where('clinic_center_doctor_id', $pivot->id)
+                ->where('day_of_week', $weekday)
+                ->whereTime('start_time', '<=', $startAt->format('H:i:s'))
+                ->whereTime('end_time',   '>',  $startAt->format('H:i:s'))
+                ->exists();
+
+            if (!$inSchedule) {
+                return response()->json(['message' => 'Selected time is outside doctor schedule'], 422);
+            }
+
+            $exists = Appointment::where('doctor_id', $doctor->id)
+                ->where('clinic_center_id', $center->id)
+                ->where('start_at', $startAt->toDateTimeString())
+                ->where('status', '!=', 'canceled')
+                ->exists();
+
+            if ($exists) {
+                return response()->json(['message' => 'This time is already booked' , 
+            "status" => false ], 409);
+            }
+
+            $appointment = Appointment::create([
+                'patient_id'       => $patientId,
+                'doctor_id'        => $doctor->id,
+                'clinic_center_id' => $center->id,
+                'start_at'         => $startAt,
+                'type'             => $data["type"],
+                'note'             => $data["note"],
+                'status'           => 'pending', 
+                'emergency'        => $data['is_emergency'] , 
+                'result_ratio'     => $data['diagnosis_ratio'] , 
+                'expected_disease' => $data['diagnosis_name'] ,
+                'attached_radiology_result_id' => $data['attached_radiology_result_id'] ?? null,
+                'attached_lab_result_id' => $data['attached_lab_result_id'] ?? null,
+            ]);
+
+            if ($data['type'] === 'radiology') {
+                RadiologyAppointment::create([
+                    'appointment_id' => $appointment->id,
+                    'type_of_medical_image_id' => $data['type_of_medical_image_id'],
+                ]);
+            }
+
+
+            if ($data['type'] === 'lab' && !empty($data['lab_tests'])) {
+                $appointment->labTests()->attach($data['lab_tests']);
+            }
+
+            //send notification 
+            $this->notifyDoctorNewAppointment($appointment);
+
+            return response()->json([
+                'message' => 'Appointment booked successfully',
+                'status'  => true,
+                'data' => [
+                    'appointment' => [
+                        //'id'        => $appointment->id,
+                        //'doctor_id' => $doctor->id,
+                        //'type' => $appointment->type,
+                        'center_id' => $center->id,
+                        'date'      => $startAt->toDateString(),
+                        'time'      => $startAt->format('H:i'),
+                        //'period'    => $period,
+                        //'note'      => $data['note'] ?? null,
+                        //'status'    => $appointment->status,
+                        'diagnosis'  => [
+                            'diagnosis_ratio' => $appointment->result_ratio , 
+                            'diagnosis_name' => $appointment->expected_disease , 
+                            'is_emergency' => $appointment->emergency 
+                        ],
+                        'attached_radiology_result_id' => $appointment->attached_radiology_result_id,
+                        'attached_lab_result_id' => $appointment->attached_lab_result_id,
+
+                        'type_of_medical_image_id' => $data['type_of_medical_image_id'] ?? null,
+
+                        'lab_tests' => $data['lab_tests'] ?? [],
+                    ]
+                ]
+            ], 201);
+        });
+    } 
 
     private function notifyDoctorNewAppointment(Appointment $appointment)
     {
@@ -415,115 +591,199 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
         $this->sendNotification($token, $title, $body, $data);
     }
 
-    public function  appointment_details(Appointment $appointment)
+    public function appointment_details(Appointment $appointment)
     {
         $user = auth()->user();
+
 
         $isPatientOwner = $user->hasRole('patient') && optional($user->patient)->id === $appointment->patient_id;
         $isDoctorOwner  = $user->hasRole('doctor') && optional($user->doctor)->id === $appointment->doctor_id;
 
-    if (!$isPatientOwner && !$isDoctorOwner) {
-        return response()->json(['message' => 'Unauthorized' , 
-    "status" => false 
-        ],
-    403);
-    }
+        if (!$isPatientOwner && !$isDoctorOwner) {
+            return response()->json([
+                'message' => 'Unauthorized',
+                'status' => false
+            ], 403);
+        }
 
-    $appointment->load([
-        'patient.user',
-        'answers.question',  
-    ]);
 
-    $patient = $appointment->patient;
-    $patientUser = $patient?->user;
+        $appointment->load([
+            'patient.user',
+            'doctor.user',
+            'doctor.specialization',
+            'answers.question',
 
-    $diagnose = null;
+            'prescriptions.items',
+            'radiologyRequests.type',
+            'labRequests.tests',
+            'radiologyResult',
+            'labResult',
+            'radiologyAppointment.type',
+            'labTests',
+        ]);
 
-    $hasDiagnoseColumns =
-        isset($appointment->result_ratio) ||
-        isset($appointment->expected_disease) ||
-        isset($appointment->emergency);
+        $patient = $appointment->patient;
+        $patientUser = $patient?->user;
 
-    if ($hasDiagnoseColumns || ($appointment->relationLoaded('answers') && $appointment->answers->isNotEmpty())) {
-        $diagnose = [
-            'diagnosis_ratio'      => $appointment->result_ratio ?? null,
-            'diagnosis_name'  => $appointment->expected_disease ?? null,
-            'is_emergency'           => $appointment->emergency ?? null,
-            /*'answers' => $appointment->answers?->map(function ($a) {
-                return [
-                    'question' => $a->question?->question ?? $a->question?->title ?? null,
-                    'answer'   => $a->answer ?? null,
-                ];
-            })->values() ?? [], */
-        ];
-    }
+        $doctor = $appointment->doctor;
+        $doctorUser = $doctor?->user;
 
-    if($appointment->result_ratio == null && $appointment->expected_disease== null && $appointment->emergency == null)
-    {
-        $diagnose = null ;
-    }
 
-    return response()->json([
-        'appointment' => [
-            'status' => $appointment->status,
-            'patient' => [
-                'image'       => $patientUser?->profile_image ?? null,
-                'full_name' => $patientUser?->name  . " " . $patientUser?->last_name ?? '',
-                'gender'    => $patient?->gender ?? null,
-                //'age'       => $patient?->age ?? null,
-                'height'    => $patient?->height ?? null,
-                'weight'    => $patient?->weight ?? null,
-                'has_children' => $patient->has_children ?? null ,
-                'number_of_children' => $patient->number_of_children ?? null , 
-                'birth_date' => $patient->birth_date ?? null ,
-                'smoker'    => $patient?->is_smoke ?? null,
-                'marital_status' => $patient?->marital_status ?? null,
-            ],
-            'note' => $appointment->note ?? null, 
-            'diagnosis' => $diagnose ?? null , // nullable
+        $diagnose = null;
 
-            'date' => Carbon::parse($appointment->start_at)->toDateString(),
-            'time' => Carbon::parse($appointment->start_at)->format('H:i'),
-        ]
-    ]);
+        $hasDiagnoseColumns =
+            isset($appointment->result_ratio) ||
+            isset($appointment->expected_disease) ||
+            isset($appointment->emergency);
+
+        if ($hasDiagnoseColumns || ($appointment->relationLoaded('answers') && $appointment->answers->isNotEmpty())) {
+            $diagnose = [
+                'diagnosis_ratio' => $appointment->result_ratio ?? null,
+                'diagnosis_name'  => $appointment->expected_disease ?? null,
+                'is_emergency'    => $appointment->emergency ?? null,
+            ];
+        }
+
+        if (
+            $appointment->result_ratio == null &&
+            $appointment->expected_disease == null &&
+            $appointment->emergency == null
+        ) {
+            $diagnose = null;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Appointment details fetched successfully',
+            'data' => [
+                'appointment' => [
+
+                    'id' => $appointment->id,
+                    'type' => $appointment->type,
+                    'status' => $appointment->status,
+
+                    'date' => Carbon::parse($appointment->start_at)->toDateString(),
+                    'time' => Carbon::parse($appointment->start_at)->format('H:i'),
+
+                    'patient_note' => $appointment->note ?? null,
+                    'doctor_note' => $appointment->doctor_note ?? null,
+
+                    'diagnosis' => $diagnose,
+
+                    'patient' => [
+                        'image' => $patientUser?->profile_image ?? null,
+                        'full_name' => trim(($patientUser?->name ?? '') . ' ' . ($patientUser?->last_name ?? '')),
+                        'gender' => $patient?->gender ?? null,
+                        'height' => $patient?->height ?? null,
+                        'weight' => $patient?->weight ?? null,
+                        'has_children' => $patient?->has_children ?? null,
+                        'number_of_children' => $patient?->number_of_children ?? null,
+                        'birth_date' => $patient?->birth_date ?? null,
+                        'smoker' => $patient?->is_smoke ?? null,
+                        'marital_status' => $patient?->marital_status ?? null,
+                    ],
+
+                    'doctor' => [
+                        'id' => $doctor?->id,
+                        'full_name' => trim(($doctorUser?->name ?? '') . ' ' . ($doctorUser?->last_name ?? '')),
+                        'image' => $doctorUser?->profile_image ?? null,
+                        'specialization' => $doctor?->specialization?->name ?? null,
+                    ],
+
+
+
+                    'prescription_items' => $appointment->type === 'doctor' && $appointment->prescriptions
+                        ? $appointment->prescriptions->items->map(function ($item) {
+                            return [
+                                'medicine_name' => $item->medicine_name,
+                                'dose' => $item->dose,
+                                'frequency' => $item->frequency,
+                                'start_date' => $item->start_date,
+                                'end_date' => $item->end_date,
+                                'instructions' => $item->instructions,
+                            ];
+                        })->values()
+                        : [],
+
+
+                    'lab_requests' => $appointment->type === 'doctor'
+                        ? $appointment->labRequests->flatMap(function ($req) {
+                            return $req->tests->map(function ($test) use ($req) {
+                                return [
+                                    'name' => $test->name,
+                                    'notes' => $req->notes
+                                ];
+                            });
+                        })->values()
+                        : [],
+
+                  
+                    'radiology_requests' => $appointment->type === 'doctor'
+                        ? $appointment->radiologyRequests->map(function ($req) {
+                            return [
+                                'type_name' => $req->type?->name ?? null,
+                                'notes' => $req->notes
+                            ];
+                        })->values()
+                        : [],
+
+                   
+                    'radiology_result' => $appointment->type === 'radiology' && $appointment->radiologyResult
+                        ? [
+                            'image_url' => url(Storage::url($appointment->radiologyResult->image_path)),
+                            'notes' => $appointment->radiologyResult->notes
+                        ]
+                        : null,
+
+                  
+                    'lab_result' => $appointment->type === 'lab' && $appointment->labResult
+                        ? [
+                            'result_file_url' => url(Storage::url($appointment->labResult->result_file)),
+                            'notes' => $appointment->labResult->notes
+                        ]
+                        : null,
+
+                ]
+            ]
+        ]);
     }
 
     public function cancelAppointment(Request $request)
     {
         $data = $request->validate([
         'appointment_id' => 'required|exists:appointments,id',
-    ]);
+        ]);
 
-    $appointment = Appointment::findOrFail($data['appointment_id']);
-    $user = auth()->user();
+        $appointment = Appointment::findOrFail($data['appointment_id']);
+        $user = auth()->user();
 
-    $isPatientOwner = $user->hasRole('patient') && optional($user->patient)->id === $appointment->patient_id;
-    $isDoctorOwner  = $user->hasRole('doctor') && optional($user->doctor)->id === $appointment->doctor_id;
+        $isPatientOwner = $user->hasRole('patient') && optional($user->patient)->id === $appointment->patient_id;
+        $isDoctorOwner  = $user->hasRole('doctor') && optional($user->doctor)->id === $appointment->doctor_id;
 
-    if (!$isPatientOwner && !$isDoctorOwner) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
+        if (!$isPatientOwner && !$isDoctorOwner) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-    if ($appointment->status === 'completed') {
-        return response()->json(['message' => 'Cannot cancel a finished appointment',
-    "status" => false
-    ], 422);
-    }
+        if ($appointment->status === 'completed') {
+            return response()->json(['message' => 'Cannot cancel a finished appointment',
+        "status" => false
+        ], 422);
+        }
 
-    $appointment->update(['status' => 'canceled']);
+        $appointment->update(['status' => 'canceled']);
 
-    //send notification
-    $this->notifyPatientAppointmentCancelled($appointment);
+        //send notification
+        $this->notifyPatientAppointmentCancelled($appointment);
 
 
-    return response()->json([
-        'message' => 'Appointment canceled',
-        'status' => true,
-        'data' => [
-            'appointment_id' => $appointment->id,
-            'new_status' => $appointment->status,
-        ]
-    ]);
+        return response()->json([
+            'message' => 'Appointment canceled',
+            'status' => true,
+            'data' => [
+                'appointment_id' => $appointment->id,
+                'new_status' => $appointment->status,
+            ]
+        ]);
     }
 
 
@@ -553,5 +813,6 @@ public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $c
 
 
     }
+    
 
 }
