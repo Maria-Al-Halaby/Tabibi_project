@@ -206,6 +206,42 @@
                 @enderror
             </div>
 
+            <!-- حقل نوع الطبيب (Doctor Type) -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold text-muted d-block">Doctor Type</label>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input @error('doctor_type') is-invalid @enderror"
+                        type="radio"
+                        name="doctor_type"
+                        value="doctor"
+                        {{ old('doctor_type', $doctor->doctor_type) == 'doctor' ? 'checked' : '' }}>
+                    <label class="form-check-label">Doctor</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input @error('doctor_type') is-invalid @enderror"
+                        type="radio"
+                        name="doctor_type"
+                        value="radiology"
+                        {{ old('doctor_type', $doctor->doctor_type) == 'radiology' ? 'checked' : '' }}>
+                    <label class="form-check-label">Radiology</label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input @error('doctor_type') is-invalid @enderror"
+                        type="radio"
+                        name="doctor_type"
+                        value="lab"
+                        {{ old('doctor_type', $doctor->doctor_type) == 'lab' ? 'checked' : '' }}>
+                    <label class="form-check-label">Lab</label>
+                </div>
+
+                @error('doctor_type')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- حقل الاختصاص (Specialization ID) -->
             <div class="mb-5">
                 <label for="specialization_id" class="form-label fw-semibold text-muted">Select Specialization</label>
