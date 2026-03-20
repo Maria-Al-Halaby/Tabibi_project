@@ -42,6 +42,7 @@ class DoctorController extends Controller
         "password" => "required|min:7",
         "phone" => "required",
         "specialization_id" => "required|exists:specializations,id",
+        "doctor_type" => "required|in:doctor,radiology,lab",
         "profile_image" => "nullable|image" , 
         "bio" => "required|string" , 
         "experience_years" => "required|min:0|max:80"
@@ -71,11 +72,18 @@ class DoctorController extends Controller
             "profile_image" => $imagePath , 
         ]);
 
-        $user->assignRole("doctor");
+        if ($request->doctor_type === 'radiology') {
+        $user->assignRole('radiologist');
+        } elseif ($request->doctor_type === 'lab') {
+            $user->assignRole('lab technician');
+        } else {
+            $user->assignRole('doctor');
+        }
 
         Doctor::create([
             "user_id" => $user->id, 
             "specialization_id" => $request->specialization_id , 
+            "doctor_type" => $request->doctor_type ,
             "bio" => $request->bio , 
             "experience_years" => $request->experience_years
         ]);
@@ -112,6 +120,7 @@ class DoctorController extends Controller
             "name" => "required|string|max:150",
             "email" => "required|email|unique:users,email," . $doctor->user_id,
             "specialization_id" => "required|exists:specializations,id",
+            "doctor_type" => "required|in:doctor,radiology,lab",
             "password" => "nullable|min:7",
             "phone" => "required|string", 
             "profile_image" => "nullable|image" , 
@@ -140,8 +149,19 @@ class DoctorController extends Controller
             "profile_image" => $imagePath
         ]);
 
+        $user->syncRoles([]);
+
+        if ($data['doctor_type'] === 'radiology') {
+            $user->assignRole('radiologist');
+        } elseif ($data['doctor_type'] === 'lab') {
+            $user->assignRole('lab technician');
+        } else {
+            $user->assignRole('doctor');
+        }
+
         $doctor->update([
             "specialization_id" => $data["specialization_id"], 
+            "doctor_type" => $data["doctor_type"],
             "bio" => $request->bio , 
             "experience_years" => $request->experience_years
         ]);

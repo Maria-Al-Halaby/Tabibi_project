@@ -153,6 +153,51 @@
                 @enderror
             </div>
 
+            <!-- حقل نوع الطبيب (Doctor Type) -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold text-muted d-block">Doctor Type</label>
+
+            <div class="form-check mb-2">
+                <input class="form-check-input @error('doctor_type') is-invalid @enderror"
+                    type="radio"
+                    name="doctor_type"
+                    id="doctor_type_doctor"
+                    value="doctor"
+                    {{ old('doctor_type', 'doctor') == 'doctor' ? 'checked' : '' }}>
+                <label class="form-check-label" for="doctor_type_doctor">
+                    Doctor
+                </label>
+            </div>
+
+            <div class="form-check mb-2">
+                <input class="form-check-input @error('doctor_type') is-invalid @enderror"
+                    type="radio"
+                    name="doctor_type"
+                    id="doctor_type_radiology"
+                    value="radiology"
+                    {{ old('doctor_type') == 'radiology' ? 'checked' : '' }}>
+                <label class="form-check-label" for="doctor_type_radiology">
+                    Radiology
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input @error('doctor_type') is-invalid @enderror"
+                    type="radio"
+                    name="doctor_type"
+                    id="doctor_type_lab"
+                    value="lab"
+                    {{ old('doctor_type') == 'lab' ? 'checked' : '' }}>
+                <label class="form-check-label" for="doctor_type_lab">
+                    Lab
+                </label>
+            </div>
+
+            @error('doctor_type')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
+        </div>
+
             <!-- حقل الاختصاص (Specialization ID) -->
             <div class="mb-5">
                 <label for="specialization_id" class="form-label fw-semibold text-muted">Select Specialization</label>
