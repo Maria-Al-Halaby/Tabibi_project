@@ -17,7 +17,13 @@ class Patient extends Model
         "birth_date", 
         "profile_image" , 
         "address" , 
-        "is_smoke"
+        "is_smoke" , 
+        "chronic_diseases",
+        "permanent_medications",
+        "favorite_foods",
+        "disliked_foods",
+        "food_allergies",
+        "blood_type",
     ]; 
     
     protected $casts = [
