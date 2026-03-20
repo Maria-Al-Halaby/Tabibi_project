@@ -50,4 +50,9 @@ class Patient extends Model
     {
     return $this->hasMany(DoctorRating::class);
     }
+
+    public function medicalRecords()
+    {
+        return $this->hasMany(PatientMedicalRecord::class);
+    }
 }

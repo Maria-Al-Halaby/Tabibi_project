@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\GetAllController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProfileSettingController;
 use App\Http\Controllers\Api\ResetPasswordController;
+use App\Http\Controllers\PatientMedicalRecordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,12 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
     Route::post('/patient/appointments/rate', [DoctorRatingController::class, 'rateAppointment']);
     Route::get('/patient/appointments/{appointment_id}/rating', [DoctorRatingController::class, 'showAppointmentRating']);
     //Route::get('patient_has_rating/{doctor}' , [DoctorRatingController::class , 'hasRated']);
+
+    /* patient save medical record */
+
+    Route::post('/patient/medical_record/stroe' , [PatientMedicalRecordController::class , 'store']);
+
+    Route::post('patient/medical_record/show_all' , [PatientMedicalRecordController::class , "getMedicalRecords"]);
 });
 
 /* doctor home screen route and appointments */
