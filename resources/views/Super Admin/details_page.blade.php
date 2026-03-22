@@ -9,7 +9,7 @@
     <h1>Appointments Count : {{ $AppointmentCount }}</h1>
 
 @endsection
- --}}
+
 
 
 @extends('layouts.app')
@@ -124,4 +124,92 @@
         </div>
     </div>
 
+@endsection  --}}
+
+
+@extends('layouts.app')
+
+@section('title', 'Statistics Dashboard')
+
+@section('content')
+<div class="container py-5">
+    <h2 class="mb-5 fw-bold text-center" style="color: #008080;">
+        <i class="bi bi-graph-up-arrow me-2"></i> SuperAdmin Analytics Overview
+    </h2>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-body">
+                    <h5 class="card-title mb-4 fw-bold">General Statistics (Bar View)</h5>
+                    <canvas id="barChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-body">
+                    <h5 class="card-title mb-4 fw-bold">Distribution</h5>
+                    <canvas id="pieChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // 1. إعداد البيانات القادمة من Laravel
+    const statsData = {
+        labels: ['Clinics', 'Doctors', 'Patients', 'Appointments'],
+        values: [{{ $ClinicCount }}, {{ $DoctorCount }}, {{ $PatientCount }}, {{ $AppointmentCount }}],
+        colors: ['#008080', '#28a745', '#ffc107', '#0d6efd']
+    };
+
+    // 2. إنشاء Bar Chart
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: statsData.labels,
+            datasets: [{
+                label: 'Total Count',
+                data: statsData.values,
+                backgroundColor: statsData.colors,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // 3. إنشاء Pie Chart
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'doughnut', // نوع الدونات يعطي مظهر عصري أكثر من Pie العادي
+        data: {
+            labels: statsData.labels,
+            datasets: [{
+                data: statsData.values,
+                backgroundColor: statsData.colors,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>
 @endsection

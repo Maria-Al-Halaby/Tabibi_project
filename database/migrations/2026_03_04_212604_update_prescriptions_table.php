@@ -17,9 +17,9 @@ return new class extends Migration
 
             $table->text('general_note')->nullable()->after('appointment_id');
 
-             $table->enum('status', ['pending', 'ready', 'dispensed'])
-                  ->default('pending')
-                  ->after('general_note');
+            $table->enum('status', ['pending', 'ready', 'dispensed'])
+                ->default('pending')
+                ->after('general_note');
 });
     }
 

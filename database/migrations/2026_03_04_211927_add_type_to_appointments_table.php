@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::table('appointments', function (Blueprint $table) {
             $table->enum('type', ['doctor', 'radiology', 'lab'])
-          ->default('doctor')
-          ->after('clinic_center_id');
-            //
+            ->default('doctor')
+            ->after('clinic_center_id');
+            
         });
         
     }

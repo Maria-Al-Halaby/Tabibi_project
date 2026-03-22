@@ -12,17 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('radiology_appointments', function (Blueprint $table) {
+            
             $table->id();
             
             $table->foreignId('appointment_id')
-                  ->constrained('appointments')
-                  ->onDelete('cascade');
+                ->constrained('appointments')
+                ->onDelete('cascade');
 
             $table->foreignId('type_of_medical_image_id')
-                  ->constrained('type_of_medical_images')
-                  ->onDelete('cascade');
+                ->constrained('type_of_medical_images')
+                ->onDelete('cascade'); 
 
-            $table->timestamps();
+            $table->timestamps(); 
         });
     }
 

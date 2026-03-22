@@ -74,21 +74,27 @@ class AuthController extends Controller
     public function register(Request $request)  
 {
     $request->validate([
-        "first_name"        => "required|string|max:100", 
-        "last_name"         => "required|string|max:100" , 
-        "phone"             => "required|string|max:15|unique:users,phone" ,
-        "email"             => "required|email|unique:users,email" ,
-        "password"          => "required|string|min:7" , 
-        "address"           => "required|string" , 
-        "gender"            => "required|string|in:male,female" , 
-        "weight"            => "required|numeric" ,
-        "height"            => "required|numeric", 
-        "marital_status"    => "required|string|in:single,married,divorced,widowed", 
-        "has_children"      => "required|boolean" , 
-        "number_of_children"=> "nullable|integer|min:0" , 
-        "birth_date"        => "required|date", 
-        "is_smoke"          => "required|boolean" , 
-        "fcm_token"         => "nullable|string" , 
+        "first_name"            => "required|string|max:100", 
+        "last_name"             => "required|string|max:100" , 
+        "phone"                 => "required|string|max:15|unique:users,phone" ,
+        "email"                 => "required|email|unique:users,email" ,
+        "password"              => "required|string|min:7" , 
+        "address"               => "required|string" , 
+        "gender"                => "required|string|in:male,female" , 
+        "weight"                => "required|numeric" ,
+        "height"                => "required|numeric", 
+        "marital_status"        => "required|string|in:single,married,divorced,widowed", 
+        "has_children"          => "required|boolean" , 
+        "number_of_children"    => "nullable|integer|min:0" , 
+        "birth_date"            => "required|date", 
+        "is_smoke"              => "required|boolean" , 
+        "chronic_diseases"      => "required|string" , 
+        "permanent_medications" => "required|string" , 
+        "favorite_foods"        => "required|string" , 
+        "disliked_foods"        => "required|string" , 
+        "food_allergies"        => "required|string" , 
+        "blood_type"            => "required|string|in:O+,O-,A+,A-,B+,B-,AB+,AB-",    
+        "fcm_token"             => "nullable|string" , 
     ]);
 
     DB::beginTransaction();
@@ -116,6 +122,12 @@ class AuthController extends Controller
             "birth_date"        => $request->birth_date,
             "user_id"           => $user->id, 
             "is_smoke"          => $request->is_smoke,
+            "chronic_diseases" => $request->chronic_diseases , 
+            "permanent_medications" => $request->permanent_medications , 
+            "favorite_foods" => $request->favorite_foods , 
+            "disliked_foods" => $request->disliked_foods , 
+            "food_allergies" => $request->food_allergies , 
+            "blood_type" => $request->blood_type 
         ]);
 
         $token = $user->createToken("api-token")->plainTextToken;
