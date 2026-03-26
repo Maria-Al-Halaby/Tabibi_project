@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProfileSettingController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\PatientMedicalRecordController;
+use App\Http\Controllers\Api\MedicalRecordController;
 
 use App\Http\Controllers\Api\LookupController;
 
@@ -106,5 +107,7 @@ Route::middleware("auth:sanctum")->group(function(){
 
 Route::get('/lab-tests', [LookupController::class, 'labTests']);
 Route::get('/medical-image-types', [LookupController::class, 'medicalImageTypes']);
+
+Route::middleware('auth:sanctum')->get('/patient/medical-records', [MedicalRecordController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/me', [LookupController::class, 'me']);

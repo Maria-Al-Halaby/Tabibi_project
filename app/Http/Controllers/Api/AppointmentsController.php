@@ -420,8 +420,11 @@ class AppointmentsController extends Controller
             //'diagnose.answers.*.answer' => 'required_with:diagnose.answers|string|max:255',
 
             //  ربط مع التحاليل والصور الموجودة بالسجل
-            'attached_radiology_result_id' => 'nullable|exists:radiology_results,id',
-            'attached_lab_result_id' => 'nullable|exists:lab_results,id',
+            //'attached_radiology_result_id' => 'nullable|exists:radiology_results,id',
+            //'attached_lab_result_id' => 'nullable|exists:lab_results,id',
+            'attached_medical_records' => 'nullable|array',
+            'attached_medical_records.*.record_source' => 'required_with:attached_medical_records|in:lab_result,radiology_result,patient_medical_record',
+            'attached_medical_records.*.record_id' => 'required_with:attached_medical_records|integer',
 
             //   اختيار تحليل واحد أو أكثر
             'lab_tests' => 'nullable|array',
@@ -516,10 +519,20 @@ class AppointmentsController extends Controller
                 'emergency'        => $data['is_emergency'] , 
                 'result_ratio'     => $data['diagnosis_ratio'] , 
                 'expected_disease' => $data['diagnosis_name'] ,
-                'attached_radiology_result_id' => $data['attached_radiology_result_id'] ?? null,
-                'attached_lab_result_id' => $data['attached_lab_result_id'] ?? null,
+                //'attached_radiology_result_id' => $data['attached_radiology_result_id'] ?? null,
+                //'attached_lab_result_id' => $data['attached_lab_result_id'] ?? null,
             ]);
 
+            if (!empty($data['attached_medical_records'])) {
+                foreach ($data['attached_medical_records'] as $record) {
+                    $appointment->attachedMedicalRecords()->create([
+                        'record_source' => $record['record_source'],
+                        'record_id' => $record['record_id'],
+                    ]);
+                }
+            }
+
+            
             if ($data['type'] === 'radiology') {
                 RadiologyAppointment::create([
                     'appointment_id' => $appointment->id,
