@@ -55,6 +55,7 @@ class DoctorController extends Controller
                                 : 0,
         'experience_years' => $doctor->experience_years ?? null,
         'is_active'  => $doctor->clinic_center->isNotEmpty() ? 1 : 0,
+        'doctor_type' => $doctor->doctor_type,
         'specialty'        => [
             'id'   => $doctor->specialization?->id,
             'name' => $doctor->specialization?->name,
