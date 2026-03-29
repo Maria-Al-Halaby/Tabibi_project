@@ -95,6 +95,11 @@ class Appointment extends Model
         return $this->belongsTo(LabResult::class,'attached_lab_result_id');
     }
 
+    public function attachedMedicalRecords()
+    {
+        return $this->hasMany(AppointmentMedicalRecord::class);
+    }
+
     public function rating()
     {
         return $this->hasOne(DoctorRating::class, 'appointment_id');

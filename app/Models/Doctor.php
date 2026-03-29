@@ -13,7 +13,8 @@ class Doctor extends Model
         "is_active" , 
         "profile_image" , 
         "bio" ,
-        "experience_years"
+        "experience_years",
+        'doctor_type'
     ];
 
 
