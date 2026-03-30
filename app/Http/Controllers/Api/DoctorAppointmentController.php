@@ -352,6 +352,7 @@ class DoctorAppointmentController extends Controller
             'prescription_items.*.start_date' => 'required_with:prescription_items|date',
             'prescription_items.*.end_date' => 'required_with:prescription_items|date',
             'prescription_items.*.instructions' => 'nullable|string|max:2000',  //ملاحظة خاصة لكل دواء
+            'send_to_pharmacy' => 'nullable|boolean',
 
             'lab_request_note' => 'nullable|string|max:2000', // ملاحظة عامة عن التحاليل
             'lab_tests' => 'nullable|array',
@@ -383,7 +384,23 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
-        DB::transaction(function () use ($appointment, $data) {
+        $sendToPharmacy = $request->boolean('send_to_pharmacy', false);
+
+        if ($sendToPharmacy) {
+
+            $hasPharmacist = DB::table('clinic_center_pharmacists')
+                ->where('clinic_center_id', $appointment->clinic_center_id)
+                ->exists();
+
+            if (!$hasPharmacist) {
+                return response()->json([
+                    'message' => 'This center does not have a pharmacist',
+                    'status' => false
+                ], 422);
+            }
+        }
+
+        DB::transaction(function () use ($appointment, $data, $sendToPharmacy) {
 
             $appointment->update([
                 'status'      => 'completed',
@@ -398,7 +415,9 @@ class DoctorAppointmentController extends Controller
                 $prescription = Prescription::create([
                     'appointment_id' => $appointment->id,
                     'general_note' => $data['prescription_note'] ?? null,
-                    'status' => 'pending'
+                    'status' => 'pending',
+                    'send_to_pharmacy' => $sendToPharmacy,
+                    'pharmacy_status'  => $sendToPharmacy ? 'pending' : 'not_sent',
                 ]);
 
                 if (!empty($data['prescription_items'])) {
@@ -457,6 +476,7 @@ class DoctorAppointmentController extends Controller
                 'appointment_id' => $appointment->id,
                 'appointment_status' => $appointment->status,
                 'doctor_note' => $appointment->doctor_note,
+                'send_to_pharmacy' => $sendToPharmacy,
             ]
         ], 200);
     }   

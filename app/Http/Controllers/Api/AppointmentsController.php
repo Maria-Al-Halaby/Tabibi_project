@@ -665,6 +665,10 @@ class AppointmentsController extends Controller
             $diagnose = null;
         }
 
+        $hasPharmacy = DB::table('clinic_center_pharmacists')
+            ->where('clinic_center_id', $appointment->clinic_center_id)
+            ->exists();
+
         return response()->json([
             'status' => true,
             'message' => 'Appointment details fetched successfully',
@@ -682,6 +686,8 @@ class AppointmentsController extends Controller
                     'doctor_note' => $appointment->doctor_note ?? null,
 
                     'diagnosis' => $diagnose,
+                    'has_pharmacy' => $hasPharmacy,
+                    'send_to_pharmacy' => optional($appointment->prescriptions->first())->send_to_pharmacy ?? false,
 
                     'patient' => [
                         'image' => $patientUser?->profile_image ?? null,

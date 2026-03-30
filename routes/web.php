@@ -127,14 +127,14 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
 });
 
 /* radiology dashboard */
-Route::middleware(['auth', 'role:radiologist'])->group(function () {
+Route::middleware(['auth', 'role:doctor'])->group(function () {
     Route::get('/radiology/dashboard', [RadiologyDashboardController::class, 'index'])->name('radiology.dashboard');
     Route::get('/radiology/appointments/{appointment}/complete', [RadiologyDashboardController::class, 'showCompleteForm'])->name('radiology.appointments.complete.form');
     Route::post('/radiology/appointments/complete', [RadiologyDashboardController::class, 'complete'])->name('radiology.appointments.complete');
 });
 
 /* lab dashboard */
-Route::middleware(['auth', 'role:lab technician'])->group(function () {
+Route::middleware(['auth', 'role:doctor'])->group(function () {
     Route::get('/lab/dashboard', [LabDashboardController::class, 'index'])->name('lab.dashboard');
     Route::get('/lab/appointments/{appointment}/complete', [LabDashboardController::class, 'showCompleteForm'])->name('lab.appointments.complete.form');
     Route::post('/lab/appointments/complete', [LabDashboardController::class, 'complete'])->name('lab.appointments.complete');
