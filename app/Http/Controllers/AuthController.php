@@ -32,6 +32,10 @@ class AuthController extends Controller
                 return redirect()->route("Admin.index");
             }
 
+            if ($user->hasRole("pharmacist")) {
+                return redirect()->route("pharmacy.dashboard");
+            }
+
             if ($user->hasRole("doctor")) {
                 $doctor = $user->doctor;
 

@@ -110,6 +110,12 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('Admin.Pharmacy.index') }}">
+                            <i class="fas fa-calendar-check me-1"></i> Pharmacy
+                        </a>
+                    </li>
+
                     {{--   <li class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-calendar-check me-1"></i> Secretary

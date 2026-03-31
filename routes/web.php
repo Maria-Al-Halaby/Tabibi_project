@@ -17,6 +17,7 @@ use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\RadiologyDashboardController;
 use App\Http\Controllers\LabDashboardController;
 use App\Http\Controllers\PharmacyDashboardController;
+use App\Http\Controllers\AdminPharmacyController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\DoctorSchedules;
@@ -115,9 +116,15 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
 
 
     /* appointment route  */
-
     Route::get("/appointment" , [AppointmentController::class , "index"])->name("Admin.Appointment.index");
     Route::get("/appointment/canceled/{appointments}" , [AppointmentController::class , "cancel"])->name("Admin.Appointment.cancel");
+
+    /* pharmacist routes */
+    Route::get('/pharmacy', [AdminPharmacyController::class, 'index'])->name('Admin.Pharmacy.index');
+    Route::post('/pharmacy/store', [AdminPharmacyController::class, 'store'])->name('Admin.Pharmacy.store');
+    Route::get('/pharmacy/edit/{user}', [AdminPharmacyController::class, 'edit'])->name('Admin.Pharmacy.edit');
+    Route::put('/pharmacy/update/{user}', [AdminPharmacyController::class, 'update'])->name('Admin.Pharmacy.update');
+    Route::delete('/pharmacy/delete/{user}', [AdminPharmacyController::class, 'destroy'])->name('Admin.Pharmacy.destroy');
 
     /* end point is not exists */
     Route::fallback(function () {
