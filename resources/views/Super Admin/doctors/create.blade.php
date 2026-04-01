@@ -1,244 +1,163 @@
-{{-- @extends('layouts.app')
-
-
-@section('title', 'add new doctor')
-
-
-@section('content')
-
-    <form action="{{ route('SuperAdmin.doctor.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <input type="text" name="name" placeholder="enter doctor name">
-        <input type="email" name="email" placeholder="enter doctor email">
-        <input type="text" name="phone" placeholder="enter doctor phone">
-        <input type="password" name="password" placeholder="enter password">
-        <input type="file" name="profile_image">
-        <select name="specialization_id">
-            @foreach ($specializations as $specialization)
-                <option value="{{ $specialization->id }}">{{ $specialization->name }}</option>
-            @endforeach
-        </select>
-        <input type="submit" value="send">
-    </form>
-@endsection
- --}}
-
-
 @extends('layouts.app')
 
-@section('title', 'add new doctor')
-
+@section('title', 'Add Doctor')
 
 @section('content')
-    <!-- تنسيق مخصص لضمان شكل الحقول المستديرة والزر الموحد -->
-    <style>
-        :root {
-            --main-color: #008080;
-            /* اللون الأخضر المائي */
-        }
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="bi bi-person-plus-fill"></i>
+                New Doctor
+            </span>
+            <h1 class="page-title">Create a doctor profile that feels structured and complete.</h1>
+            <p class="page-subtitle">
+                The form is grouped for faster scanning so admins can add providers with less friction and fewer mistakes.
+            </p>
+        </div>
+    </div>
 
-        /* تنسيق حقول الإدخال والقائمة المنسدلة */
-        .form-control-custom,
-        .form-select-custom {
-            border: 1px solid #ced4da;
-            /* حدود خفيفة */
-            border-radius: 12px;
-            /* حواف مستديرة */
-            padding: 15px 15px;
-            background-color: white;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-control-custom:focus,
-        .form-select-custom:focus {
-            border-color: var(--main-color);
-            box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.25);
-        }
-
-        /* تنسيق زر الإرسال */
-        .btn-main {
-            background-color: var(--main-color);
-            border-color: var(--main-color);
-            border-radius: 12px;
-            color: white;
-            padding: 12px 0;
-            font-size: 1.1rem;
-            transition: background-color 0.3s;
-        }
-
-        .btn-main:hover {
-            background-color: #006666;
-            border-color: #006666;
-            color: white;
-        }
-    </style>
-
-    <div class="container py-4">
-
-        <!-- عنوان الصفحة -->
-        <h3 class="mb-4 fw-bold text-center" style="color: var(--main-color);">
-            <i class="bi bi-person-plus-fill me-2"></i> Add New Doctor
-        </h3>
-
+    <section class="section-card form-panel">
         <form action="{{ route('SuperAdmin.doctor.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <!-- حقل اسم الطبيب (Name) -->
-            <div class="mb-4">
-                <input type="text" name="name"
-                    class="form-control form-control-custom @error('name') is-invalid @enderror"
-                    placeholder="enter doctor name" value="{{ old('name') }}" required>
-                @error('name')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <label for="name" class="field-label">Doctor name</label>
+                    <input type="text" name="name" id="name" value="{{ old('name') }}"
+                        placeholder="Enter doctor name" class="form-control @error('name') is-invalid @enderror">
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="email" class="field-label">Email</label>
+                    <input type="email" name="email" id="email" value="{{ old('email') }}"
+                        placeholder="Enter doctor email" class="form-control @error('email') is-invalid @enderror">
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="phone" class="field-label">Phone</label>
+                    <input type="text" name="phone" id="phone" value="{{ old('phone') }}"
+                        placeholder="Enter doctor phone" class="form-control @error('phone') is-invalid @enderror">
+                    @error('phone')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="password" class="field-label">Password</label>
+                    <input type="password" name="password" id="password"
+                        placeholder="Set account password" class="form-control @error('password') is-invalid @enderror">
+                    @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="experience_years" class="field-label">Experience years</label>
+                    <input type="number" name="experience_years" id="experience_years"
+                        value="{{ old('experience_years') }}"
+                        placeholder="Enter years of experience"
+                        class="form-control @error('experience_years') is-invalid @enderror">
+                    @error('experience_years')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="specialization_id" class="field-label">Specialization</label>
+                    <select name="specialization_id" id="specialization_id"
+                        class="form-select @error('specialization_id') is-invalid @enderror">
+                        <option value="">Choose specialization</option>
+                        @foreach ($specializations as $specialization)
+                            <option value="{{ $specialization->id }}" @selected(old('specialization_id') == $specialization->id)>
+                                {{ $specialization->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('specialization_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-12">
+                    <label for="bio" class="field-label">Bio</label>
+                    <textarea name="bio" id="bio" placeholder="Enter doctor bio"
+                        class="form-control @error('bio') is-invalid @enderror">{{ old('bio') }}</textarea>
+                    @error('bio')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-7">
+                    <label class="field-label">Doctor type</label>
+                    <div class="type-grid">
+                        @foreach (['doctor' => 'Doctor', 'radiology' => 'Radiology', 'lab' => 'Lab'] as $value => $label)
+                            <label class="type-card">
+                                <input type="radio" name="doctor_type" value="{{ $value }}"
+                                    @checked(old('doctor_type', 'doctor') === $value)>
+                                <span>{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('doctor_type')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-5">
+                    <label for="profile_image" class="field-label">Profile image</label>
+                    <div class="file-drop">
+                        <input type="file" name="profile_image" id="profile_image"
+                            class="form-control @error('profile_image') is-invalid @enderror">
+                        <div class="field-note">Optional image to make directory browsing clearer.</div>
+                    </div>
+                    @error('profile_image')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
-            <!-- حقل البريد الإلكتروني (Email) -->
-            <div class="mb-4">
-                <input type="email" name="email"
-                    class="form-control form-control-custom @error('email') is-invalid @enderror"
-                    placeholder="enter doctor email" value="{{ old('email') }}" required>
-                @error('email')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
+            <div class="toolbar-actions mt-4">
+                <button type="submit" class="btn btn-tabibi">
+                    <i class="bi bi-check2-circle"></i>
+                    Save doctor
+                </button>
+                <a href="{{ route('SuperAdmin.doctor.index') }}" class="ghost-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to doctors
+                </a>
             </div>
-
-            <!-- حقل الهاتف (Phone) -->
-            <div class="mb-4">
-                <input type="text" name="phone"
-                    class="form-control form-control-custom @error('phone') is-invalid @enderror"
-                    placeholder="enter doctor phone" value="{{ old('phone') }}" required>
-                @error('phone')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-
-            <div class="mb-4">
-                <input type="number" name="experience_years"
-                    class="form-control form-control-custom @error('experience_years') is-invalid @enderror"
-                    placeholder="enter doctor experience years" value="{{ old('experience_years') }}" required>
-                @error('experience_years')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-
-            <div class="mb-4">
-                <input type="text" name="bio"
-                    class="form-control form-control-custom @error('bio') is-invalid @enderror"
-                    placeholder="enter doctor bio" value="{{ old('bio') }}" required>
-                @error('bio')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل كلمة المرور (Password) -->
-            <div class="mb-4">
-                <input type="password" name="password"
-                    class="form-control form-control-custom @error('password') is-invalid @enderror"
-                    placeholder="enter password" required>
-                @error('password')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل صورة الملف الشخصي (Profile Image) -->
-            <div class="mb-4">
-                <label for="profile_image" class="form-label fw-semibold text-muted">Profile Image</label>
-                <input type="file" name="profile_image" id="profile_image"
-                    class="form-control @error('profile_image') is-invalid @enderror">
-                @error('profile_image')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل نوع الطبيب (Doctor Type) -->
-        <div class="mb-4">
-            <label class="form-label fw-semibold text-muted d-block">Doctor Type</label>
-
-            <div class="form-check mb-2">
-                <input class="form-check-input @error('doctor_type') is-invalid @enderror"
-                    type="radio"
-                    name="doctor_type"
-                    id="doctor_type_doctor"
-                    value="doctor"
-                    {{ old('doctor_type', 'doctor') == 'doctor' ? 'checked' : '' }}>
-                <label class="form-check-label" for="doctor_type_doctor">
-                    Doctor
-                </label>
-            </div>
-
-            <div class="form-check mb-2">
-                <input class="form-check-input @error('doctor_type') is-invalid @enderror"
-                    type="radio"
-                    name="doctor_type"
-                    id="doctor_type_radiology"
-                    value="radiology"
-                    {{ old('doctor_type') == 'radiology' ? 'checked' : '' }}>
-                <label class="form-check-label" for="doctor_type_radiology">
-                    Radiology
-                </label>
-            </div>
-
-            <div class="form-check">
-                <input class="form-check-input @error('doctor_type') is-invalid @enderror"
-                    type="radio"
-                    name="doctor_type"
-                    id="doctor_type_lab"
-                    value="lab"
-                    {{ old('doctor_type') == 'lab' ? 'checked' : '' }}>
-                <label class="form-check-label" for="doctor_type_lab">
-                    Lab
-                </label>
-            </div>
-
-            @error('doctor_type')
-                <div class="text-danger small mt-1">{{ $message }}</div>
-            @enderror
-        </div>
-
-            <!-- حقل الاختصاص (Specialization ID) -->
-            <div class="mb-5">
-                <label for="specialization_id" class="form-label fw-semibold text-muted">Select Specialization</label>
-                <select name="specialization_id" id="specialization_id"
-                    class="form-select form-select-custom @error('specialization_id') is-invalid @enderror" required>
-                    <option value="">-- Choose Specialization --</option>
-                    @foreach ($specializations as $specialization)
-                        <option value="{{ $specialization->id }}"
-                            {{ old('specialization_id') == $specialization->id ? 'selected' : '' }}>
-                            {{ $specialization->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('specialization_id')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- زر الإرسال (Send) -->
-            <div class="d-grid">
-                <input type="submit" value="Send" class="btn btn-main">
-            </div>
-
         </form>
-
-        <!-- عرض الأخطاء العامة إن وجدت -->
-        @if (
-            $errors->any() &&
-                !$errors->has('name') &&
-                !$errors->has('email') &&
-                !$errors->has('phone') &&
-                !$errors->has('password') &&
-                !$errors->has('profile_image') &&
-                !$errors->has('specialization_id'))
-            <div class="alert alert-danger text-center small mt-4" role="alert">
-                @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
-                @endforeach
-            </div>
-        @endif
-
-    </div>
-
+    </section>
 @endsection
+
+@push('styles')
+    <style>
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.85rem;
+        }
+
+        .type-card {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 1rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .type-card input {
+            accent-color: var(--main-color);
+        }
+    </style>
+@endpush

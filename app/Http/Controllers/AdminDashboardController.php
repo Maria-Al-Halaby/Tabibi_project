@@ -18,19 +18,21 @@ class AdminDashboardController extends Controller
 
         $doctorCount = $center->doctors()->count();
 
-        $appointmentsCount = Appointment::where("clinic_center_id" , $center->id)->count();
+        $appointmentsCount = Appointment::where("clinic_center_id", $center->id)->count();
 
-        $patientsCount = Patient::whereHas('appointments', function($q) use ($center) {
-        $q->where('clinic_center_id', $center->id);})
-        ->distinct('patients.id')->count('patients.id');
+        $patientsCount = Patient::whereHas('appointments', function ($query) use ($center) {
+            $query->where('clinic_center_id', $center->id);
+        })->distinct('patients.id')->count('patients.id');
 
-        $clinicCount = $center->doctors()->distinct('specialization_id')->count('specialization_id');
+        $specializationCount = $center->doctors()
+            ->distinct('specialization_id')
+            ->count('specialization_id');
 
-        return view("Admin.index" , compact(
-            "doctorCount" , 
-            "appointmentsCount" , 
-            "patientsCount" , 
-            "clinicCount"
+        return view("Admin.index", compact(
+            "doctorCount",
+            "appointmentsCount",
+            "patientsCount",
+            "specializationCount"
         ));
     }
 }

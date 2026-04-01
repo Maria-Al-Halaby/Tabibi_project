@@ -1,132 +1,83 @@
-{{-- @extends('layouts.app')
-
-@section('title', 'promot')
-
-
-@section('content')
-
-    @if (session('message'))
-        <p>{{ session('message') }}</p>
-    @endif
-
-    <a href="{{ route('SuperAdmin.Promot.create') }}">add new promot</a>
-    @forelse ($promots as $promot)
-        <p>{{ $promot->information }}</p>
-        <img src="{{ $promot->image }}" alt="promot image">
-        <a href="{{ route('SuperAdmin.Promot.edit', $promot->id) }}">update promot</a>
-        <a href="{{ route('SuperAdmin.Promot.destroy', $promot->id) }}">delete promot</a>
-    @empty
-        <h1>there is'nt any promot yet!!</h1>
-    @endforelse
-
-@endsection
- --}}
-
-
 @extends('layouts.app')
 
-@section('title', 'Promotions Management')
+@section('title', 'Promotions')
 
 @section('content')
-    <style>
-        :root {
-            --main-color: #008080;
-            --danger-color: #dc3545;
-        }
-
-        .btn-main {
-            background-color: var(--main-color);
-            border-color: var(--main-color);
-            border-radius: 12px;
-            color: white;
-            padding: 10px 20px;
-            transition: 0.3s;
-        }
-
-        .btn-main:hover {
-            background-color: #006666;
-            color: white;
-        }
-
-        .card-custom {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s;
-        }
-
-        .card-custom:hover {
-            transform: translateY(-5px);
-        }
-
-        .promo-img {
-            height: 200px;
-            object-fit: cover;
-            width: 100%;
-        }
-
-        .action-link {
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-    </style>
-
-    <div class="container py-5">
-
-        <div class="d-flex justify-content-between align-items-center mb-5">
-            <h3 class="fw-bold m-0" style="color: var(--main-color);">
-                <i class="bi bi-megaphone-fill me-2"></i> Promotions
-            </h3>
-            <a href="{{ route('SuperAdmin.Promot.create') }}" class="btn btn-main">
-                <i class="bi bi-plus-lg me-1"></i> Add New Promotion
-            </a>
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="bi bi-megaphone-fill"></i>
+                Promotions
+            </span>
+            <h1 class="page-title">Manage promotional content with better visual focus.</h1>
+            <p class="page-subtitle">
+                Campaigns now feel more editorial and easier to browse, while still keeping update and delete actions close.
+            </p>
         </div>
 
-        @if (session('message'))
-            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert"
-                style="border-radius: 12px;">
-                <i class="bi bi-check-circle-fill me-2"></i> {{ session('message') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="helper-badges">
+            <span class="helper-badge">
+                <i class="bi bi-images"></i>
+                {{ number_format($promots->count()) }} promotions
+            </span>
+        </div>
+    </div>
+
+    @if (session('message'))
+        <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4">{{ session('message') }}</div>
+    @endif
+
+    <div class="toolbar-row">
+        <div>
+            <h2 class="section-heading">Promotion library</h2>
+            <p class="section-copy">Review active creatives, then edit or remove them with fewer clicks.</p>
+        </div>
+
+        <div class="toolbar-actions">
+            <a href="{{ route('SuperAdmin.Promot.create') }}" class="btn btn-tabibi">
+                <i class="bi bi-plus-circle"></i>
+                Add promotion
+            </a>
+        </div>
+    </div>
+
+    @if ($promots->isEmpty())
+        <section class="section-card empty-state">
+            <div class="empty-state__icon">
+                <i class="bi bi-megaphone"></i>
             </div>
-        @endif
-
+            <h2 class="empty-state__title">There are no promotions yet.</h2>
+            <p class="empty-state__copy">Create your first promotion to start using this space effectively.</p>
+        </section>
+    @else
         <div class="row g-4">
-            @forelse ($promots as $promot)
-                <div class="col-md-4">
-                    <div class="card card-custom h-100">
-                        <img src="{{ asset($promot->image) }}" class="promo-img" alt="Promotion Image">
+            @foreach ($promots as $promot)
+                <div class="col-md-6 col-xl-4">
+                    <section class="record-card p-0 overflow-hidden">
+                        <img src="{{ asset($promot->image) }}" alt="Promotion image"
+                            style="width: 100%; height: 220px; object-fit: cover;">
 
-                        <div class="card-body d-flex flex-column">
-                            <p class="card-text text-muted mb-4">
-                                {{ Str::limit($promot->information, 100) }}
-                            </p>
+                        <div class="p-4">
+                            <h2 class="record-card__title mb-3">Promotion #{{ $promot->id }}</h2>
+                            <p class="record-card__copy mb-4">{{ \Illuminate\Support\Str::limit($promot->information, 140) }}</p>
 
-                            <div class="mt-auto d-flex justify-content-between align-items-center border-top pt-3">
-                                <a href="{{ route('SuperAdmin.Promot.edit', $promot->id) }}"
-                                    class="text-primary action-link">
-                                    <i class="bi bi-pencil-square"></i> Update
+                            <div class="toolbar-actions">
+                                <a href="{{ route('SuperAdmin.Promot.edit', $promot->id) }}" class="outline-button">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Edit
                                 </a>
 
                                 <a href="{{ route('SuperAdmin.Promot.destroy', $promot->id) }}"
-                                    class="text-danger action-link"
+                                    class="danger-outline-button"
                                     onclick="return confirm('Are you sure you want to delete this promotion?')">
-                                    <i class="bi bi-trash3"></i> Delete
+                                    <i class="bi bi-trash3"></i>
+                                    Delete
                                 </a>
                             </div>
                         </div>
-                    </div>
+                    </section>
                 </div>
-            @empty
-                <div class="col-12 text-center py-5">
-                    <div class="mb-3">
-                        <i class="bi bi-emoji-frown display-1 text-muted"></i>
-                    </div>
-                    <h3 class="text-muted">There isn't any promotion yet!!</h3>
-                    <p class="text-secondary">Start by adding your first promotion above.</p>
-                </div>
-            @endforelse
+            @endforeach
         </div>
-    </div>
+    @endif
 @endsection

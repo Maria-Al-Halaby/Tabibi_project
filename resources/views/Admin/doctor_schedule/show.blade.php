@@ -2,25 +2,7 @@
 
 @section('title', 'Doctor Schedule')
 
-
 @section('content')
-
-    <h2 class="mb-4 d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-calendar-alt tabibi-text-primary me-2"></i> Doctor Schedule</span>
-        @if (isset($doctor->name))
-            <span class="badge bg-secondary rounded-pill p-2">{{ $doctor->name }}</span>
-        @endif
-    </h2>
-    <hr>
-
-    @if (Session::has('message'))
-        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            {{ Session::get('message') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
     @php
         $days = [
             0 => 'Sunday',
@@ -28,77 +10,103 @@
             2 => 'Tuesday',
             3 => 'Wednesday',
             4 => 'Thursday',
-            5 => 'Friday' /* تم تعديل Firday إلى Friday */,
+            5 => 'Friday',
             6 => 'Saturday',
         ];
     @endphp
 
-    @if ($schedules->isEmpty())
-        <div class="text-center py-5 bg-white shadow-sm rounded-4 border">
-            <i class="fas fa-exclamation-circle fa-4x text-warning mb-3"></i>
-            <h1 class="h3">There isn't any schedules for this doctor yet.</h1>
-            <a href="{{ route('Admin.DoctorSchedule.create', $doctor->id) }}" class="btn btn-tabibi mt-3 shadow">
-                <i class="fas fa-plus-circle me-2"></i> Add Schedules for this Doctor
-            </a>
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="fas fa-clock"></i>
+                Doctor Schedule
+            </span>
+            <h1 class="page-title">Working schedule for {{ $doctor->user?->name ?? $doctor->name }}.</h1>
+            <p class="page-subtitle">
+                Review the doctor’s active work windows, then update or clear the schedule if staffing changes.
+            </p>
         </div>
+
+        <div class="helper-badges">
+            <span class="helper-badge">
+                <i class="fas fa-calendar-week"></i>
+                {{ number_format($schedules->count()) }} schedule entries
+            </span>
+        </div>
+    </div>
+
+    @if (session('message'))
+        <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">{{ session('message') }}</div>
+    @endif
+
+    @if ($schedules->isEmpty())
+        <section class="section-card empty-state">
+            <div class="empty-state__icon">
+                <i class="fas fa-calendar-plus"></i>
+            </div>
+            <h2 class="empty-state__title">No schedule has been created for this doctor yet.</h2>
+            <p class="empty-state__copy">
+                Add the first schedule entry to make the doctor available for appointments in this center.
+            </p>
+            <a href="{{ route('Admin.DoctorSchedule.create', $doctor->id) }}" class="btn btn-tabibi">
+                <i class="fas fa-plus"></i>
+                Add schedule
+            </a>
+        </section>
     @else
-        <div class="card shadow-sm rounded-4 border-0">
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead class="tabibi-bg-primary text-white">
+        <section class="section-card">
+            <div class="toolbar-row">
+                <div>
+                    <h2 class="section-heading">Schedule table</h2>
+                    <p class="section-copy">Each row represents one saved time block for this doctor.</p>
+                </div>
+
+                <div class="toolbar-actions">
+                    <a href="{{ route('Admin.DoctorSchedule.edit', $doctor->id) }}" class="outline-button">
+                        <i class="fas fa-pen"></i>
+                        Update schedule
+                    </a>
+
+                    <form action="{{ route('Admin.DoctorSchedule.destroy', $doctor->id) }}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete all schedules for this doctor at this center?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="danger-outline-button">
+                            <i class="fas fa-trash"></i>
+                            Delete all
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="table-shell">
+                <table class="table align-middle">
+                    <thead>
                         <tr>
-                            <th><i class="fas fa-calendar-day me-1"></i> Day</th>
-                            <th><i class="fas fa-clock me-1"></i> From</th>
-                            <th><i class="fas fa-clock me-1"></i> To</th>
-                            <th class="text-end">Actions</th>
+                            <th>Days</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Price</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($schedules as $schedule)
                             <tr>
-                                @foreach ((array) $schedule->day_of_week as $day)
-                                    <td>
-                                        <span
-                                            class="badge bg-light text-dark border p-2 rounded-pill">{{ $days[$day] ?? $day }}</span>
-                                    </td>
-                                @endforeach
-                                {{-- تم حذف السطر القديم --}}
-                                <td><span
-                                        class="fw-bold text-success">{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</span>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach ((array) $schedule->day_of_week as $day)
+                                            <span class="status-pill status-pill--success">{{ $days[$day] ?? $day }}</span>
+                                        @endforeach
+                                    </div>
                                 </td>
-                                <td><span
-                                        class="fw-bold text-danger">{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
-                                </td>
-                                <td class="text-end">
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</td>
+                                <td>{{ isset($schedule->price) ? number_format($schedule->price) : '-' }}</td>
                             </tr>
                         @endforeach
-
-                        <tr>
-                            <td colspan="4" class="bg-light text-end">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('Admin.DoctorSchedule.edit', $doctor->id) }}"
-                                        class="btn btn-sm btn-outline-warning rounded-pill px-3">
-                                        <i class="fas fa-edit me-1"></i> Update Schedule
-                                    </a>
-
-                                    <form action="{{ route('Admin.DoctorSchedule.destroy', $doctor->id) }}" method="POST"
-                                        onsubmit="return confirm('Are you sure you want to delete ALL schedules for this doctor at this center?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3">
-                                            <i class="fas fa-trash-alt me-1"></i> Delete All
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
     @endif
-
-
 @endsection

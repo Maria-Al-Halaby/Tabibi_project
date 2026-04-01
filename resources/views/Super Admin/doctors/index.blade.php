@@ -1,246 +1,113 @@
-{{-- @extends('layouts.app')
-
-@section('doctors')
-
-@section('content')
-    @if (session('message'))
-        <h1>{{ session('message') }}</h1>
-    @endif
-    <a href="{{ route('SuperAdmin.doctor.create') }}">add new doctor</a>
-    @forelse ($doctors as $doctor)
-        <p>{{ $doctor->user->name }}</p>
-        <p>{{ $doctor->user->email }}</p>
-        <p>{{ $doctor->user->phone }}</p>
-        <p>{{ $doctor->specialization->name }}</p>
-        <img src="{{ asset($doctor->user->profile_image) }}" alt="doctor profile image">
-        <a href="{{ route('SuperAdmin.doctor.edit', $doctor->id) }}">update</a>
-        <form action="{{ route('SuperAdmin.doctor.destroy', $doctor->id) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <button type="submit">delete</button>
-        </form>
-    @empty
-        <h1>there is'nt any doctors yet!!</h1>
-    @endforelse
-
-@endsection
- --}}
-
-
 @extends('layouts.app')
 
-@section('title', 'doctors')
+@section('title', 'Doctors')
 
 @section('content')
-    <!-- تنسيق مخصص للبطاقات والألوان -->
-    <style>
-        :root {
-            --main-color: #008080;
-            /* اللون الأخضر المائي */
-            --danger-color: #dc3545;
-            /* لون الحذف */
-            --border-color: #e9ecef;
-        }
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="bi bi-people-fill"></i>
+                Doctors
+            </span>
+            <h1 class="page-title">Manage the provider roster with more confidence.</h1>
+            <p class="page-subtitle">
+                Doctors are now displayed with clearer hierarchy, better metadata, and cleaner action grouping.
+            </p>
+        </div>
 
-        /* تنسيق زر "إضافة جديد" */
-        .btn-add-new {
-            background-color: var(--main-color);
-            border-color: var(--main-color);
-            border-radius: 12px;
-            color: white;
-            padding: 10px 20px;
-            font-size: 1rem;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            text-align: center;
-            margin-bottom: 25px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-add-new:hover {
-            background-color: #006666;
-            color: white;
-        }
-
-        /* تنسيق بطاقة الطبيب */
-        .doctor-card {
-            background-color: white;
-            border: 1px solid var(--border-color);
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            padding: 15px;
-            display: flex;
-            /* لترتيب الصورة والمعلومات جنباً إلى جنب */
-            align-items: center;
-        }
-
-        /* تنسيق صورة البروفايل */
-        .profile-img-container {
-            width: 80px;
-            height: 80px;
-            overflow: hidden;
-            border-radius: 50%;
-            margin-inline-end: 15px;
-            flex-shrink: 0;
-            /* لمنع الصورة من الانكماش */
-        }
-
-        .profile-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* تنسيق بيانات الطبيب */
-        .doctor-info {
-            flex-grow: 1;
-        }
-
-        .doctor-info p {
-            margin-bottom: 3px;
-            font-size: 0.9rem;
-            color: #495057;
-            display: flex;
-            align-items: center;
-        }
-
-        .doctor-info .main-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #212529;
-            margin-bottom: 5px;
-        }
-
-        .doctor-info .specialization {
-            color: var(--main-color);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        /* تنسيق أيقونات البيانات */
-        .info-icon {
-            font-size: 0.9rem;
-            margin-inline-end: 8px;
-            color: #6c757d;
-        }
-
-        /* تنسيق حاوية الأزرار */
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            /* الأزرار فوق بعضها */
-            gap: 8px;
-            flex-shrink: 0;
-            margin-inline-start: 15px;
-        }
-
-        /* تنسيق أزرار الإجراءات */
-        .btn-action {
-            border-radius: 8px;
-            padding: 5px 10px;
-            font-size: 0.9rem;
-            text-decoration: none;
-            width: 75px;
-            /* عرض ثابت للأزرار */
-            text-align: center;
-        }
-
-        .btn-update {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .btn-delete {
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-        }
-    </style>
-
-    <div class="container py-4">
-
-        <!-- عنوان الصفحة -->
-        <h3 class="mb-4 fw-bold text-center" style="color: var(--main-color);">
-            <i class="bi bi-people-fill me-2"></i> Doctors List
-        </h3>
-
-        <!-- عرض رسائل الجلسة (Session Message) -->
-        @if (session('message'))
-            <div class="alert alert-success text-center rounded-3 mb-4" role="alert">
-                <h5 class="m-0">{{ session('message') }}</h5>
-            </div>
-        @endif
-
-        <!-- زر "إضافة طبيب جديد" -->
-        <a href="{{ route('SuperAdmin.doctor.create') }}" class="btn-add-new">
-            <i class="bi bi-plus-circle me-2"></i> Add New Doctor
-        </a>
-
-        <!-- حلقة العرض للأطباء -->
-        @forelse ($doctors as $doctor)
-            <div class="doctor-card">
-
-                <!-- صورة البروفايل -->
-                <div class="profile-img-container">
-                    <!-- يرجى التأكد من أن المسار $doctor->user->profile_image صحيح ومتاح -->
-                    <img src="{{ asset($doctor->user->profile_image)  /* $doctor->user->profile_image  */}}" alt="{{ $doctor->user->name }} profile image"
-                        class="profile-img"
-                        onerror="this.onerror=null; this.src='https://placehold.co/80x80/6c757d/ffffff?text=DR' ">
-                </div>
-
-                <!-- المعلومات -->
-                <div class="doctor-info">
-
-                    <div class="main-name">{{ $doctor->user->name }}</div>
-
-                    <p class="specialization">
-                        <i class="bi bi-patch-check info-icon" style="color: var(--main-color);"></i>
-                        {{ $doctor->specialization->name }}
-                    </p>
-
-                    <p>
-                        <i class="bi bi-envelope info-icon"></i>
-                        {{ $doctor->user->email }}
-                    </p>
-
-                    <p>
-                        <i class="bi bi-phone info-icon"></i>
-                        {{ $doctor->user->phone }}
-                    </p>
-
-                </div>
-
-                <!-- أزرار الإجراءات -->
-                <div class="action-buttons">
-                    <!-- زر التعديل (Update) -->
-                    <a href="{{ route('SuperAdmin.doctor.edit', $doctor->id) }}" class="btn-action btn-update">
-                        <i class="bi bi-pencil"></i> Update
-                    </a>
-
-                    <!-- نموذج الحذف (Delete) -->
-                    <form action="{{ route('SuperAdmin.doctor.destroy', $doctor->id) }}" method="POST"
-                        class="d-inline-block m-0">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-action btn-delete"
-                            onclick="return confirm('Are you sure you want to delete Doctor {{ $doctor->user->name }}?')">
-                            <i class="bi bi-trash"></i> Delete
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        @empty
-            <!-- رسالة في حال عدم وجود أطباء -->
-            <div class="alert alert-info text-center mt-5" role="alert">
-                <i class="bi bi-info-circle me-2"></i>
-                <h2>There are no doctors yet!</h2>
-                <p class="mb-0">Please use the "Add New Doctor" button above to get started.</p>
-            </div>
-        @endforelse
-
+        <div class="helper-badges">
+            <span class="helper-badge">
+                <i class="bi bi-person-badge-fill"></i>
+                {{ number_format($doctors->count()) }} doctors
+            </span>
+        </div>
     </div>
 
+    @if (session('message'))
+        <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4">{{ session('message') }}</div>
+    @endif
+
+    <div class="toolbar-row">
+        <div>
+            <h2 class="section-heading">Doctor directory</h2>
+            <p class="section-copy">Review medical staff, then edit or remove records from one clean surface.</p>
+        </div>
+
+        <div class="toolbar-actions">
+            <a href="{{ route('SuperAdmin.doctor.create') }}" class="btn btn-tabibi">
+                <i class="bi bi-plus-circle"></i>
+                Add doctor
+            </a>
+        </div>
+    </div>
+
+    @if ($doctors->isEmpty())
+        <section class="section-card empty-state">
+            <div class="empty-state__icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <h2 class="empty-state__title">There are no doctors yet.</h2>
+            <p class="empty-state__copy">Start by creating the first doctor profile for the platform.</p>
+        </section>
+    @else
+        <div class="row g-4">
+            @foreach ($doctors as $doctor)
+                <div class="col-12">
+                    <section class="record-card">
+                        <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-4">
+                            <div class="d-flex align-items-center gap-3 flex-grow-1">
+                                <img src="{{ asset($doctor->user->profile_image) }}" alt="{{ $doctor->user->name }}"
+                                    class="avatar-circle"
+                                    onerror="this.onerror=null; this.src='https://placehold.co/96x96/0f766e/ffffff?text=DR';">
+
+                                <div>
+                                    <h2 class="record-card__title mb-1">{{ $doctor->user->name }}</h2>
+                                    <p class="record-card__copy mb-2">{{ $doctor->specialization?->name ?? 'No specialization' }}</p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="status-pill status-pill--success">{{ ucfirst($doctor->doctor_type ?? 'doctor') }}</span>
+                                        @if (!is_null($doctor->experience_years))
+                                            <span class="status-pill status-pill--warning">{{ $doctor->experience_years }} years experience</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 flex-grow-1">
+                                <div class="col-md-6">
+                                    <div class="mini-metric h-100">
+                                        <div class="mini-metric__label">Email</div>
+                                        <p class="mini-metric__value">{{ $doctor->user->email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mini-metric h-100">
+                                        <div class="mini-metric__label">Phone</div>
+                                        <p class="mini-metric__value">{{ $doctor->user->phone }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="toolbar-actions">
+                                <a href="{{ route('SuperAdmin.doctor.edit', $doctor->id) }}" class="outline-button">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Edit
+                                </a>
+
+                                <form action="{{ route('SuperAdmin.doctor.destroy', $doctor->id) }}" method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete Doctor {{ $doctor->user->name }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="danger-outline-button">
+                                        <i class="bi bi-trash3"></i>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            @endforeach
+        </div>
+    @endif
 @endsection

@@ -1,178 +1,107 @@
-{{-- @extends('layouts.app')
-
-@section('title', 'update clinic center')
-
-
-@section('content')
-    <form action="{{ route('SuperAdmin.clinic_center.update', $clinicCenter->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-        <input type="text" name="name" placeholder="enter clinic center name" value="{{ $clinicCenter->name }}">
-        <input type="email" name="email" placeholder="enter clinic center email" value="{{ $clinicCenter->user->email }}">
-        <input type="text" name="phone" placeholder="enter clinic center phone"
-            value="{{ $clinicCenter->user->phone }}">
-        <input type="text" name="address" placeholder="enter clinic center address" value="{{ $clinicCenter->address }}">
-        <input type="password" name="password" placeholder="enter clinic center password">
-        <input type="submit" value="update">
-    </form>
-
-@endsection
- --}}
-
-
 @extends('layouts.app')
 
-@section('title', 'update clinic center')
-
+@section('title', 'Update Clinic Center')
 
 @section('content')
-    <!-- تنسيق مخصص لضمان شكل الحقول المستديرة والزر الموحد -->
-    <style>
-        :root {
-            --main-color: #008080;
-            /* اللون الأخضر المائي */
-        }
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="bi bi-pencil-square"></i>
+                Edit Clinic Center
+            </span>
+            <h1 class="page-title">Update {{ $clinicCenter->name }} with a more reliable editing flow.</h1>
+            <p class="page-subtitle">
+                Refresh contact details, address, credentials, or icon while keeping the experience consistent.
+            </p>
+        </div>
+    </div>
 
-        /* تنسيق حقول الإدخال لتشبه التصميم */
-        .form-control-custom {
-            border: 1px solid #ced4da;
-            /* حدود خفيفة */
-            border-radius: 12px;
-            /* حواف مستديرة */
-            padding: 15px 15px;
-            background-color: white;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-control-custom:focus {
-            border-color: var(--main-color);
-            box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.25);
-        }
-
-        /* تنسيق زر الإرسال */
-        .btn-main {
-            background-color: var(--main-color);
-            border-color: var(--main-color);
-            border-radius: 12px;
-            color: white;
-            padding: 12px 0;
-            font-size: 1.1rem;
-            transition: background-color 0.3s;
-        }
-
-        .btn-main:hover {
-            background-color: #006666;
-            border-color: #006666;
-            color: white;
-        }
-    </style>
-
-    <div class="container py-4">
-
-        <!-- عنوان الصفحة -->
-        <h3 class="mb-4 fw-bold text-center" style="color: var(--main-color);">
-            <i class="bi bi-pencil-square me-2"></i> Update Clinic Center
-        </h3>
-
+    <section class="section-card form-panel">
         <form action="{{ route('SuperAdmin.clinic_center.update', $clinicCenter->id) }}" method="POST"
             enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
-            <!-- حقل اسم المركز (Name) -->
-            <div class="mb-4">
-                <input type="text" name="name"
-                    class="form-control form-control-custom @error('name') is-invalid @enderror"
-                    placeholder="enter clinic center name" value="{{ old('name', $clinicCenter->name) }}" required>
-                @error('name')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل البريد الإلكتروني (Email) -->
-            <div class="mb-4">
-                <input type="email" name="email"
-                    class="form-control form-control-custom @error('email') is-invalid @enderror"
-                    placeholder="enter clinic center email" value="{{ old('email', $clinicCenter->user->email) }}" required>
-                @error('email')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل الهاتف (Phone) -->
-            <div class="mb-4">
-                <input type="text" name="phone"
-                    class="form-control form-control-custom @error('phone') is-invalid @enderror"
-                    placeholder="enter clinic center phone" value="{{ old('phone', $clinicCenter->user->phone) }}" required>
-                @error('phone')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل العنوان (Address) -->
-            <div class="mb-4">
-                <input type="text" name="address"
-                    class="form-control form-control-custom @error('address') is-invalid @enderror"
-                    placeholder="enter clinic center address" value="{{ old('address', $clinicCenter->address) }}" required>
-                @error('address')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل كلمة المرور (Password) - اختياري للتحديث -->
-            <div class="mb-5">
-                <input type="password" name="password"
-                    class="form-control form-control-custom @error('password') is-invalid @enderror"
-                    placeholder="enter new password (leave empty to keep current)">
-                @error('password')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-
-            <!-- حقل صورة الملف الشخصي (Profile Image) -->
-            <div class="mb-4 text-center">
-                <label for="profile_image_input" class="form-label fw-semibold text-muted">Change Image Icon</label>
-
-                <!-- حاوية الصورة الحالية القابلة للنقر -->
-                <div class="img-preview-container" onclick="document.getElementById('profile_image_input').click()">
-
-                    <img src="{{ /* asset($doctor->user->profile_image) */ $clinicCenter->user->profile_image }}"
-                        alt="Clinic Center image Icon" class="img-preview"
-                        onerror="this.onerror=null; this.src='https://placehold.co/120x120/008080/ffffff?text=DR';">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <label for="name" class="field-label">Center name</label>
+                    <input type="text" name="name" id="name"
+                        value="{{ old('name', $clinicCenter->name) }}"
+                        placeholder="Enter clinic center name" class="form-control @error('name') is-invalid @enderror">
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <!-- حقل إدخال الملف الفعلي (مخفي) -->
-                <input type="file" name="profile_image" id="profile_image_input"
-                    class="@error('profile_image') is-invalid @enderror">
+                <div class="col-lg-6">
+                    <label for="email" class="field-label">Email</label>
+                    <input type="email" name="email" id="email"
+                        value="{{ old('email', $clinicCenter->user->email) }}"
+                        placeholder="Enter clinic center email" class="form-control @error('email') is-invalid @enderror">
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                @error('profile_image')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
+                <div class="col-lg-6">
+                    <label for="phone" class="field-label">Phone</label>
+                    <input type="text" name="phone" id="phone"
+                        value="{{ old('phone', $clinicCenter->user->phone) }}"
+                        placeholder="Enter clinic center phone" class="form-control @error('phone') is-invalid @enderror">
+                    @error('phone')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="password" class="field-label">New password</label>
+                    <input type="password" name="password" id="password"
+                        placeholder="Leave blank to keep current password"
+                        class="form-control @error('password') is-invalid @enderror">
+                    @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-7">
+                    <label for="address" class="field-label">Address</label>
+                    <input type="text" name="address" id="address"
+                        value="{{ old('address', $clinicCenter->address) }}"
+                        placeholder="Enter clinic center address" class="form-control @error('address') is-invalid @enderror">
+                    @error('address')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-5">
+                    <label for="profile_image_input" class="field-label">Current icon</label>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <img src="{{ $clinicCenter->user->profile_image }}" alt="{{ $clinicCenter->name }}"
+                            class="image-preview"
+                            onerror="this.onerror=null; this.src='https://placehold.co/120x120/0f766e/ffffff?text=CC';">
+                    </div>
+
+                    <div class="file-drop">
+                        <input type="file" name="profile_image" id="profile_image_input"
+                            class="form-control @error('profile_image') is-invalid @enderror">
+                        <div class="field-note">Upload a new icon only if you want to replace the current one.</div>
+                    </div>
+                    @error('profile_image')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
-            <!-- زر الإرسال (Update) -->
-            <div class="d-grid">
-                <input type="submit" value="Update" class="btn btn-main">
+            <div class="toolbar-actions mt-4">
+                <button type="submit" class="btn btn-tabibi">
+                    <i class="bi bi-floppy-fill"></i>
+                    Update clinic center
+                </button>
+                <a href="{{ route('SuperAdmin.ClinicCenter.index') }}" class="ghost-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to centers
+                </a>
             </div>
-
         </form>
-
-        <!-- عرض الأخطاء العامة إن وجدت -->
-        @if (
-            $errors->any() &&
-                !$errors->has('name') &&
-                !$errors->has('email') &&
-                !$errors->has('phone') &&
-                !$errors->has('address') &&
-                !$errors->has('password'))
-            <div class="alert alert-danger text-center small mt-4" role="alert">
-                @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
-                @endforeach
-            </div>
-        @endif
-
-    </div>
-
+    </section>
 @endsection

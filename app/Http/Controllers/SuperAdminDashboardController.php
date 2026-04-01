@@ -16,9 +16,16 @@ class SuperAdminDashboardController extends Controller
         $DoctorCount = Doctor::count();
         $PatientCount = Patient::count();
         $AppointmentCount = Appointment::count();
-        return view("Super Admin.details_page" , compact("ClinicCount" ,
-        "DoctorCount",
-        "PatientCount",
-        "AppointmentCount") );
+        $ActiveClinicCount = ClinicCenter::where('is_active', true)->count();
+        $ActiveDoctorCount = Doctor::where('is_active', true)->count();
+
+        return view("Super Admin.details_page", compact(
+            "ClinicCount",
+            "DoctorCount",
+            "PatientCount",
+            "AppointmentCount",
+            "ActiveClinicCount",
+            "ActiveDoctorCount"
+        ));
     }
 }
