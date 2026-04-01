@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\DB;
 
 class LabDashboardController extends Controller
 {
+    public function __construct()
+    {
+        if (auth()->check()) {
+            if (!auth()->user()->doctor || auth()->user()->doctor->doctor_type !== 'lab') {
+                abort(403, 'Unauthorized');
+            }
+        }
+    }
+
     public function index()
     {
         $appointments = Appointment::with([

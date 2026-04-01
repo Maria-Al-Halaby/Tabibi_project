@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\DB;
 
 class RadiologyDashboardController extends Controller
 {
+    public function __construct()
+    {
+        if (auth()->check()) {
+            if (!auth()->user()->doctor || auth()->user()->doctor->doctor_type !== 'radiology') {
+                abort(403, 'Unauthorized');
+            }
+        }
+    }
     public function index()
     {
         $appointments = Appointment::with([

@@ -72,13 +72,7 @@ class DoctorController extends Controller
             "profile_image" => $imagePath , 
         ]);
 
-        if ($request->doctor_type === 'radiology') {
-        $user->assignRole('radiologist');
-        } elseif ($request->doctor_type === 'lab') {
-            $user->assignRole('lab technician');
-        } else {
-            $user->assignRole('doctor');
-        }
+        $user->syncRoles(['doctor']);
 
         Doctor::create([
             "user_id" => $user->id, 
@@ -149,15 +143,7 @@ class DoctorController extends Controller
             "profile_image" => $imagePath
         ]);
 
-        $user->syncRoles([]);
-
-        if ($data['doctor_type'] === 'radiology') {
-            $user->assignRole('radiologist');
-        } elseif ($data['doctor_type'] === 'lab') {
-            $user->assignRole('lab technician');
-        } else {
-            $user->assignRole('doctor');
-        }
+        $user->syncRoles(['doctor']);
 
         $doctor->update([
             "specialization_id" => $data["specialization_id"], 
