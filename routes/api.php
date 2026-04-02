@@ -13,8 +13,8 @@ use App\Http\Controllers\Api\ProfileSettingController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\PatientMedicalRecordController;
 use App\Http\Controllers\Api\MedicalRecordController;
-
 use App\Http\Controllers\Api\LookupController;
+use App\Http\Controllers\Api\CenterServicesController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -111,3 +111,5 @@ Route::get('/medical-image-types', [LookupController::class, 'medicalImageTypes'
 Route::middleware('auth:sanctum')->get('/patient/medical-records', [MedicalRecordController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/me', [LookupController::class, 'me']);
+
+Route::get('/centers/{id}/services', [CenterServicesController::class, 'index']);

@@ -18,6 +18,7 @@ use App\Http\Controllers\RadiologyDashboardController;
 use App\Http\Controllers\LabDashboardController;
 use App\Http\Controllers\PharmacyDashboardController;
 use App\Http\Controllers\AdminPharmacyController;
+use App\Http\Controllers\AdminPricingController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\DoctorSchedules;
@@ -154,6 +155,20 @@ Route::middleware(['auth', 'role:pharmacist'])->group(function () {
     Route::post('/pharmacy/prescriptions/{prescription}/update-status', [PharmacyDashboardController::class, 'updateStatus'])->name('pharmacy.prescriptions.updateStatus');
 });
 
+Route::middleware(["auth", "role:admin"])
+    ->prefix("Admin/Dashboard")
+    ->group(function () {
+
+        Route::get("/pricing", [AdminPricingController::class, 'index'])
+            ->name("Admin.Pricing.index");
+
+        Route::post("/pricing/lab", [AdminPricingController::class, 'updateLabPrice'])
+            ->name("Admin.Pricing.lab");
+
+        Route::post("/pricing/radiology", [AdminPricingController::class, 'updateRadiologyPrice'])
+            ->name("Admin.Pricing.radiology");
+
+});
 //test route 
 /* Route::get("send-notification" , [FCMController::class , "send_notification"]); */
 

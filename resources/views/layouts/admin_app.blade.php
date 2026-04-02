@@ -116,6 +116,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('Admin.Pricing.index') }}">
+                            <i class="fas fa-calendar-check me-1"></i> Pricing
+                        </a>
+                    </li>
+
+
                     {{--   <li class="nav-item">
                         <a class="nav-link" href="#">
                             <i class="fas fa-calendar-check me-1"></i> Secretary
