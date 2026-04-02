@@ -1,74 +1,91 @@
 @extends('layouts.admin_app')
 
-@section('title', 'Appointment in This Center')
-
+@section('title', 'Appointments')
 
 @section('content')
+    @php
+        $appointmentCount = $appointments->count();
+    @endphp
 
-    <h2 class="mb-4">
-        <i class="fas fa-calendar-alt tabibi-text-primary me-2"></i> Upcoming Appointments
-    </h2>
-    <hr>
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="fas fa-calendar-check"></i>
+                Appointments
+            </span>
+            <h1 class="page-title">Track bookings before they become bottlenecks.</h1>
+            <p class="page-subtitle">
+                Upcoming appointments are presented as a clear action queue so your team can review schedules and resolve
+                issues faster.
+            </p>
+        </div>
 
-    <div class="row g-4">
-
-        @forelse ($appointments as $appointment)
-            <div class="col-sm-12 col-md-6 col-lg-4">
-                <div class="card shadow-sm border-0 rounded-4 h-100">
-                    <div class="card-body p-4">
-
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h5 class="card-title fw-bold tabibi-text-primary">
-                                <i class="fas fa-bookmark me-2"></i> New Appointment
-                            </h5>
-                            <span class="badge bg-success rounded-pill p-2">Scheduled</span>
-                        </div>
-
-                        <div class="mb-2">
-                            <p class="mb-0 text-muted small">Patient Name:</p>
-                            <p class="fw-bold mb-0 text-dark">
-                                <i class="fas fa-user me-2 text-secondary"></i> {{ $appointment->patient->user->name }}
-                            </p>
-                        </div>
-
-                        <div class="mb-2">
-                            <p class="mb-0 text-muted small">Doctor Name:</p>
-                            <p class="fw-bold mb-0 text-dark">
-                                <i class="fas fa-user-md me-2 text-secondary"></i> {{ $appointment->doctor->user->name }}
-                            </p>
-                        </div>
-
-                        <div class="mb-3">
-                            <p class="mb-0 text-muted small">Date & Time:</p>
-                            <p class="fw-bold mb-0 text-info">
-                                <i class="fas fa-clock me-2"></i>
-                                {{ \Carbon\Carbon::parse($appointment->start_at)->format('Y-m-d H:i') }}
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <div class="card-footer bg-light border-0 text-end">
-                        <a href="{{ route('Admin.Appointment.cancel', $appointment->id) }}"
-                            class="btn btn-sm btn-outline-danger rounded-pill">
-                            <i class="fas fa-times-circle me-1"></i> Cancel
-                        </a>
-                        {{--   <a href="#" class="btn btn-sm btn-outline-warning rounded-pill">
-                            <i class="fas fa-info-circle me-1"></i> Details
-                        </a> --}}
-                    </div>
-                </div>
-            </div>
-
-        @empty
-            <div class="col-12">
-                <div class="text-center py-5 bg-white shadow-sm rounded-4 border">
-                    <i class="fas fa-bell-slash fa-4x text-info mb-3"></i>
-                    <h2 class="h3">There isn't any appointment yet!</h2>
-                    <p class="text-muted">No appointments found for this center.</p>
-                </div>
-            </div>
-        @endforelse
+        <div class="helper-badges">
+            <span class="helper-badge">
+                <i class="fas fa-list-check"></i>
+                {{ number_format($appointmentCount) }} appointments
+            </span>
+        </div>
     </div>
 
+    @if ($appointments->isEmpty())
+        <section class="section-card empty-state">
+            <div class="empty-state__icon">
+                <i class="fas fa-calendar-xmark"></i>
+            </div>
+            <h2 class="empty-state__title">No appointments are waiting right now.</h2>
+            <p class="empty-state__copy">
+                This center does not currently have scheduled appointments in the queue.
+            </p>
+            <a href="{{ route('Admin.index') }}" class="ghost-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to overview
+            </a>
+        </section>
+    @else
+        <div class="row g-4">
+            @foreach ($appointments as $appointment)
+                <div class="col-md-6 col-xl-4">
+                    <section class="record-card">
+                        <div class="record-card__header">
+                            <div>
+                                <span class="status-pill status-pill--success">
+                                    <i class="fas fa-circle-check"></i>
+                                    Scheduled
+                                </span>
+                            </div>
+
+                            <span class="helper-badge">
+                                <i class="fas fa-clock"></i>
+                                {{ \Carbon\Carbon::parse($appointment->start_at)->format('M d, H:i') }}
+                            </span>
+                        </div>
+
+                        <h2 class="record-card__title mb-3">{{ $appointment->patient->user->name }}</h2>
+
+                        <div class="d-grid gap-3 mb-4">
+                            <div class="mini-metric">
+                                <div class="mini-metric__label">Assigned doctor</div>
+                                <p class="mini-metric__value">{{ $appointment->doctor->user->name }}</p>
+                            </div>
+
+                            <div class="mini-metric">
+                                <div class="mini-metric__label">Visit time</div>
+                                <p class="mini-metric__value">{{ \Carbon\Carbon::parse($appointment->start_at)->format('l, M d Y - H:i') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="toolbar-actions">
+                            <a href="{{ route('Admin.Appointment.cancel', $appointment->id) }}"
+                                class="danger-outline-button"
+                                onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                <i class="fas fa-ban"></i>
+                                Cancel appointment
+                            </a>
+                        </div>
+                    </section>
+                </div>
+            @endforeach
+        </div>
+    @endif
 @endsection

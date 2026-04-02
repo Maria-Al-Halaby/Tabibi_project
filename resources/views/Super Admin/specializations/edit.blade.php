@@ -1,125 +1,71 @@
-{{-- @extends('layouts.app')
-
-@section('title', 'update specialization')
-
-
-@section('content')
-    <form action="{{ route('SuperAdmin.specialization.update', $specialization->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-        <input type="text" name="name" placeholder="enter specialization name" value="{{ $specialization->name }}">
-        <input type="submit" value="send">
-    </form>
-
-@endsection
- --}}
-
 @extends('layouts.app')
 
-@section('title', 'update specialization')
-
+@section('title', 'Edit Specialization')
 
 @section('content')
-    <!-- تنسيق مخصص لضمان شكل الحقول المستديرة والزر الموحد -->
-    <style>
-        :root {
-            --main-color: #008080;
-            /* اللون الأخضر المائي */
-        }
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="bi bi-pencil-square"></i>
+                Edit Specialization
+            </span>
+            <h1 class="page-title">Update {{ $specialization->name }} without losing clarity.</h1>
+            <p class="page-subtitle">Refine the name or artwork while keeping the specialization library polished.</p>
+        </div>
+    </div>
 
-        /* تنسيق حقول الإدخال */
-        .form-control-custom {
-            border: 1px solid #ced4da;
-            /* حدود خفيفة */
-            border-radius: 12px;
-            /* حواف مستديرة */
-            padding: 15px 15px;
-            background-color: white;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-control-custom:focus {
-            border-color: var(--main-color);
-            box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.25);
-        }
-
-        /* تنسيق زر الإرسال */
-        .btn-main {
-            background-color: var(--main-color);
-            border-color: var(--main-color);
-            border-radius: 12px;
-            color: white;
-            padding: 12px 0;
-            font-size: 1.1rem;
-            transition: background-color 0.3s;
-        }
-
-        .btn-main:hover {
-            background-color: #006666;
-            border-color: #006666;
-            color: white;
-        }
-    </style>
-
-    <div class="container py-4">
-
-        <!-- عنوان الصفحة -->
-        <h3 class="mb-5 fw-bold text-center" style="color: var(--main-color);">
-            <i class="bi bi-pencil-square me-2"></i> Update Specialization
-        </h3>
-
+    <section class="section-card form-panel">
         <form action="{{ route('SuperAdmin.specialization.update', $specialization->id) }}" method="POST"
             enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
-            <!-- حقل اسم الاختصاص (Name) -->
-            <div class="mb-4">
-                <input type="text" name="name"
-                    class="form-control form-control-custom @error('name') is-invalid @enderror"
-                    placeholder="enter specialization name" value="{{ old('name', $specialization->name) }}" required>
-                @error('name')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-
-            <div class="mb-4 text-center">
-                <label for="image_input" class="form-label fw-semibold text-muted">Change Image</label>
-
-                <!-- حاوية الصورة الحالية القابلة للنقر -->
-                <div class="img-preview-container" onclick="document.getElementById('image_input').click()">
-
-                    <img src="{{ /* asset($doctor->user->profile_image) */ $specialization->image }}" alt="image"
-                        class="img-preview"
-                        onerror="this.onerror=null; this.src='https://placehold.co/120x120/008080/ffffff?text=DR';">
+            <div class="row g-4 align-items-start">
+                <div class="col-lg-7">
+                    <label for="name" class="field-label">Specialization name</label>
+                    <input type="text" id="name" name="name"
+                        value="{{ old('name', $specialization->name) }}"
+                        placeholder="Enter specialization name"
+                        class="form-control @error('name') is-invalid @enderror">
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <!-- حقل إدخال الملف الفعلي (مخفي) -->
-                <input type="file" name="image" id="image_input" class="@error('image') is-invalid @enderror">
+                <div class="col-lg-5">
+                    <label for="image_input" class="field-label">Current image</label>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        @if (!empty($specialization->image))
+                            <img src="{{ $specialization->image }}" alt="{{ $specialization->name }}"
+                                class="image-preview">
+                        @else
+                            <span class="empty-state__icon mb-0" style="width:112px;height:112px;">
+                                <i class="bi bi-image"></i>
+                            </span>
+                        @endif
+                    </div>
 
-                @error('image')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
+                    <div class="file-drop">
+                        <input type="file" name="image" id="image_input"
+                            class="form-control @error('image') is-invalid @enderror">
+                        <div class="field-note">Upload a new image only if you want to replace the current one.</div>
+                    </div>
+                    @error('image')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
-            <!-- زر الإرسال (Send) -->
-            <div class="d-grid">
-                <!-- تم تغيير القيمة من 'send' إلى 'Update' لتكون أكثر وضوحاً في سياق التعديل -->
-                <input type="submit" value="Update" class="btn btn-main">
+            <div class="toolbar-actions mt-4">
+                <button type="submit" class="btn btn-tabibi">
+                    <i class="bi bi-floppy-fill"></i>
+                    Update specialization
+                </button>
+                <a href="{{ route('SuperAdmin.specialization.index') }}" class="ghost-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to list
+                </a>
             </div>
-
         </form>
-
-        <!-- عرض الأخطاء العامة إن وجدت -->
-        @if ($errors->any() && !$errors->has('name'))
-            <div class="alert alert-danger text-center small mt-4" role="alert">
-                @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
-                @endforeach
-            </div>
-        @endif
-
-    </div>
-
+    </section>
 @endsection

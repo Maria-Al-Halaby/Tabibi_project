@@ -1,287 +1,174 @@
-{{-- @extends('layouts.app')
-
-@section('title', 'update doctor information')
-
-
-@section('content')
-
-    <form action="{{ route('SuperAdmin.doctor.update', $doctor->id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-        <input type="text" name="name" placeholder="enter doctor name" value="{{ $doctor->user->name }}">
-        <input type="email" name="email" placeholder="enter doctor email" value="{{ $doctor->user->email }}">
-        <input type="text" name="phone" placeholder="enter doctor phone" value="{{ $doctor->user->phone }}">
-
-        <input type="password" name="password" placeholder="enter doctor password">
-        <label for="chageDoctorImage">change doctor image:
-            <input type="file" name="profile_image" style="display: none" id="chageDoctorImage">
-            <img src="{{ $doctor->user->profile_image }}" alt="doctor profile image">
-
-
-            <select name="specialization_id">
-                @foreach ($specializations as $specialization)
-                    <option value="{{ $specialization->id }}"
-                        {{ $specialization->id == $doctor->specialization_id ? 'selected' : '' }}>
-                        {{ $specialization->name }}</option>
-                @endforeach
-            </select>
-
-        </label>
-
-        <input type="submit" value="update information">
-
-
-    </form>
-
-@endsection
- --}}
-
 @extends('layouts.app')
 
-@section('title', 'update doctor information')
-
+@section('title', 'Update Doctor')
 
 @section('content')
-    <!-- تنسيق مخصص لضمان شكل الحقول المستديرة والزر الموحد وتنسيق الصورة -->
-    <style>
-        :root {
-            --main-color: #008080;
-            /* اللون الأخضر المائي */
-        }
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="bi bi-person-fill-gear"></i>
+                Edit Doctor
+            </span>
+            <h1 class="page-title">Update {{ $doctor->user->name }} with a cleaner editing flow.</h1>
+            <p class="page-subtitle">
+                Review profile data, refresh account details, and replace media without wrestling with the form.
+            </p>
+        </div>
+    </div>
 
-        /* تنسيق حقول الإدخال والقائمة المنسدلة */
-        .form-control-custom,
-        .form-select-custom {
-            border: 1px solid #ced4da;
-            /* حدود خفيفة */
-            border-radius: 12px;
-            /* حواف مستديرة */
-            padding: 15px 15px;
-            background-color: white;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-control-custom:focus,
-        .form-select-custom:focus {
-            border-color: var(--main-color);
-            box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.25);
-        }
-
-        /* تنسيق زر الإرسال */
-        .btn-main {
-            background-color: var(--main-color);
-            border-color: var(--main-color);
-            border-radius: 12px;
-            color: white;
-            padding: 12px 0;
-            font-size: 1.1rem;
-            transition: background-color 0.3s;
-        }
-
-        .btn-main:hover {
-            background-color: #006666;
-            border-color: #006666;
-            color: white;
-        }
-
-        /* تنسيق معاينة الصورة */
-        .img-preview-container {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid var(--main-color);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin: 10px auto;
-            position: relative;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .img-preview-container:hover {
-            opacity: 0.8;
-        }
-
-        .img-preview {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* إخفاء زر اختيار الملف الافتراضي */
-        #profile_image_input {
-            display: none !important;
-        }
-    </style>
-
-    <div class="container py-4">
-
-        <!-- عنوان الصفحة -->
-        <h3 class="mb-4 fw-bold text-center" style="color: var(--main-color);">
-            <i class="bi bi-person-fill-gear me-2"></i> Update Doctor Information
-        </h3>
-
+    <section class="section-card form-panel">
         <form action="{{ route('SuperAdmin.doctor.update', $doctor->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
-            <!-- حقل اسم الطبيب (Name) -->
-            <div class="mb-4">
-                <input type="text" name="name"
-                    class="form-control form-control-custom @error('name') is-invalid @enderror"
-                    placeholder="enter doctor name" value="{{ old('name', $doctor->user->name) }}" required>
-                @error('name')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل البريد الإلكتروني (Email) -->
-            <div class="mb-4">
-                <input type="email" name="email"
-                    class="form-control form-control-custom @error('email') is-invalid @enderror"
-                    placeholder="enter doctor email" value="{{ old('email', $doctor->user->email) }}" required>
-                @error('email')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل الهاتف (Phone) -->
-            <div class="mb-4">
-                <input type="text" name="phone"
-                    class="form-control form-control-custom @error('phone') is-invalid @enderror"
-                    placeholder="enter doctor phone" value="{{ old('phone', $doctor->user->phone) }}" required>
-                @error('phone')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="mb-4">
-                <input type="number" name="experience_years"
-                    class="form-control form-control-custom @error('experience_years') is-invalid @enderror"
-                    placeholder="enter doctor experience years" value="{{ old( "experience_years" , $doctor->experience_years) }}">
-                @error('experience_years')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="mb-4">
-                <input type="text" name="bio"
-                    class="form-control form-control-custom @error('bio') is-invalid @enderror"
-                    placeholder="enter doctor bio" value="{{ old("bio" , $doctor->bio) }}">
-                @error('bio')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل كلمة المرور (Password) -->
-            <div class="mb-4">
-                <input type="password" name="password"
-                    class="form-control form-control-custom @error('password') is-invalid @enderror"
-                    placeholder="enter new password (leave empty to keep current)">
-                @error('password')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-
-
-
-            <!-- حقل صورة الملف الشخصي (Profile Image) -->
-            <div class="mb-4 text-center">
-                <label for="profile_image_input" class="form-label fw-semibold text-muted">Change Doctor Image</label>
-
-                <!-- حاوية الصورة الحالية القابلة للنقر -->
-                <div class="img-preview-container" onclick="document.getElementById('profile_image_input').click()">
-
-                    <img src="{{ /* asset($doctor->user->profile_image) */ $doctor->user->profile_image }}" alt="doctor profile image" class="img-preview"
-                        onerror="this.onerror=null; this.src='https://placehold.co/120x120/008080/ffffff?text=DR';">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <label for="name" class="field-label">Doctor name</label>
+                    <input type="text" name="name" id="name"
+                        value="{{ old('name', $doctor->user->name) }}"
+                        placeholder="Enter doctor name" class="form-control @error('name') is-invalid @enderror">
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <!-- حقل إدخال الملف الفعلي (مخفي) -->
-                <input type="file" name="profile_image" id="profile_image_input"
-                    class="@error('profile_image') is-invalid @enderror">
-
-                @error('profile_image')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- حقل نوع الطبيب (Doctor Type) -->
-            <div class="mb-4">
-                <label class="form-label fw-semibold text-muted d-block">Doctor Type</label>
-
-                <div class="form-check mb-2">
-                    <input class="form-check-input @error('doctor_type') is-invalid @enderror"
-                        type="radio"
-                        name="doctor_type"
-                        value="doctor"
-                        {{ old('doctor_type', $doctor->doctor_type) == 'doctor' ? 'checked' : '' }}>
-                    <label class="form-check-label">Doctor</label>
+                <div class="col-lg-6">
+                    <label for="email" class="field-label">Email</label>
+                    <input type="email" name="email" id="email"
+                        value="{{ old('email', $doctor->user->email) }}"
+                        placeholder="Enter doctor email" class="form-control @error('email') is-invalid @enderror">
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <div class="form-check mb-2">
-                    <input class="form-check-input @error('doctor_type') is-invalid @enderror"
-                        type="radio"
-                        name="doctor_type"
-                        value="radiology"
-                        {{ old('doctor_type', $doctor->doctor_type) == 'radiology' ? 'checked' : '' }}>
-                    <label class="form-check-label">Radiology</label>
+                <div class="col-lg-6">
+                    <label for="phone" class="field-label">Phone</label>
+                    <input type="text" name="phone" id="phone"
+                        value="{{ old('phone', $doctor->user->phone) }}"
+                        placeholder="Enter doctor phone" class="form-control @error('phone') is-invalid @enderror">
+                    @error('phone')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <div class="form-check">
-                    <input class="form-check-input @error('doctor_type') is-invalid @enderror"
-                        type="radio"
-                        name="doctor_type"
-                        value="lab"
-                        {{ old('doctor_type', $doctor->doctor_type) == 'lab' ? 'checked' : '' }}>
-                    <label class="form-check-label">Lab</label>
+                <div class="col-lg-6">
+                    <label for="password" class="field-label">New password</label>
+                    <input type="password" name="password" id="password"
+                        placeholder="Leave blank to keep current password"
+                        class="form-control @error('password') is-invalid @enderror">
+                    @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                @error('doctor_type')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
+                <div class="col-lg-6">
+                    <label for="experience_years" class="field-label">Experience years</label>
+                    <input type="number" name="experience_years" id="experience_years"
+                        value="{{ old('experience_years', $doctor->experience_years) }}"
+                        placeholder="Enter years of experience"
+                        class="form-control @error('experience_years') is-invalid @enderror">
+                    @error('experience_years')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="specialization_id" class="field-label">Specialization</label>
+                    <select name="specialization_id" id="specialization_id"
+                        class="form-select @error('specialization_id') is-invalid @enderror">
+                        @foreach ($specializations as $specialization)
+                            <option value="{{ $specialization->id }}"
+                                @selected(old('specialization_id', $doctor->specialization_id) == $specialization->id)>
+                                {{ $specialization->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('specialization_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-12">
+                    <label for="bio" class="field-label">Bio</label>
+                    <textarea name="bio" id="bio" placeholder="Enter doctor bio"
+                        class="form-control @error('bio') is-invalid @enderror">{{ old('bio', $doctor->bio) }}</textarea>
+                    @error('bio')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-7">
+                    <label class="field-label">Doctor type</label>
+                    <div class="type-grid">
+                        @foreach (['doctor' => 'Doctor', 'radiology' => 'Radiology', 'lab' => 'Lab'] as $value => $label)
+                            <label class="type-card">
+                                <input type="radio" name="doctor_type" value="{{ $value }}"
+                                    @checked(old('doctor_type', $doctor->doctor_type) === $value)>
+                                <span>{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('doctor_type')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-lg-5">
+                    <label for="profile_image_input" class="field-label">Current image</label>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <img src="{{ $doctor->user->profile_image }}" alt="{{ $doctor->user->name }}"
+                            class="image-preview"
+                            onerror="this.onerror=null; this.src='https://placehold.co/120x120/0f766e/ffffff?text=DR';">
+                    </div>
+
+                    <div class="file-drop">
+                        <input type="file" name="profile_image" id="profile_image_input"
+                            class="form-control @error('profile_image') is-invalid @enderror">
+                        <div class="field-note">Upload only if you want to replace the current image.</div>
+                    </div>
+                    @error('profile_image')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
-            <!-- حقل الاختصاص (Specialization ID) -->
-            <div class="mb-5">
-                <label for="specialization_id" class="form-label fw-semibold text-muted">Select Specialization</label>
-                <select name="specialization_id" id="specialization_id"
-                    class="form-select form-select-custom @error('specialization_id') is-invalid @enderror" required>
-                    @foreach ($specializations as $specialization)
-                        <option value="{{ $specialization->id }}"
-                            {{ old('specialization_id', $doctor->specialization_id) == $specialization->id ? 'selected' : '' }}>
-                            {{ $specialization->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('specialization_id')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
+            <div class="toolbar-actions mt-4">
+                <button type="submit" class="btn btn-tabibi">
+                    <i class="bi bi-floppy-fill"></i>
+                    Update doctor
+                </button>
+                <a href="{{ route('SuperAdmin.doctor.index') }}" class="ghost-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to doctors
+                </a>
             </div>
-
-            <!-- زر الإرسال (Update Information) -->
-            <div class="d-grid">
-                <input type="submit" value="Update Information" class="btn btn-main">
-            </div>
-
         </form>
-
-        <!-- عرض الأخطاء العامة إن وجدت -->
-        @if (
-            $errors->any() &&
-                !$errors->has('name') &&
-                !$errors->has('email') &&
-                !$errors->has('phone') &&
-                !$errors->has('password') &&
-                !$errors->has('profile_image') &&
-                !$errors->has('specialization_id'))
-            <div class="alert alert-danger text-center small mt-4" role="alert">
-                @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
-                @endforeach
-            </div>
-        @endif
-
-    </div>
-
+    </section>
 @endsection
+
+@push('styles')
+    <style>
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.85rem;
+        }
+
+        .type-card {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 1rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .type-card input {
+            accent-color: var(--main-color);
+        }
+    </style>
+@endpush

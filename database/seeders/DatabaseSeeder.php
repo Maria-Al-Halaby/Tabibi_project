@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
         ]); */
 
         /* اولا يتم تنفيذ ال RoleSeeder ثم بعد الخاص بالمستخدمين  */
-        //$this->call(RolesSeeder::class);
+        $this->call(RolesSeeder::class);
 
-        //$this->call(UserSeeder::class);
+        $this->call(UserSeeder::class);
 
         /* هذا الخاص بالمعلومات التي تعرض بال home screen سيتم التعديل لاحقا ليتم ادخاله من ال main dashboard */
         //$this->call(PromotSeeder::class);

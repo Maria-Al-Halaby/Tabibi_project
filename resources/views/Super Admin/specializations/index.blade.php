@@ -1,178 +1,96 @@
-{{-- @extends('layouts.app')
-
-@section('title', 'specializations')
-
-
-@section('content')
-
-    @if (session('message'))
-        <p style="color: red;">{{ session('message') }}</p>
-    @endif
-    <a href="{{ route('SuperAdmin.specialization.create') }}">add new specialization</a>
-    @forelse ($specializations as $specialization)
-        <div>
-            <h2>{{ $specialization->name }}</h2>
-            <a href="{{ route('SuperAdmin.specialization.edit', $specialization->id) }}">edit specialization</a>
-            <form action="{{ route('SuperAdmin.specialization.destroy', $specialization->id) }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <input type="submit" value="delete">
-            </form>
-        </div>
-    @empty
-        <h1>there is'nt any specializtion yet!!</h1>
-    @endforelse
-
-
-@endsection
- --}}
-
 @extends('layouts.app')
 
-@section('title', 'specializations')
-
+@section('title', 'Specializations')
 
 @section('content')
-    <!-- تنسيق مخصص ليظهر شكل البطاقة العصرية وأزرار الإجراءات -->
-    <style>
-        :root {
-            --main-color: #008080; /* اللون الأخضر المائي */
-            --danger-color: #dc3545; /* اللون الأحمر للحذف */
-            --info-color: #0d6efd; /* اللون الأزرق للتعديل */
-        }
-
-        /* تنسيق زر "إضافة جديد" */
-        .btn-add-new {
-            background-color: var(--main-color);
-            border-color: var(--main-color);
-            color: white;
-            border-radius: 12px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            display: inline-flex;
-            align-items: center;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-
-        .btn-add-new:hover {
-            background-color: #006666;
-            color: white;
-        }
-
-        /* تنسيق البطاقة الفردية للاختصاص */
-        .specialization-card {
-            background-color: #ffffff;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .specialization-name {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #343a40;
-            display: flex;
-            align-items: center;
-        }
-
-        /* تنسيق الأزرار داخل البطاقة */
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-button {
-            border: none;
-            border-radius: 8px;
-            padding: 8px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.2s;
-        }
-
-        .action-button:hover {
-            opacity: 0.8;
-        }
-        
-        /* تنسيق زر التعديل */
-        .btn-edit {
-            background-color: var(--info-color);
-            color: white;
-        }
-
-        /* تنسيق زر الحذف */
-        .btn-delete {
-            background-color: var(--danger-color);
-            color: white;
-        }
-    </style>
-
-    <div class="container py-4">
-        
-        <!-- رسالة الجلسة (Session Message) -->
-        @if (session('message'))
-            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
-                <i class="bi bi-info-circle-fill me-2"></i> {{ session('message') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        <!-- زر إضافة اختصاص جديد -->
-        <div class="d-flex justify-content-end mb-4">
-            <a href="{{ route('SuperAdmin.specialization.create') }}" class="btn-add-new">
-                <i class="bi bi-plus-circle me-2"></i> Add New Specialization
-            </a>
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="bi bi-grid-1x2-fill"></i>
+                Specializations
+            </span>
+            <h1 class="page-title">Keep medical categories organized and easy to manage.</h1>
+            <p class="page-subtitle">
+                This page is now cleaner to scan, with clearer actions for editing taxonomy across the whole platform.
+            </p>
         </div>
 
-        <!-- قائمة الاختصاصات -->
-        @forelse ($specializations as $specialization)
-            <div class="specialization-card">
-                
-                <!-- اسم الاختصاص -->
-                <h2 class="specialization-name">
-                    <i class="bi bi-patch-check-fill me-2" style="color: var(--main-color);"></i>
-                    {{ $specialization->name }}
-                </h2>
-                
-                <!-- أزرار الإجراءات (تعديل وحذف) -->
-                <div class="action-buttons">
-                    
-                    <!-- رابط التعديل -->
-                    <a href="{{ route('SuperAdmin.specialization.edit', $specialization->id) }}" class="action-button btn-edit" title="Edit Specialization">
-                        <i class="bi bi-pencil-square"></i>
-                    </a>
-                    
-                    <!-- نموذج الحذف -->
-                    <form action="{{ route('SuperAdmin.specialization.destroy', $specialization->id) }}" method="POST" class="d-inline"
-                        onsubmit="return confirm('Are you sure you want to delete specialization: {{ $specialization->name }}?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-button btn-delete" title="Delete Specialization">
-                            <i class="bi bi-trash-fill"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        @empty
-            <!-- رسالة في حالة عدم وجود اختصاصات -->
-            <div class="alert alert-info text-center mt-5" role="alert">
-                <i class="bi bi-info-circle me-2"></i> There aren't any specializations yet!!
-            </div>
-        @endforelse
-
+        <div class="helper-badges">
+            <span class="helper-badge">
+                <i class="bi bi-collection-fill"></i>
+                {{ number_format($specializations->count()) }} specializations
+            </span>
+        </div>
     </div>
 
-    <!-- يجب تضمين ملف جافاسكريبت الخاص بـ Bootstrap في الـ layout الرئيسي لعمل الـ dismissible alert -->
-    <script>
-        // هذا مجرد تعليق للتذكير، يفترض أن يتم تضمين JS في layouts.app
-        // <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    </script>
+    @if (session('message'))
+        <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4">{{ session('message') }}</div>
+    @endif
+
+    <div class="toolbar-row">
+        <div>
+            <h2 class="section-heading">Specialization directory</h2>
+            <p class="section-copy">Each card includes the core information and the primary management actions.</p>
+        </div>
+
+        <div class="toolbar-actions">
+            <a href="{{ route('SuperAdmin.specialization.create') }}" class="btn btn-tabibi">
+                <i class="bi bi-plus-circle"></i>
+                Add specialization
+            </a>
+        </div>
+    </div>
+
+    @if ($specializations->isEmpty())
+        <section class="section-card empty-state">
+            <div class="empty-state__icon">
+                <i class="bi bi-grid"></i>
+            </div>
+            <h2 class="empty-state__title">No specializations have been added yet.</h2>
+            <p class="empty-state__copy">Create the first specialization to start organizing doctor records cleanly.</p>
+        </section>
+    @else
+        <div class="row g-4">
+            @foreach ($specializations as $specialization)
+                <div class="col-md-6 col-xl-4">
+                    <section class="record-card">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            @if (!empty($specialization->image))
+                                <img src="{{ $specialization->image }}" alt="{{ $specialization->name }}"
+                                    class="avatar-circle">
+                            @else
+                                <span class="empty-state__icon mb-0" style="width:72px;height:72px;">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                </span>
+                            @endif
+
+                            <div>
+                                <h2 class="record-card__title mb-1">{{ $specialization->name }}</h2>
+                                <p class="record-card__copy">Platform taxonomy item</p>
+                            </div>
+                        </div>
+
+                        <div class="toolbar-actions">
+                            <a href="{{ route('SuperAdmin.specialization.edit', $specialization->id) }}"
+                                class="outline-button">
+                                <i class="bi bi-pencil-square"></i>
+                                Edit
+                            </a>
+
+                            <form action="{{ route('SuperAdmin.specialization.destroy', $specialization->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Are you sure you want to delete specialization {{ $specialization->name }}?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="danger-outline-button">
+                                    <i class="bi bi-trash3"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            @endforeach
+        </div>
+    @endif
 @endsection

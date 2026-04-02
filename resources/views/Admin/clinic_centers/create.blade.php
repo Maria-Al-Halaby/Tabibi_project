@@ -1,58 +1,67 @@
 @extends('layouts.admin_app')
 
-@section('title', 'All Doctors on Specializations')
+@section('title', 'Specialization Doctors')
 
 @section('content')
+    <div class="page-header">
+        <div>
+            <span class="eyebrow">
+                <i class="fas fa-stethoscope"></i>
+                Specialization View
+            </span>
+            <h1 class="page-title">Doctors inside the selected specialization.</h1>
+            <p class="page-subtitle">
+                This focused view gives you a cleaner list of doctors for one specialty, with a direct path to each
+                schedule.
+            </p>
+        </div>
 
-    <h2 class="mb-4">
-        <i class="fas fa-user-md tabibi-text-primary me-2"></i> Doctors List
-    </h2>
-    <hr>
+        <div class="helper-badges">
+            <span class="helper-badge">
+                <i class="fas fa-user-doctor"></i>
+                {{ number_format($doctors->count()) }} doctors
+            </span>
+        </div>
+    </div>
 
     @if ($doctors->isEmpty())
-        <div class="text-center py-5 bg-white shadow-sm rounded-4 border">
-            <i class="fas fa-info-circle fa-4x text-info mb-3"></i>
-            <h1 class="h3">There are no doctors registered in this specialization yet.</h1>
-            <a href="#" class="btn btn-tabibi mt-3 shadow">
-                <i class="fas fa-plus me-2"></i> Add New Doctor
+        <section class="section-card empty-state">
+            <div class="empty-state__icon">
+                <i class="fas fa-circle-info"></i>
+            </div>
+            <h2 class="empty-state__title">No doctors are assigned to this specialization yet.</h2>
+            <p class="empty-state__copy">
+                Once doctors are linked to this specialty, they will appear here for schedule management.
+            </p>
+            <a href="{{ route('Admin.ClinicManagement.index') }}" class="ghost-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to clinic management
             </a>
-        </div>
+        </section>
     @else
         <div class="row g-4">
             @foreach ($doctors as $doctor)
-                <div class="col-md-6 col-lg-4">
-                    <div class="card shadow-sm border-0 rounded-4 overflow-hidden h-100">
-                        <div class="card-body d-flex flex-column align-items-center text-center p-4">
-
-                            <img src="{{ $doctor->user->profile_image }}" alt="Doctor Profile Image"
-                                class="rounded-circle mb-3 border border-4 border-light shadow-sm"
-                                style="width: 90px; height: 90px; object-fit: cover;">
-
-                            <h5 class="card-title fw-bold mb-1">{{ $doctor->user->name }}</h5>
-
-                            <p class="text-muted small mb-3">
-                                <i class="fas fa-tag me-1 text-secondary"></i>
-                                {{ $doctor->specialization->name }}
-                            </p>
-
-                            <div class="mt-auto w-100">
-                                <a href="{{ route('Admin.DoctorSchedule.show', $doctor->id) }}"
-                                    class="btn btn-sm btn-outline-primary rounded-pill w-100 tabibi-text-primary border-tabibi-primary">
-                                    <i class="fas fa-clock me-1"></i> Show Doctor Schedule
-                                </a>
-                            </div>
+                <div class="col-md-6 col-xl-4">
+                    <section class="record-card">
+                        <div class="d-flex flex-column align-items-center text-center mb-4">
+                            <img src="{{ $doctor->user->profile_image }}" alt="{{ $doctor->user->name }}"
+                                class="avatar-circle mb-3">
+                            <h2 class="record-card__title mb-1">{{ $doctor->user->name }}</h2>
+                            <p class="record-card__copy">{{ $doctor->specialization?->name ?? 'No specialization assigned' }}</p>
                         </div>
-                    </div>
+
+                        <div class="mini-metric mb-4">
+                            <div class="mini-metric__label">Email</div>
+                            <p class="mini-metric__value">{{ $doctor->user->email }}</p>
+                        </div>
+
+                        <a href="{{ route('Admin.DoctorSchedule.show', $doctor->id) }}" class="outline-button w-100">
+                            <i class="fas fa-clock"></i>
+                            Show doctor schedule
+                        </a>
+                    </section>
                 </div>
             @endforeach
         </div>
     @endif
-
 @endsection
-
-<style>
-    /* يجب أن يكون هذا التنسيق في ملف CSS العام أو في الـ Layout إذا لم يكن موجوداً */
-    .border-tabibi-primary {
-        border-color: var(--tabibi-primary-color) !important;
-    }
-</style>
