@@ -72,7 +72,7 @@ class AppointmentsController extends Controller
             if ($appointment->status === 'completed') {
                 $base['doctor_notes'] = [
                     'note' => $appointment->doctor_note ?? null, 
-                    'prescription' => $appointment->prescriptions->first()->prescriptions_note  ?? '', 
+                    'prescription' => $appointment->prescriptions?->first()?->prescriptions_note ?? '', 
                     /*    'prescription' => $appointment->prescriptions->map(fn($p) => [
                         // 'id' => $p->id,
                         'note' => $p->prescriptions_note, //
@@ -516,9 +516,9 @@ class AppointmentsController extends Controller
                 'type'             => $data["type"],
                 'note'             => $data["note"],
                 'status'           => 'pending', 
-                'emergency'        => $data['is_emergency'] , 
-                'result_ratio'     => $data['diagnosis_ratio'] , 
-                'expected_disease' => $data['diagnosis_name'] ,
+                'emergency'        => $data['is_emergency'] ?? false, 
+                'result_ratio'     => $data['diagnosis_ratio'] ?? null, 
+                'expected_disease' => $data['diagnosis_name'] ?? null,
                 //'attached_radiology_result_id' => $data['attached_radiology_result_id'] ?? null,
                 //'attached_lab_result_id' => $data['attached_lab_result_id'] ?? null,
             ]);
@@ -687,7 +687,7 @@ class AppointmentsController extends Controller
 
                     'diagnosis' => $diagnose,
                     'has_pharmacy' => $hasPharmacy,
-                    'send_to_pharmacy' => optional($appointment->prescriptions->first())->send_to_pharmacy ?? false,
+                    'send_to_pharmacy' => $appointment->prescriptions?->first()?->send_to_pharmacy ?? false,
 
                     'patient' => [
                         'image' => $patientUser?->profile_image ?? null,
