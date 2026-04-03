@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Tabibi Login</title>
+    <title>Tabiby Login</title>
 
     <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">
 
@@ -101,57 +101,21 @@
         }
 
         .brand-row {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.9rem;
-            margin-bottom: 2.5rem;
+            display: block;
+            width: min(320px, 100%);
+            margin: 0 auto 2rem;
         }
 
         .brand-mark {
-            width: 58px;
-            height: 58px;
-            border-radius: 18px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-            color: #fff;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+            display: block;
+            width: 100%;
         }
 
-        .brand-copy {
-            display: flex;
-            flex-direction: column;
-            gap: 0.2rem;
-        }
-
-        .brand-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-        }
-
-        .brand-subtitle {
-            font-size: 0.85rem;
-            color: rgba(248, 250, 252, 0.72);
-        }
-
-        .showcase-kicker {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            padding: 0.45rem 0.8rem;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            font-size: 0.78rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
+        .brand-mark img {
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
         }
 
         .showcase-title {
@@ -334,6 +298,30 @@
             text-align: center;
         }
 
+        .back-link {
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 0.9rem 1rem;
+            border-radius: 18px;
+            text-decoration: none;
+            color: var(--tabibi-primary);
+            background: rgba(15, 118, 110, 0.08);
+            border: 1px solid rgba(15, 118, 110, 0.14);
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: 0.25s ease;
+        }
+
+        .back-link:hover {
+            color: #fff;
+            background: linear-gradient(135deg, var(--tabibi-primary), #14b8a6);
+            border-color: transparent;
+            transform: translateY(-1px);
+        }
+
         .alert {
             border-radius: 18px;
             border: 0;
@@ -358,19 +346,9 @@
             <section class="login-showcase">
                 <div class="brand-row">
                     <span class="brand-mark">
-                        <i class="bi bi-heart-pulse-fill"></i>
-                    </span>
-
-                    <span class="brand-copy">
-                        <span class="brand-title">Tabibi Platform</span>
-                        <span class="brand-subtitle">Healthcare operations with clarity</span>
+                        <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="Tabiby logo">
                     </span>
                 </div>
-
-                <span class="showcase-kicker">
-                    <i class="bi bi-shield-check"></i>
-                    Secure access
-                </span>
 
                 <h1 class="showcase-title">One calm entry point for every operational role.</h1>
                 <p class="showcase-copy">
@@ -398,7 +376,7 @@
                         Staff Login
                     </span>
                     <h2 class="login-panel__title">Welcome back</h2>
-                    <p class="login-panel__copy">Use your work email and password to enter the Tabibi dashboard.</p>
+                    <p class="login-panel__copy">Use your work email and password to enter the Tabiby dashboard.</p>
                 </div>
 
                 @if (session('message'))
@@ -462,7 +440,7 @@
                 </form>
 
                 <a href="{{ route('doctor.login') }}" class="back-link">
-                    <i class="bi bi-stethoscope me-1"></i>
+                    <i class="bi bi-stethoscope"></i>
                     Doctor dashboard login
                 </a>
 

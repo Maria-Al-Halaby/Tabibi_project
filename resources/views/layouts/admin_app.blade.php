@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'Tabibi Dashboard')</title>
+    <title>@yield('title', 'Tabiby Dashboard')</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,26 +72,187 @@
             border-color: rgba(15, 118, 110, 0.25) !important;
         }
 
-        .dashboard-navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-            backdrop-filter: blur(20px);
-            background: rgba(248, 250, 252, 0.8);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-        }
-
-        .navbar-width {
+        .dashboard-shell {
             width: min(1720px, calc(100vw - 2rem));
+            margin: 1rem auto;
+            display: grid;
+            grid-template-columns: 300px minmax(0, 1fr);
+            gap: 1.25rem;
+            align-items: start;
         }
 
-        .dashboard-navbar .navbar-inner {
-            background: rgba(255, 255, 255, 0.82);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.42);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.25s ease;
+            z-index: 1040;
+        }
+
+        .dashboard-sidebar {
+            position: sticky;
+            top: 1rem;
+            z-index: 1045;
+        }
+
+        .sidebar-panel {
+            padding: 1.25rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(20px);
+        }
+
+        .sidebar-card {
+            border-radius: 24px;
+            padding: 1.1rem;
+            background: linear-gradient(165deg, #0f766e 0%, #14b8a6 100%);
+            color: #fff;
+            box-shadow: 0 20px 38px rgba(15, 118, 110, 0.24);
+        }
+
+        .sidebar-card__eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.4rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-card__title {
+            margin: 1rem 0 0.35rem;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .sidebar-card__copy {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 0.92rem;
+        }
+
+        .sidebar-section {
+            margin-top: 1.25rem;
+        }
+
+        .sidebar-section__label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--tabibi-muted-color);
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            display: grid;
+            gap: 0.65rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            padding: 0.9rem 1rem;
+            border-radius: 18px;
+            color: #334155;
+            font-weight: 700;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: rgba(248, 250, 252, 0.78);
+            transition: 0.25s ease;
+        }
+
+        .sidebar-link:hover {
+            transform: translateX(4px);
+            color: #0f172a;
+            border-color: rgba(15, 118, 110, 0.2);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.14), rgba(20, 184, 166, 0.18));
+            color: var(--tabibi-primary-color);
+            border-color: rgba(15, 118, 110, 0.18);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .sidebar-link__icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(15, 118, 110, 0.1);
+            color: inherit;
+        }
+
+        .sidebar-link__content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            line-height: 1.15;
+        }
+
+        .sidebar-link__meta {
+            color: var(--tabibi-muted-color);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .dashboard-main {
+            min-width: 0;
+        }
+
+        .dashboard-topbar {
+            position: sticky;
+            top: 1rem;
+            z-index: 1030;
+            margin-bottom: 1rem;
+        }
+
+        .topbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 1.15rem;
             border-radius: 28px;
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid rgba(255, 255, 255, 0.72);
             box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-            padding: 1rem 1.25rem;
-            margin: 1rem auto 0;
+            backdrop-filter: blur(20px);
+        }
+
+        .topbar-leading {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 0;
+        }
+
+        .sidebar-toggle {
+            width: 48px;
+            height: 48px;
+            border: 0;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f172a;
+            background: rgba(226, 232, 240, 0.7);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
         }
 
         .brand-block {
@@ -99,29 +260,37 @@
             align-items: center;
             gap: 0.9rem;
             text-decoration: none;
+            min-width: 0;
         }
 
         .brand-mark {
-            width: 48px;
-            height: 48px;
+            width: 58px;
+            height: 58px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
-            color: #fff;
-            background: linear-gradient(145deg, var(--tabibi-primary-color), #14b8a6);
-            box-shadow: 0 16px 32px rgba(15, 118, 110, 0.22);
+            padding: 0.7rem;
+            border-radius: 20px;
+            background: linear-gradient(145deg, #0f766e, #14b8a6);
+            box-shadow: 0 18px 32px rgba(15, 118, 110, 0.22);
+        }
+
+        .brand-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .brand-copy {
             display: flex;
             flex-direction: column;
             line-height: 1.1;
+            min-width: 0;
         }
 
         .brand-title {
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 1.02rem;
             color: var(--tabibi-text-color);
         }
 
@@ -131,25 +300,36 @@
             font-weight: 600;
         }
 
-        .dashboard-nav {
-            gap: 0.4rem;
-        }
-
-        .dashboard-nav .nav-link {
-            border-radius: 999px;
-            padding: 0.75rem 1rem;
-            color: #334155;
-            font-weight: 700;
-            display: inline-flex;
+        .topbar-meta {
+            display: flex;
             align-items: center;
-            gap: 0.55rem;
-            transition: 0.25s ease;
+            gap: 1rem;
+            justify-content: flex-end;
         }
 
-        .dashboard-nav .nav-link:hover,
-        .dashboard-nav .nav-link.active {
-            color: var(--tabibi-primary-color);
-            background: var(--tabibi-primary-soft);
+        .topbar-chip {
+            display: flex;
+            flex-direction: column;
+            gap: 0.12rem;
+            padding: 0.85rem 1rem;
+            border-radius: 18px;
+            background: rgba(248, 250, 252, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            min-width: 180px;
+        }
+
+        .topbar-chip__label {
+            color: var(--tabibi-muted-color);
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .topbar-chip__value {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: #0f172a;
         }
 
         .user-summary {
@@ -207,7 +387,7 @@
         }
 
         .content-wrapper {
-            padding: 1rem 0 3.5rem;
+            padding: 0 0 3.5rem;
         }
 
         .page-header {
@@ -701,6 +881,15 @@
             font-weight: 700;
         }
 
+        .record-card--interactive {
+            transition: 0.25s ease;
+        }
+
+        .record-card--interactive:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+        }
+
         .avatar-circle {
             width: 72px;
             height: 72px;
@@ -807,9 +996,47 @@
             font-size: 0.92rem;
         }
 
-        @media (max-width: 991.98px) {
-            .dashboard-navbar .navbar-inner {
+        @media (max-width: 1199.98px) {
+            .dashboard-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-backdrop {
+                display: block;
+            }
+
+            .dashboard-sidebar {
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                bottom: 1rem;
+                width: min(320px, calc(100vw - 2rem));
+                max-width: calc(100vw - 2rem);
+                transform: translateX(calc(-100% - 2rem));
+                transition: transform 0.25s ease;
+            }
+
+            .sidebar-panel {
+                height: 100%;
+                overflow-y: auto;
+            }
+
+            body.sidebar-open .dashboard-sidebar {
+                transform: translateX(0);
+            }
+
+            body.sidebar-open .sidebar-backdrop {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .topbar-inner {
                 border-radius: 24px;
+            }
+
+            .topbar-meta {
+                flex-wrap: wrap;
+                justify-content: flex-start;
             }
 
             .page-header {
@@ -820,18 +1047,37 @@
                 justify-content: flex-start;
             }
 
-            .dashboard-nav {
-                padding-top: 1rem;
-            }
-
-            .navbar-actions {
-                padding-top: 1rem;
-                flex-direction: column;
-                align-items: stretch !important;
-            }
-
             .toolbar-row {
                 flex-direction: column;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .dashboard-shell {
+                width: min(calc(100vw - 1rem), 1720px);
+                margin: 0.5rem auto 1rem;
+            }
+
+            .topbar-inner {
+                padding: 0.9rem;
+            }
+
+            .topbar-leading {
+                width: 100%;
+            }
+
+            .topbar-meta {
+                width: 100%;
+            }
+
+            .topbar-chip,
+            .user-summary {
+                width: 100%;
+            }
+
+            .logout-button {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -856,17 +1102,22 @@
         $userInitials = $initials !== '' ? $initials : 'TB';
         $currentStatus = request('status', 'pending');
 
-        $brandTitle = 'Tabibi Dashboard';
+        $brandTitle = 'Tabiby Dashboard';
         $brandSubtitle = 'Operational workflow center';
         $brandRoute = url('/');
         $userRoleLabel = ucfirst(str_replace('_', ' ', $roleNames[0] ?? 'dashboard user'));
         $navItems = [];
+        $currentCompleteUrl = url()->current();
+        $centerDisplay = $clinicName !== 'Clinic center' ? $clinicName : $userRoleLabel;
+        $workflowCopy = 'Move between the main dashboard controls from one place.';
 
         if (request()->routeIs('Admin.*') || in_array('admin', $roleNames, true)) {
-            $brandTitle = 'Tabibi Admin';
+            $brandTitle = 'Tabiby Admin';
             $brandSubtitle = 'Operational control center';
             $brandRoute = route('Admin.index');
             $userRoleLabel = $clinicName;
+            $centerDisplay = $clinicName;
+            $workflowCopy = 'Manage clinic operations, appointments, pricing, and pharmacy tools.';
             $navItems = [
                 [
                     'label' => 'Overview',
@@ -900,36 +1151,55 @@
                 ],
             ];
         } elseif (request()->routeIs('radiology.*') || $doctorType === 'radiology') {
-            $brandTitle = 'Tabibi Radiology';
+            $brandTitle = 'Tabiby Radiology';
             $brandSubtitle = 'Imaging workflow dashboard';
             $brandRoute = route('radiology.dashboard');
             $userRoleLabel = 'Radiology doctor';
+            $workflowCopy = 'Review the imaging queue and complete pending radiology visits.';
             $navItems = [
                 [
                     'label' => 'Radiology Queue',
                     'icon' => 'fa-x-ray',
                     'url' => route('radiology.dashboard'),
-                    'active' => request()->routeIs('radiology.*'),
+                    'active' => request()->routeIs('radiology.dashboard'),
                 ],
             ];
+            if (request()->routeIs('radiology.appointments.complete.form')) {
+                $navItems[] = [
+                    'label' => 'Complete Visit',
+                    'icon' => 'fa-file-medical',
+                    'url' => $currentCompleteUrl,
+                    'active' => true,
+                ];
+            }
         } elseif (request()->routeIs('lab.*') || $doctorType === 'lab') {
-            $brandTitle = 'Tabibi Lab';
+            $brandTitle = 'Tabiby Lab';
             $brandSubtitle = 'Lab workflow dashboard';
             $brandRoute = route('lab.dashboard');
             $userRoleLabel = 'Lab doctor';
+            $workflowCopy = 'Review the lab queue and upload the final result for each case.';
             $navItems = [
                 [
                     'label' => 'Lab Queue',
                     'icon' => 'fa-flask-vial',
                     'url' => route('lab.dashboard'),
-                    'active' => request()->routeIs('lab.*'),
+                    'active' => request()->routeIs('lab.dashboard'),
                 ],
             ];
+            if (request()->routeIs('lab.appointments.complete.form')) {
+                $navItems[] = [
+                    'label' => 'Complete Visit',
+                    'icon' => 'fa-file-medical',
+                    'url' => $currentCompleteUrl,
+                    'active' => true,
+                ];
+            }
         } elseif (request()->routeIs('pharmacy.*') || in_array('pharmacist', $roleNames, true)) {
-            $brandTitle = 'Tabibi Pharmacy';
+            $brandTitle = 'Tabiby Pharmacy';
             $brandSubtitle = 'Prescription workflow dashboard';
             $brandRoute = route('pharmacy.dashboard');
             $userRoleLabel = 'Pharmacist';
+            $workflowCopy = 'Track prescription status and keep the dispensing queue moving.';
             $navItems = [
                 [
                     'label' => 'Pending',
@@ -953,14 +1223,52 @@
         }
     @endphp
 
-    <nav class="dashboard-navbar navbar navbar-expand-xl">
-        <div class="container-fluid px-3 px-xl-4 px-xxl-5">
-            <div class="navbar-inner navbar-width">
-                <div class="d-flex flex-column flex-xl-row align-items-xl-center gap-3 gap-xl-4">
-                    <div class="d-flex align-items-center justify-content-between gap-3 w-100 w-xl-auto">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
+            <div class="sidebar-panel">
+                <section class="sidebar-card">
+                    <span class="sidebar-card__eyebrow">
+                        <i class="fas fa-sliders"></i>
+                        Control Panel
+                    </span>
+                    <h2 class="sidebar-card__title">{{ $brandTitle }}</h2>
+                    <p class="sidebar-card__copy">{{ $workflowCopy }}</p>
+                </section>
+
+                <section class="sidebar-section">
+                    <span class="sidebar-section__label">Navigation</span>
+                    <nav class="sidebar-nav">
+                        @foreach ($navItems as $navItem)
+                            <a href="{{ $navItem['url'] }}" class="sidebar-link @if ($navItem['active']) active @endif">
+                                <span class="sidebar-link__icon">
+                                    <i class="fas {{ $navItem['icon'] }}"></i>
+                                </span>
+                                <span class="sidebar-link__content">
+                                    <span>{{ $navItem['label'] }}</span>
+                                    <span class="sidebar-link__meta">{{ $brandSubtitle }}</span>
+                                </span>
+                            </a>
+                        @endforeach
+                    </nav>
+                </section>
+
+            </div>
+        </aside>
+
+        <div class="dashboard-main">
+            <header class="dashboard-topbar">
+                <div class="topbar-inner">
+                    <div class="topbar-leading">
+                        <button type="button" class="sidebar-toggle d-xl-none" id="sidebarToggle"
+                            aria-label="Open dashboard sidebar">
+                            <i class="fas fa-bars"></i>
+                        </button>
+
                         <a class="brand-block" href="{{ $brandRoute }}">
                             <span class="brand-mark">
-                                <i class="fas fa-heart-pulse"></i>
+                                <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="Tabiby logo">
                             </span>
 
                             <span class="brand-copy">
@@ -968,96 +1276,110 @@
                                 <span class="brand-subtitle">{{ $brandSubtitle }}</span>
                             </span>
                         </a>
-
-                        <button class="navbar-toggler border-0 shadow-none ms-auto" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false"
-                            aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
                     </div>
 
-                    <div class="collapse navbar-collapse" id="adminNavbar">
-                        <ul class="navbar-nav dashboard-nav me-auto">
-                            @foreach ($navItems as $navItem)
-                                <li class="nav-item">
-                                    <a class="nav-link @if ($navItem['active']) active @endif" href="{{ $navItem['url'] }}">
-                                        <i class="fas {{ $navItem['icon'] }}"></i>
-                                        <span>{{ $navItem['label'] }}</span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-
-                        <div class="navbar-actions d-flex align-items-center gap-3 ms-xl-auto">
-                            <div class="user-summary">
-                                <span class="user-avatar">{{ $userInitials }}</span>
-                                <span class="user-meta">
-                                    <span class="user-name">{{ $displayName }}</span>
-                                    <span class="user-role">{{ $userRoleLabel }}</span>
-                                </span>
-                            </div>
-
-                            <form action="{{ route('logout') }}" method="POST" class="m-0">
-                                @csrf
-                                <button type="submit" class="logout-button">
-                                    <i class="fas fa-right-from-bracket me-2"></i>Logout
-                                </button>
-                            </form>
+                    <div class="topbar-meta">
+                        <div class="topbar-chip">
+                            <span class="topbar-chip__label">Center</span>
+                            <span class="topbar-chip__value">{{ $centerDisplay }}</span>
                         </div>
+
+                        <div class="user-summary">
+                            <span class="user-avatar">{{ $userInitials }}</span>
+                            <span class="user-meta">
+                                <span class="user-name">{{ $displayName }}</span>
+                                <span class="user-role">{{ $userRoleLabel }}</span>
+                            </span>
+                        </div>
+
+                        <form action="{{ route('logout') }}" method="POST" class="m-0">
+                            @csrf
+                            <button type="submit" class="logout-button">
+                                <i class="fas fa-right-from-bracket me-2"></i>Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
-            </div>
-        </div>
-    </nav>
+            </header>
 
-    <main class="content-wrapper">
-        <div class="container-xxl">
-            @if (session('success') || session('error') || $errors->any())
-                <div class="alert-stack">
-                    @if (session('success'))
-                        <div class="alert-banner alert-banner--success">
-                            <span class="alert-banner__icon">
-                                <i class="fas fa-circle-check"></i>
-                            </span>
-                            <div>
-                                <p class="alert-banner__title">Success</p>
-                                <p class="alert-banner__copy">{{ session('success') }}</p>
-                            </div>
+            <main class="content-wrapper">
+                <div class="container-xxl px-0">
+                    @if (session('success') || session('error') || $errors->any())
+                        <div class="alert-stack">
+                            @if (session('success'))
+                                <div class="alert-banner alert-banner--success">
+                                    <span class="alert-banner__icon">
+                                        <i class="fas fa-circle-check"></i>
+                                    </span>
+                                    <div>
+                                        <p class="alert-banner__title">Success</p>
+                                        <p class="alert-banner__copy">{{ session('success') }}</p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if (session('error'))
+                                <div class="alert-banner alert-banner--danger">
+                                    <span class="alert-banner__icon">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                    </span>
+                                    <div>
+                                        <p class="alert-banner__title">Something needs attention</p>
+                                        <p class="alert-banner__copy">{{ session('error') }}</p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if ($errors->any())
+                                <div class="alert-banner alert-banner--danger">
+                                    <span class="alert-banner__icon">
+                                        <i class="fas fa-triangle-exclamation"></i>
+                                    </span>
+                                    <div>
+                                        <p class="alert-banner__title">Please review the highlighted details</p>
+                                        <p class="alert-banner__copy">{{ $errors->first() }}</p>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @endif
 
-                    @if (session('error'))
-                        <div class="alert-banner alert-banner--danger">
-                            <span class="alert-banner__icon">
-                                <i class="fas fa-circle-exclamation"></i>
-                            </span>
-                            <div>
-                                <p class="alert-banner__title">Something needs attention</p>
-                                <p class="alert-banner__copy">{{ session('error') }}</p>
-                            </div>
-                        </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="alert-banner alert-banner--danger">
-                            <span class="alert-banner__icon">
-                                <i class="fas fa-triangle-exclamation"></i>
-                            </span>
-                            <div>
-                                <p class="alert-banner__title">Please review the highlighted details</p>
-                                <p class="alert-banner__copy">{{ $errors->first() }}</p>
-                            </div>
-                        </div>
-                    @endif
+                    @yield('content')
                 </div>
-            @endif
-
-            @yield('content')
+            </main>
         </div>
-    </main>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+            if (!sidebarToggle || !sidebarBackdrop) {
+                return;
+            }
+
+            const closeSidebar = function() {
+                body.classList.remove('sidebar-open');
+            };
+
+            sidebarToggle.addEventListener('click', function() {
+                body.classList.toggle('sidebar-open');
+            });
+
+            sidebarBackdrop.addEventListener('click', closeSidebar);
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1200) {
+                    closeSidebar();
+                }
+            });
+        });
     </script>
 
     @stack('scripts')
