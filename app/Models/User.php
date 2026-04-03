@@ -77,6 +77,9 @@ class User extends Authenticatable
         return $this->hasOne(Doctor::class);
     }
 
-
+    public function nutritionPlans()
+    {
+        return $this->hasMany(NutritionPlan::class);
+    }
 
 }

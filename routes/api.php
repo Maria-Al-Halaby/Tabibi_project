@@ -15,6 +15,7 @@ use App\Http\Controllers\PatientMedicalRecordController;
 use App\Http\Controllers\Api\MedicalRecordController;
 use App\Http\Controllers\Api\LookupController;
 use App\Http\Controllers\Api\CenterServicesController;
+use App\Http\Controllers\Api\NutritionPlanController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -113,3 +114,8 @@ Route::middleware('auth:sanctum')->get('/patient/medical-records', [MedicalRecor
 Route::middleware('auth:sanctum')->get('/me', [LookupController::class, 'me']);
 
 Route::get('/centers/{id}/services', [CenterServicesController::class, 'index']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/nutrition-plans', [NutritionPlanController::class, 'store']);
+    Route::get('/nutrition-plans/latest', [NutritionPlanController::class, 'latest']);
+});
