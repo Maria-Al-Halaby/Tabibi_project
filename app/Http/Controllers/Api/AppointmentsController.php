@@ -8,8 +8,11 @@ use App\Models\ClinicCenter;
 use App\Models\ClinicCenterDoctor;
 use App\Models\Doctor;
 use App\Models\DoctorSchedules;
+use App\Models\LabResult;
+use App\Models\PatientMedicalRecord;
 use App\Traits\PushNotification;
 use App\Models\RadiologyAppointment;
+use App\Models\RadiologyResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 //use Illuminate\Support\Carbon;
@@ -647,6 +650,7 @@ class AppointmentsController extends Controller
             'labResult',
             'radiologyAppointment.type',
             'labTests',
+            'attachedMedicalRecords',
         ]);
 
         $patient = $appointment->patient;
@@ -745,6 +749,8 @@ class AppointmentsController extends Controller
                         ? $appointment->labRequests->flatMap(function ($req) {
                             return $req->tests->map(function ($test) use ($req) {
                                 return [
+                                    'lab_test_id' => $test->id,
+                                    'request_id' => $req->id,
                                     'name' => $test->name,
                                     'notes' => $req->notes
                                 ];
@@ -756,6 +762,8 @@ class AppointmentsController extends Controller
                     'radiology_requests' => $appointment->type === 'doctor'
                         ? $appointment->radiologyRequests->map(function ($req) {
                             return [
+                                'type_of_medical_image_id' => $req->type?->id,
+                                'request_id' => $req->id,
                                 'type_name' => $req->type?->name ?? null,
                                 'notes' => $req->notes
                             ];
@@ -778,9 +786,94 @@ class AppointmentsController extends Controller
                         ]
                         : null,
 
+                    'attached_medical_records' => $appointment->attachedMedicalRecords
+                        ->map(fn($record) => $this->serializeAttachedMedicalRecord($record, $appointment->patient_id))
+                        ->filter()
+                        ->values(),
+
                 ]
             ]
         ]);
+    }
+
+    private function serializeAttachedMedicalRecord($record, int $patientId): ?array
+    {
+        return match ($record->record_source) {
+            'patient_medical_record' => $this->serializePatientMedicalRecord($record->record_id, $patientId),
+            'lab_result' => $this->serializeLabResult($record->record_id, $patientId),
+            'radiology_result' => $this->serializeRadiologyResult($record->record_id, $patientId),
+            default => null,
+        };
+    }
+
+    private function serializePatientMedicalRecord(int $recordId, int $patientId): ?array
+    {
+        $record = PatientMedicalRecord::where('id', $recordId)
+            ->where('patient_id', $patientId)
+            ->first();
+
+        if (!$record) {
+            return null;
+        }
+
+        return [
+            'record_source' => 'patient_medical_record',
+            'record_id' => $record->id,
+            'type' => $record->type,
+            'title' => $record->title,
+            'record_date' => $record->record_date,
+            'file_path' => $record->file_path,
+            'file_url' => url(Storage::url($record->file_path)),
+            'source_label' => 'Patient Upload',
+        ];
+    }
+
+    private function serializeLabResult(int $recordId, int $patientId): ?array
+    {
+        $record = LabResult::where('id', $recordId)
+            ->whereHas('appointment', function ($query) use ($patientId) {
+                $query->where('patient_id', $patientId);
+            })
+            ->first();
+
+        if (!$record) {
+            return null;
+        }
+
+        return [
+            'record_source' => 'lab_result',
+            'record_id' => $record->id,
+            'type' => 'lab',
+            'title' => 'Lab Result #' . $record->id,
+            'record_date' => optional($record->created_at)->toDateString(),
+            'file_path' => $record->result_file,
+            'file_url' => url(Storage::url($record->result_file)),
+            'source_label' => 'Appointment Result',
+        ];
+    }
+
+    private function serializeRadiologyResult(int $recordId, int $patientId): ?array
+    {
+        $record = RadiologyResult::where('id', $recordId)
+            ->whereHas('appointment', function ($query) use ($patientId) {
+                $query->where('patient_id', $patientId);
+            })
+            ->first();
+
+        if (!$record) {
+            return null;
+        }
+
+        return [
+            'record_source' => 'radiology_result',
+            'record_id' => $record->id,
+            'type' => 'radiology',
+            'title' => 'Radiology Result #' . $record->id,
+            'record_date' => optional($record->created_at)->toDateString(),
+            'file_path' => $record->image_path,
+            'file_url' => url(Storage::url($record->image_path)),
+            'source_label' => 'Appointment Result',
+        ];
     }
 
     public function cancelAppointment(Request $request)

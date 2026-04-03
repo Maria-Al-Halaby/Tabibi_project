@@ -65,7 +65,7 @@ class PatientMedicalRecordController extends Controller
             'type' => $record->type,
             'title' => $record->title,
             'record_date' => $record->record_date,
-            'file_url' => asset('storage/' . $record->file) ,
+            'file_url' => asset('storage/' . $record->file_path) ,
             'created_at' => $record->created_at,
         ]
         ], 201);
@@ -131,7 +131,7 @@ class PatientMedicalRecordController extends Controller
             'type' => $record->type,
             'title' => $record->title,
             'record_date' => $record->record_date,
-            'file_url' => asset('storage/' . $record->file),
+            'file_url' => asset('storage/' . $record->file_path),
             'created_at' => $record->created_at,
         ];
     });

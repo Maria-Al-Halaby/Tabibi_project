@@ -38,6 +38,10 @@ use Illuminate\Support\Facades\Route;
 Route::get("/" , [AuthController::class , "ShowLoginPage"])->name("login");
 Route::post("/" , [AuthController::class , "login"])->name("login");
 
+/* doctor login route */
+Route::get("/doctor-login" , [AuthController::class , "ShowDoctorLoginPage"])->name("doctor.login");
+Route::post("/doctor-login" , [AuthController::class , "doctorLogin"])->name("doctor.login.submit");
+
 /* super admin dashboard: */
 
 Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/")->group(function (){

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Tabibi Login</title>
+    <title>Tabibi Doctor Login</title>
 
     <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">
 
@@ -339,6 +339,19 @@
             border: 0;
         }
 
+        .back-link {
+            margin-top: 1rem;
+            display: inline-block;
+            color: var(--tabibi-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 991.98px) {
             .login-frame {
                 grid-template-columns: 1fr;
@@ -369,24 +382,23 @@
 
                 <span class="showcase-kicker">
                     <i class="bi bi-shield-check"></i>
-                    Secure access
+                    Doctor Portal
                 </span>
 
-                <h1 class="showcase-title">One calm entry point for every operational role.</h1>
+                <h1 class="showcase-title">Access your clinical dashboard.</h1>
                 <p class="showcase-copy">
-                    Sign in to manage clinics, doctors, schedules, promotions, and platform oversight from a cleaner,
-                    more focused workspace.
+                    Sign in to view your schedule, manage appointments, and complete your clinical tasks.
                 </p>
 
                 <div class="showcase-grid">
                     <div class="showcase-card">
-                        <div class="showcase-card__label">For admins</div>
-                        <p class="showcase-card__value">Review appointments, staffing, and daily clinic flow.</p>
+                        <div class="showcase-card__label">Radiology Doctors</div>
+                        <p class="showcase-card__value">View and complete radiology appointments.</p>
                     </div>
 
                     <div class="showcase-card">
-                        <div class="showcase-card__label">For super admins</div>
-                        <p class="showcase-card__value">Oversee centers, providers, promotions, and quality signals.</p>
+                        <div class="showcase-card__label">Lab Doctors</div>
+                        <p class="showcase-card__value">View and complete laboratory appointments.</p>
                     </div>
                 </div>
             </section>
@@ -394,11 +406,11 @@
             <section class="login-panel">
                 <div class="login-panel__header">
                     <span class="login-panel__eyebrow">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                        Staff Login
+                        <i class="bi bi-stethoscope"></i>
+                        Doctor Login
                     </span>
                     <h2 class="login-panel__title">Welcome back</h2>
-                    <p class="login-panel__copy">Use your work email and password to enter the Tabibi dashboard.</p>
+                    <p class="login-panel__copy">Use your phone number and password to access your dashboard.</p>
                 </div>
 
                 @if (session('message'))
@@ -407,7 +419,7 @@
                     </div>
                 @endif
 
-                @if ($errors->any() && !($errors->has('email') || $errors->has('password')))
+                @if ($errors->any())
                     <div class="alert alert-danger shadow-sm mb-4" role="alert">
                         @foreach ($errors->all() as $error)
                             {{ $error }}@if (!$loop->last)<br>@endif
@@ -419,14 +431,14 @@
                     @csrf
 
                     <div class="mb-4">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="phone" class="form-label">Phone Number</label>
                         <div class="field-shell">
-                            <span class="field-icon"><i class="bi bi-envelope"></i></span>
-                            <input type="email" name="email" id="email" value="{{ old('email') }}"
-                                class="form-control @error('email') is-invalid @enderror"
-                                placeholder="Enter your email" required>
+                            <span class="field-icon"><i class="bi bi-telephone"></i></span>
+                            <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
+                                class="form-control @error('phone') is-invalid @enderror"
+                                placeholder="Enter your phone number" required>
                         </div>
-                        @error('email')
+                        @error('phone')
                             <div class="text-danger small mt-2">{{ $message }}</div>
                         @enderror
                     </div>
@@ -461,9 +473,9 @@
                     </button>
                 </form>
 
-                <a href="{{ route('doctor.login') }}" class="back-link">
-                    <i class="bi bi-stethoscope me-1"></i>
-                    Doctor dashboard login
+                <a href="{{ route('login') }}" class="back-link">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to admin login
                 </a>
 
                 <p class="support-copy">If you cannot access your account, contact the system administrator.</p>
