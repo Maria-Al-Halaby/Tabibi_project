@@ -540,7 +540,7 @@ class AppointmentsController extends Controller
                 'type'             => $data['type'],
                 'note'             => $data['note'] ?? null,
                 'status'           => 'pending',
-                'emergency'        => $data['is_emergency'] ?? null,
+                'emergency'        => $data['is_emergency'] ?? false,
                 'result_ratio'     => $data['diagnosis_ratio'] ?? null,
                 'expected_disease' => $data['diagnosis_name'] ?? null,
                 'price'            => $totalPrice,

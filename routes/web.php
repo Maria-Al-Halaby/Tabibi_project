@@ -10,6 +10,7 @@ use App\Http\Controllers\ClinicManagement;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorSchedulesController;
 use App\Http\Controllers\FirebaseController;
+use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\PromotController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\SuperAdmin\DoctorRatingController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\LabDashboardController;
 use App\Http\Controllers\PharmacyDashboardController;
 use App\Http\Controllers\AdminPharmacyController;
 use App\Http\Controllers\AdminPricingController;
+use App\Http\Controllers\TypeOfMedicalImageController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\DoctorSchedules;
@@ -52,6 +54,22 @@ Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/
     Route::get("/update/specialization/{specialization}" , [SpecializationController::class , "edit"])->name("SuperAdmin.specialization.edit");
     Route::put("/update/specialization/{specialization}" , [SpecializationController::class , "update"])->name("SuperAdmin.specialization.update");
     Route::delete("/delete/specialization/{specialization}" , [SpecializationController::class , "destroy"])->name("SuperAdmin.specialization.destroy");
+
+    /* lab tests route */
+    Route::get("/lab-tests", [LabTestController::class, "index"])->name("SuperAdmin.labTest.index");
+    Route::get("/addNew/lab-test", [LabTestController::class, "create"])->name("SuperAdmin.labTest.create");
+    Route::post("/addNew/lab-test", [LabTestController::class, "store"])->name("SuperAdmin.labTest.store");
+    Route::get("/update/lab-test/{labTest}", [LabTestController::class, "edit"])->name("SuperAdmin.labTest.edit");
+    Route::put("/update/lab-test/{labTest}", [LabTestController::class, "update"])->name("SuperAdmin.labTest.update");
+    Route::delete("/delete/lab-test/{labTest}", [LabTestController::class, "destroy"])->name("SuperAdmin.labTest.destroy");
+
+    /* medical image types route */
+    Route::get("/medical-image-types", [TypeOfMedicalImageController::class, "index"])->name("SuperAdmin.medicalImageType.index");
+    Route::get("/addNew/medical-image-type", [TypeOfMedicalImageController::class, "create"])->name("SuperAdmin.medicalImageType.create");
+    Route::post("/addNew/medical-image-type", [TypeOfMedicalImageController::class, "store"])->name("SuperAdmin.medicalImageType.store");
+    Route::get("/update/medical-image-type/{typeOfMedicalImage}", [TypeOfMedicalImageController::class, "edit"])->name("SuperAdmin.medicalImageType.edit");
+    Route::put("/update/medical-image-type/{typeOfMedicalImage}", [TypeOfMedicalImageController::class, "update"])->name("SuperAdmin.medicalImageType.update");
+    Route::delete("/delete/medical-image-type/{typeOfMedicalImage}", [TypeOfMedicalImageController::class, "destroy"])->name("SuperAdmin.medicalImageType.destroy");
 
     /* doctors route */
     Route::get("/doctors" , [DoctorController::class , "index"])->name("SuperAdmin.doctor.index");
@@ -171,6 +189,5 @@ Route::middleware(["auth", "role:admin"])
 });
 //test route 
 /* Route::get("send-notification" , [FCMController::class , "send_notification"]); */
-
 
 

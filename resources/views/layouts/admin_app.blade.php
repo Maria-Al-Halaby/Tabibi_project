@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'Admin Dashboard')</title>
+    <title>@yield('title', 'Tabibi Dashboard')</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -424,6 +424,64 @@
             gap: 0.75rem;
         }
 
+        .alert-stack {
+            display: grid;
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            padding: 1rem 1.15rem;
+            border-radius: 22px;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.78);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.04);
+        }
+
+        .alert-banner__icon {
+            width: 2.2rem;
+            height: 2.2rem;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+        }
+
+        .alert-banner__title {
+            margin: 0 0 0.2rem;
+            font-size: 0.95rem;
+            font-weight: 800;
+        }
+
+        .alert-banner__copy {
+            margin: 0;
+            color: var(--tabibi-muted-color);
+        }
+
+        .alert-banner--success {
+            border-color: rgba(34, 197, 94, 0.16);
+            background: rgba(240, 253, 244, 0.84);
+        }
+
+        .alert-banner--success .alert-banner__icon {
+            background: rgba(34, 197, 94, 0.14);
+            color: #15803d;
+        }
+
+        .alert-banner--danger {
+            border-color: rgba(239, 68, 68, 0.16);
+            background: rgba(254, 242, 242, 0.92);
+        }
+
+        .alert-banner--danger .alert-banner__icon {
+            background: rgba(239, 68, 68, 0.12);
+            color: #b91c1c;
+        }
+
         .ghost-button,
         .outline-button,
         .danger-outline-button {
@@ -575,6 +633,11 @@
             background: rgba(248, 250, 252, 0.76);
         }
 
+        .table-shell .form-control,
+        .table-shell .form-select {
+            min-width: 120px;
+        }
+
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -598,6 +661,11 @@
         .status-pill--danger {
             background: rgba(239, 68, 68, 0.12);
             color: #b91c1c;
+        }
+
+        .status-pill--info {
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
         }
 
         .record-card {
@@ -627,6 +695,12 @@
             color: var(--tabibi-muted-color);
         }
 
+        .record-card__meta {
+            color: var(--tabibi-muted-color);
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
         .avatar-circle {
             width: 72px;
             height: 72px;
@@ -634,6 +708,38 @@
             object-fit: cover;
             border: 4px solid rgba(255, 255, 255, 0.9);
             box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .avatar-fallback {
+            width: 72px;
+            height: 72px;
+            border-radius: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, var(--tabibi-primary-color), #14b8a6);
+            color: #fff;
+            font-size: 1.35rem;
+            font-weight: 800;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .list-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .list-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.08);
+            color: var(--tabibi-primary-color);
+            font-size: 0.88rem;
+            font-weight: 700;
         }
 
         .chart-wrap {
@@ -736,68 +842,133 @@
 <body>
     @php
         $adminUser = auth()->user();
+        $roleNames = method_exists($adminUser, 'getRoleNames') ? $adminUser->getRoleNames()->toArray() : [];
+        $doctorType = $adminUser?->doctor?->doctor_type;
         $clinicName = $adminUser?->clinic_center?->name ?? 'Clinic center';
-        $userInitials = strtoupper(substr($adminUser->name ?? 'AD', 0, 2));
+        $fullName = trim(($adminUser->name ?? '') . ' ' . ($adminUser->last_name ?? ''));
+        $displayName = $fullName !== '' ? $fullName : 'Dashboard User';
+        $nameParts = preg_split('/\s+/', trim($displayName)) ?: [];
+        $initials = collect($nameParts)
+            ->filter()
+            ->take(2)
+            ->map(fn($part) => strtoupper(substr($part, 0, 1)))
+            ->implode('');
+        $userInitials = $initials !== '' ? $initials : 'TB';
+        $currentStatus = request('status', 'pending');
+
+        $brandTitle = 'Tabibi Dashboard';
+        $brandSubtitle = 'Operational workflow center';
+        $brandRoute = url('/');
+        $userRoleLabel = ucfirst(str_replace('_', ' ', $roleNames[0] ?? 'dashboard user'));
+        $navItems = [];
+
+        if (request()->routeIs('Admin.*') || in_array('admin', $roleNames, true)) {
+            $brandTitle = 'Tabibi Admin';
+            $brandSubtitle = 'Operational control center';
+            $brandRoute = route('Admin.index');
+            $userRoleLabel = $clinicName;
+            $navItems = [
+                [
+                    'label' => 'Overview',
+                    'icon' => 'fa-chart-line',
+                    'url' => route('Admin.index'),
+                    'active' => request()->routeIs('Admin.index'),
+                ],
+                [
+                    'label' => 'Clinic Management',
+                    'icon' => 'fa-hospital-user',
+                    'url' => route('Admin.ClinicManagement.index'),
+                    'active' => request()->routeIs('Admin.ClinicManagement.*') || request()->routeIs('Admin.DoctorSchedule.*'),
+                ],
+                [
+                    'label' => 'Appointments',
+                    'icon' => 'fa-calendar-check',
+                    'url' => route('Admin.Appointment.index'),
+                    'active' => request()->routeIs('Admin.Appointment.*'),
+                ],
+                [
+                    'label' => 'Pharmacy',
+                    'icon' => 'fa-pills',
+                    'url' => route('Admin.Pharmacy.index'),
+                    'active' => request()->routeIs('Admin.Pharmacy.*'),
+                ],
+                [
+                    'label' => 'Pricing',
+                    'icon' => 'fa-tags',
+                    'url' => route('Admin.Pricing.index'),
+                    'active' => request()->routeIs('Admin.Pricing.*'),
+                ],
+            ];
+        } elseif (request()->routeIs('radiology.*') || $doctorType === 'radiology') {
+            $brandTitle = 'Tabibi Radiology';
+            $brandSubtitle = 'Imaging workflow dashboard';
+            $brandRoute = route('radiology.dashboard');
+            $userRoleLabel = 'Radiology doctor';
+            $navItems = [
+                [
+                    'label' => 'Radiology Queue',
+                    'icon' => 'fa-x-ray',
+                    'url' => route('radiology.dashboard'),
+                    'active' => request()->routeIs('radiology.*'),
+                ],
+            ];
+        } elseif (request()->routeIs('lab.*') || $doctorType === 'lab') {
+            $brandTitle = 'Tabibi Lab';
+            $brandSubtitle = 'Lab workflow dashboard';
+            $brandRoute = route('lab.dashboard');
+            $userRoleLabel = 'Lab doctor';
+            $navItems = [
+                [
+                    'label' => 'Lab Queue',
+                    'icon' => 'fa-flask-vial',
+                    'url' => route('lab.dashboard'),
+                    'active' => request()->routeIs('lab.*'),
+                ],
+            ];
+        } elseif (request()->routeIs('pharmacy.*') || in_array('pharmacist', $roleNames, true)) {
+            $brandTitle = 'Tabibi Pharmacy';
+            $brandSubtitle = 'Prescription workflow dashboard';
+            $brandRoute = route('pharmacy.dashboard');
+            $userRoleLabel = 'Pharmacist';
+            $navItems = [
+                [
+                    'label' => 'Pending',
+                    'icon' => 'fa-hourglass-half',
+                    'url' => route('pharmacy.dashboard', ['status' => 'pending']),
+                    'active' => request()->routeIs('pharmacy.*') && $currentStatus === 'pending',
+                ],
+                [
+                    'label' => 'Ready',
+                    'icon' => 'fa-box-open',
+                    'url' => route('pharmacy.dashboard', ['status' => 'ready']),
+                    'active' => request()->routeIs('pharmacy.*') && $currentStatus === 'ready',
+                ],
+                [
+                    'label' => 'Dispensed',
+                    'icon' => 'fa-hand-holding-medical',
+                    'url' => route('pharmacy.dashboard', ['status' => 'dispensed']),
+                    'active' => request()->routeIs('pharmacy.*') && $currentStatus === 'dispensed',
+                ],
+            ];
+        }
     @endphp
 
     <nav class="dashboard-navbar navbar navbar-expand-xl">
         <div class="container-fluid px-3 px-xl-4 px-xxl-5">
             <div class="navbar-inner navbar-width">
                 <div class="d-flex flex-column flex-xl-row align-items-xl-center gap-3 gap-xl-4">
-                    <a class="brand-block" href="{{ route('Admin.index') }}">
-                        <span class="brand-mark">
-                            <i class="fas fa-heart-pulse"></i>
-                        </span>
+                    <div class="d-flex align-items-center justify-content-between gap-3 w-100 w-xl-auto">
+                        <a class="brand-block" href="{{ $brandRoute }}">
+                            <span class="brand-mark">
+                                <i class="fas fa-heart-pulse"></i>
+                            </span>
 
-                        <span class="brand-copy">
-                            <span class="brand-title">Tabibi Admin</span>
-                            <span class="brand-subtitle">Operational control center</span>
-                        </span>
-                    </a>
+                            <span class="brand-copy">
+                                <span class="brand-title">{{ $brandTitle }}</span>
+                                <span class="brand-subtitle">{{ $brandSubtitle }}</span>
+                            </span>
+                        </a>
 
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 tabibi-top-nav">
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('Admin.index') }}">
-                                    <i class="fas fa-chart-line me-1"></i> Details
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('Admin.ClinicManagement.index') }}">
-                                    <i class="fas fa-hospital-alt me-1"></i> Clinic Management
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('Admin.Appointment.index') }}">
-                                    <i class="fas fa-calendar-check me-1"></i> Appointment
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('Admin.Pharmacy.index') }}">
-                                    <i class="fas fa-calendar-check me-1"></i> Pharmacy
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('Admin.Pricing.index') }}">
-                                    <i class="fas fa-calendar-check me-1"></i> Pricing
-                                </a>
-                            </li>
-
-                        </ul>
-
-                        <form action="{{ route('logout') }}" method="POST" class="d-flex ms-auto">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                <i class="fas fa-sign-out-alt me-1"></i> Logout
-                            </button>
-                        </form>
-
-                    
                         <button class="navbar-toggler border-0 shadow-none ms-auto" type="button" data-bs-toggle="collapse"
                             data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false"
                             aria-label="Toggle navigation">
@@ -807,37 +978,22 @@
 
                     <div class="collapse navbar-collapse" id="adminNavbar">
                         <ul class="navbar-nav dashboard-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link @if (request()->routeIs('Admin.index')) active @endif"
-                                    href="{{ route('Admin.index') }}">
-                                    <i class="fas fa-chart-line"></i>
-                                    <span>Overview</span>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link @if (request()->routeIs('Admin.ClinicManagement.*')) active @endif"
-                                    href="{{ route('Admin.ClinicManagement.index') }}">
-                                    <i class="fas fa-hospital-user"></i>
-                                    <span>Clinic Management</span>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link @if (request()->routeIs('Admin.Appointment.*')) active @endif"
-                                    href="{{ route('Admin.Appointment.index') }}">
-                                    <i class="fas fa-calendar-check"></i>
-                                    <span>Appointments</span>
-                                </a>
-                            </li>
+                            @foreach ($navItems as $navItem)
+                                <li class="nav-item">
+                                    <a class="nav-link @if ($navItem['active']) active @endif" href="{{ $navItem['url'] }}">
+                                        <i class="fas {{ $navItem['icon'] }}"></i>
+                                        <span>{{ $navItem['label'] }}</span>
+                                    </a>
+                                </li>
+                            @endforeach
                         </ul>
 
                         <div class="navbar-actions d-flex align-items-center gap-3 ms-xl-auto">
                             <div class="user-summary">
                                 <span class="user-avatar">{{ $userInitials }}</span>
                                 <span class="user-meta">
-                                    <span class="user-name">{{ $adminUser->name ?? 'Admin User' }}</span>
-                                    <span class="user-role">{{ $clinicName }}</span>
+                                    <span class="user-name">{{ $displayName }}</span>
+                                    <span class="user-role">{{ $userRoleLabel }}</span>
                                 </span>
                             </div>
 
@@ -856,6 +1012,46 @@
 
     <main class="content-wrapper">
         <div class="container-xxl">
+            @if (session('success') || session('error') || $errors->any())
+                <div class="alert-stack">
+                    @if (session('success'))
+                        <div class="alert-banner alert-banner--success">
+                            <span class="alert-banner__icon">
+                                <i class="fas fa-circle-check"></i>
+                            </span>
+                            <div>
+                                <p class="alert-banner__title">Success</p>
+                                <p class="alert-banner__copy">{{ session('success') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert-banner alert-banner--danger">
+                            <span class="alert-banner__icon">
+                                <i class="fas fa-circle-exclamation"></i>
+                            </span>
+                            <div>
+                                <p class="alert-banner__title">Something needs attention</p>
+                                <p class="alert-banner__copy">{{ session('error') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert-banner alert-banner--danger">
+                            <span class="alert-banner__icon">
+                                <i class="fas fa-triangle-exclamation"></i>
+                            </span>
+                            <div>
+                                <p class="alert-banner__title">Please review the highlighted details</p>
+                                <p class="alert-banner__copy">{{ $errors->first() }}</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             @yield('content')
         </div>
     </main>

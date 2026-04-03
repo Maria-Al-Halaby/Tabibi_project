@@ -755,6 +755,22 @@
                             </li>
 
                             <li class="nav-item">
+                                <a class="nav-link @if (request()->routeIs('SuperAdmin.labTest.*')) active @endif"
+                                    href="{{ route('SuperAdmin.labTest.index') }}">
+                                    <i class="bi bi-capsule"></i>
+                                    <span>Lab Tests</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @if (request()->routeIs('SuperAdmin.medicalImageType.*')) active @endif"
+                                    href="{{ route('SuperAdmin.medicalImageType.index') }}">
+                                    <i class="bi bi-badge-ad"></i>
+                                    <span>Image Types</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
                                 <a class="nav-link @if (request()->routeIs('SuperAdmin.doctor.*')) active @endif"
                                     href="{{ route('SuperAdmin.doctor.index') }}">
                                     <i class="bi bi-person-badge-fill"></i>

@@ -15,19 +15,27 @@ class CenterServicesController extends Controller
             'medicalImages'
         ])->findOrFail($centerId);
 
-        $labTests = $center->labTests->map(function ($test) {
+        $labTests = $center->labTests->map(function ($test) use ($center) {
+            $price = is_null($test->pivot->price) ? null : (float) $test->pivot->price;
+
             return [
                 'id' => $test->id,
                 'name' => $test->name,
-                'price' => $test->pivot->price,
+                'price' => $price,
+                'selected_center_price' => $price,
+                'center_id' => $center->id,
             ];
         })->values();
       
-        $medicalImages = $center->medicalImages->map(function ($image) {
+        $medicalImages = $center->medicalImages->map(function ($image) use ($center) {
+            $price = is_null($image->pivot->price) ? null : (float) $image->pivot->price;
+
             return [
                 'id' => $image->id,
                 'name' => $image->name,
-                'price' => $image->pivot->price,
+                'price' => $price,
+                'selected_center_price' => $price,
+                'center_id' => $center->id,
             ];
         })->values();
 
