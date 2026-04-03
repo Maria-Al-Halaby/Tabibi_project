@@ -18,13 +18,15 @@ class Appointment extends Model
         "emergency" , 
         "doctor_note" , 
         "note",
+        'price',
         "attached_radiology_result_id",
         "attached_lab_result_id"
     ];
 
     protected $casts = [
         "start_at" => "datetime" , 
-        "end_at" => "datetime"
+        "end_at" => "datetime" ,
+        'price' => "float"
     ];
 
     public function patient()

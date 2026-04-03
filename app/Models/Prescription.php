@@ -9,7 +9,9 @@ class Prescription extends Model
     protected $fillable = [
         'appointment_id', 
         'general_note', 
-        'status'
+        'status',
+        'send_to_pharmacy',
+        'pharmacy_status'
         ];
 
     public function appointment()

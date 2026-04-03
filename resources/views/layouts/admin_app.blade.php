@@ -755,11 +755,55 @@
                         </span>
                     </a>
 
-                    <button class="navbar-toggler border-0 shadow-none ms-auto" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 tabibi-top-nav">
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('Admin.index') }}">
+                                    <i class="fas fa-chart-line me-1"></i> Details
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('Admin.ClinicManagement.index') }}">
+                                    <i class="fas fa-hospital-alt me-1"></i> Clinic Management
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('Admin.Appointment.index') }}">
+                                    <i class="fas fa-calendar-check me-1"></i> Appointment
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('Admin.Pharmacy.index') }}">
+                                    <i class="fas fa-calendar-check me-1"></i> Pharmacy
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('Admin.Pricing.index') }}">
+                                    <i class="fas fa-calendar-check me-1"></i> Pricing
+                                </a>
+                            </li>
+
+                        </ul>
+
+                        <form action="{{ route('logout') }}" method="POST" class="d-flex ms-auto">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                <i class="fas fa-sign-out-alt me-1"></i> Logout
+                            </button>
+                        </form>
+
+                    
+                        <button class="navbar-toggler border-0 shadow-none ms-auto" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false"
+                            aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
 
                     <div class="collapse navbar-collapse" id="adminNavbar">
                         <ul class="navbar-nav dashboard-nav me-auto">

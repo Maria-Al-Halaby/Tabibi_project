@@ -389,7 +389,7 @@ class AppointmentsController extends Controller
         });
     }*/
 
-    public function storeAppointment(Request $request,Doctor $doctor,ClinicCenter $center,string $date,string $period) 
+    public function storeAppointment(Request $request, Doctor $doctor, ClinicCenter $center, string $date, string $period)
     {
         $allowedPeriods = ['morning', 'afternoon', 'evening'];
         if (!in_array($period, $allowedPeriods, true)) {
@@ -415,22 +415,14 @@ class AppointmentsController extends Controller
             'diagnosis_ratio' => 'nullable|numeric|min:0|max:100',
             'diagnosis_name' => 'nullable|string|max:255',
             'is_emergency' => 'nullable|boolean',
-            //'diagnose.answers' => 'nullable|array',
-            //'diagnose.answers.*.question_id' => 'required_with:diagnose.answers|exists:questions,id',
-            //'diagnose.answers.*.answer' => 'required_with:diagnose.answers|string|max:255',
 
-            //  ربط مع التحاليل والصور الموجودة بالسجل
-            //'attached_radiology_result_id' => 'nullable|exists:radiology_results,id',
-            //'attached_lab_result_id' => 'nullable|exists:lab_results,id',
             'attached_medical_records' => 'nullable|array',
             'attached_medical_records.*.record_source' => 'required_with:attached_medical_records|in:lab_result,radiology_result,patient_medical_record',
             'attached_medical_records.*.record_id' => 'required_with:attached_medical_records|integer',
 
-            //   اختيار تحليل واحد أو أكثر
             'lab_tests' => 'nullable|array',
             'lab_tests.*' => 'exists:lab_tests,id',
 
-            //   اختيار نوع الصورة 
             'type_of_medical_image_id' => 'nullable|exists:type_of_medical_images,id',
         ]);
 
@@ -446,7 +438,6 @@ class AppointmentsController extends Controller
             ], 422);
         }
 
-    
         if ($data['type'] === 'lab' && empty($data['lab_tests'])) {
             return response()->json([
                 'message' => 'At least one lab test is required for lab appointment',
@@ -454,7 +445,7 @@ class AppointmentsController extends Controller
             ], 422);
         }
 
-        $startAt = Carbon::createFromFormat('Y-m-d H:i', $dateObj->toDateString().' '.$data['time']);
+        $startAt = Carbon::createFromFormat('Y-m-d H:i', $dateObj->toDateString() . ' ' . $data['time']);
 
         if ($startAt->lt(Carbon::now())) {
             return response()->json(['message' => 'Cannot book past time'], 422);
@@ -470,11 +461,13 @@ class AppointmentsController extends Controller
         };
 
         if (!$periodOk) {
-            return response()->json(['message' => 'Time does not match selected period',
-        "status" => false ], 422);
+            return response()->json([
+                'message' => 'Time does not match selected period',
+                'status' => false
+            ], 422);
         }
 
-        return DB::transaction(function () use ($doctor, $center, $dateObj, $request, $startAt, $patientId, $data, $period) {
+        return DB::transaction(function () use ($doctor, $center, $dateObj, $startAt, $patientId, $data) {
 
             $pivot = ClinicCenterDoctor::where('doctor_id', $doctor->id)
                 ->where('clinic_center_id', $center->id)
@@ -490,7 +483,7 @@ class AppointmentsController extends Controller
                 ->where('clinic_center_doctor_id', $pivot->id)
                 ->where('day_of_week', $weekday)
                 ->whereTime('start_time', '<=', $startAt->format('H:i:s'))
-                ->whereTime('end_time',   '>',  $startAt->format('H:i:s'))
+                ->whereTime('end_time', '>', $startAt->format('H:i:s'))
                 ->exists();
 
             if (!$inSchedule) {
@@ -504,8 +497,39 @@ class AppointmentsController extends Controller
                 ->exists();
 
             if ($exists) {
-                return response()->json(['message' => 'This time is already booked' , 
-            "status" => false ], 409);
+                return response()->json([
+                    'message' => 'This time is already booked',
+                    'status' => false
+                ], 409);
+            }
+
+            $totalPrice = 0;
+
+            if ($data['type'] === 'lab' && !empty($data['lab_tests'])) {
+                $prices = DB::table('clinic_center_lab_tests')
+                    ->where('clinic_center_id', $center->id)
+                    ->whereIn('lab_test_id', $data['lab_tests'])
+                    ->pluck('price');
+
+                $totalPrice = $prices->sum();
+            }
+
+            if ($data['type'] === 'radiology' && !empty($data['type_of_medical_image_id'])) {
+                $price = DB::table('clinic_center_medical_images')
+                    ->where('clinic_center_id', $center->id)
+                    ->where('type_of_medical_image_id', $data['type_of_medical_image_id'])
+                    ->value('price');
+
+                $totalPrice = $price ?? 0;
+            }
+
+            if ($data['type'] === 'doctor') {
+                $price = DB::table('clinic_center_doctor')
+                    ->where('clinic_center_id', $center->id)
+                    ->where('doctor_id', $doctor->id)
+                    ->value('price');
+
+                $totalPrice = $price ?? 0;
             }
 
             $appointment = Appointment::create([
@@ -513,15 +537,16 @@ class AppointmentsController extends Controller
                 'doctor_id'        => $doctor->id,
                 'clinic_center_id' => $center->id,
                 'start_at'         => $startAt,
-                'type'             => $data["type"],
-                'note'             => $data["note"],
-                'status'           => 'pending', 
-                'emergency'        => $data['is_emergency'] ?? false, 
-                'result_ratio'     => $data['diagnosis_ratio'] ?? null, 
+                'type'             => $data['type'],
+                'note'             => $data['note'] ?? null,
+                'status'           => 'pending',
+                'emergency'        => $data['is_emergency'] ?? null,
+                'result_ratio'     => $data['diagnosis_ratio'] ?? null,
                 'expected_disease' => $data['diagnosis_name'] ?? null,
-                //'attached_radiology_result_id' => $data['attached_radiology_result_id'] ?? null,
-                //'attached_lab_result_id' => $data['attached_lab_result_id'] ?? null,
+                'price'            => $totalPrice,
             ]);
+
+            $appointment->refresh();
 
             if (!empty($data['attached_medical_records'])) {
                 foreach ($data['attached_medical_records'] as $record) {
@@ -532,7 +557,6 @@ class AppointmentsController extends Controller
                 }
             }
 
-            
             if ($data['type'] === 'radiology') {
                 RadiologyAppointment::create([
                     'appointment_id' => $appointment->id,
@@ -540,12 +564,10 @@ class AppointmentsController extends Controller
                 ]);
             }
 
-
             if ($data['type'] === 'lab' && !empty($data['lab_tests'])) {
                 $appointment->labTests()->attach($data['lab_tests']);
             }
 
-            //send notification 
             $this->notifyDoctorNewAppointment($appointment);
 
             return response()->json([
@@ -553,26 +575,18 @@ class AppointmentsController extends Controller
                 'status'  => true,
                 'data' => [
                     'appointment' => [
-                        //'id'        => $appointment->id,
-                        //'doctor_id' => $doctor->id,
-                        //'type' => $appointment->type,
                         'center_id' => $center->id,
                         'date'      => $startAt->toDateString(),
                         'time'      => $startAt->format('H:i'),
-                        //'period'    => $period,
-                        //'note'      => $data['note'] ?? null,
-                        //'status'    => $appointment->status,
-                        'diagnosis'  => [
-                            'diagnosis_ratio' => $appointment->result_ratio , 
-                            'diagnosis_name' => $appointment->expected_disease , 
-                            'is_emergency' => $appointment->emergency 
+                        'price'     => $appointment->price,
+                        'diagnosis' => [
+                            'diagnosis_ratio' => $appointment->result_ratio,
+                            'diagnosis_name'  => $appointment->expected_disease,
+                            'is_emergency'    => $appointment->emergency
                         ],
-                        'attached_radiology_result_id' => $appointment->attached_radiology_result_id,
-                        'attached_lab_result_id' => $appointment->attached_lab_result_id,
-
                         'type_of_medical_image_id' => $data['type_of_medical_image_id'] ?? null,
-
                         'lab_tests' => $data['lab_tests'] ?? [],
+                        'attached_medical_records' => $data['attached_medical_records'] ?? [],
                     ]
                 ]
             ], 201);
@@ -682,12 +696,14 @@ class AppointmentsController extends Controller
                     'date' => Carbon::parse($appointment->start_at)->toDateString(),
                     'time' => Carbon::parse($appointment->start_at)->format('H:i'),
 
+                    'price' => $appointment->price,
+
                     'patient_note' => $appointment->note ?? null,
                     'doctor_note' => $appointment->doctor_note ?? null,
 
                     'diagnosis' => $diagnose,
                     'has_pharmacy' => $hasPharmacy,
-                    'send_to_pharmacy' => $appointment->prescriptions?->first()?->send_to_pharmacy ?? false,
+                    'send_to_pharmacy' => optional($appointment->prescriptions)->send_to_pharmacy ?? false,
 
                     'patient' => [
                         'image' => $patientUser?->profile_image ?? null,

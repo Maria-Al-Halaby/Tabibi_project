@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\LabTest;
+use App\Models\TypeOfMedicalImage;
 
 class LabTest extends Model
 {
@@ -26,5 +28,15 @@ class LabTest extends Model
             'lab_test_id',
             'doctor_lab_request_id'
         );
+    }
+
+    public function clinicCenters()
+    {
+        return $this->belongsToMany(
+            ClinicCenter::class,
+            'clinic_center_lab_tests',
+            'lab_test_id',
+            'clinic_center_id'
+        )->withPivot('price')->withTimestamps();
     }
 }

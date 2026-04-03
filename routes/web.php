@@ -17,6 +17,8 @@ use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\RadiologyDashboardController;
 use App\Http\Controllers\LabDashboardController;
 use App\Http\Controllers\PharmacyDashboardController;
+use App\Http\Controllers\AdminPharmacyController;
+use App\Http\Controllers\AdminPricingController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\DoctorSchedules;
@@ -115,9 +117,15 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
 
 
     /* appointment route  */
-
     Route::get("/appointment" , [AppointmentController::class , "index"])->name("Admin.Appointment.index");
     Route::get("/appointment/canceled/{appointments}" , [AppointmentController::class , "cancel"])->name("Admin.Appointment.cancel");
+
+    /* pharmacist routes */
+    Route::get('/pharmacy', [AdminPharmacyController::class, 'index'])->name('Admin.Pharmacy.index');
+    Route::post('/pharmacy/store', [AdminPharmacyController::class, 'store'])->name('Admin.Pharmacy.store');
+    Route::get('/pharmacy/edit/{user}', [AdminPharmacyController::class, 'edit'])->name('Admin.Pharmacy.edit');
+    Route::put('/pharmacy/update/{user}', [AdminPharmacyController::class, 'update'])->name('Admin.Pharmacy.update');
+    Route::delete('/pharmacy/delete/{user}', [AdminPharmacyController::class, 'destroy'])->name('Admin.Pharmacy.destroy');
 
     /* end point is not exists */
     Route::fallback(function () {
@@ -147,6 +155,20 @@ Route::middleware(['auth', 'role:pharmacist'])->group(function () {
     Route::post('/pharmacy/prescriptions/{prescription}/update-status', [PharmacyDashboardController::class, 'updateStatus'])->name('pharmacy.prescriptions.updateStatus');
 });
 
+Route::middleware(["auth", "role:admin"])
+    ->prefix("Admin/Dashboard")
+    ->group(function () {
+
+        Route::get("/pricing", [AdminPricingController::class, 'index'])
+            ->name("Admin.Pricing.index");
+
+        Route::post("/pricing/lab", [AdminPricingController::class, 'updateLabPrice'])
+            ->name("Admin.Pricing.lab");
+
+        Route::post("/pricing/radiology", [AdminPricingController::class, 'updateRadiologyPrice'])
+            ->name("Admin.Pricing.radiology");
+
+});
 //test route 
 /* Route::get("send-notification" , [FCMController::class , "send_notification"]); */
 
