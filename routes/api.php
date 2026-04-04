@@ -116,6 +116,8 @@ Route::middleware('auth:sanctum')->get('/me', [LookupController::class, 'me']);
 Route::get('/centers/{id}/services', [CenterServicesController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/nutrition-plans', [NutritionPlanController::class, 'index']);
     Route::post('/nutrition-plans', [NutritionPlanController::class, 'store']);
     Route::get('/nutrition-plans/latest', [NutritionPlanController::class, 'latest']);
+    Route::get('/nutrition-plans/{id}', [NutritionPlanController::class, 'show']);
 });
