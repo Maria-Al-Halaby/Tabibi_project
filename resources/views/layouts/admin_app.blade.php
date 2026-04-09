@@ -1090,7 +1090,8 @@
         $adminUser = auth()->user();
         $roleNames = method_exists($adminUser, 'getRoleNames') ? $adminUser->getRoleNames()->toArray() : [];
         $doctorType = $adminUser?->doctor?->doctor_type;
-        $clinicName = $adminUser?->clinic_center?->name ?? 'Clinic center';
+        $dashboardCenter = method_exists($adminUser, 'dashboardCenter') ? $adminUser->dashboardCenter() : $adminUser?->clinic_center;
+        $clinicName = $dashboardCenter?->name ?? 'Clinic center';
         $fullName = trim(($adminUser->name ?? '') . ' ' . ($adminUser->last_name ?? ''));
         $displayName = $fullName !== '' ? $fullName : 'Dashboard User';
         $nameParts = preg_split('/\s+/', trim($displayName)) ?: [];
@@ -1138,6 +1139,12 @@
                     'active' => request()->routeIs('Admin.Appointment.*'),
                 ],
                 [
+                    'label' => 'Secretaries',
+                    'icon' => 'fa-headset',
+                    'url' => route('Admin.Secretary.index'),
+                    'active' => request()->routeIs('Admin.Secretary.*'),
+                ],
+                [
                     'label' => 'Pharmacy',
                     'icon' => 'fa-pills',
                     'url' => route('Admin.Pharmacy.index'),
@@ -1148,6 +1155,21 @@
                     'icon' => 'fa-tags',
                     'url' => route('Admin.Pricing.index'),
                     'active' => request()->routeIs('Admin.Pricing.*'),
+                ],
+            ];
+        } elseif (request()->routeIs('secretary.*') || in_array('secretary', $roleNames, true)) {
+            $brandTitle = 'Tabiby Secretary';
+            $brandSubtitle = 'Appointment desk workflow';
+            $brandRoute = route('secretary.dashboard');
+            $userRoleLabel = 'Secretary';
+            $centerDisplay = $clinicName;
+            $workflowCopy = 'Review pending bookings, filter by specialty, and cancel visits when the desk needs to intervene.';
+            $navItems = [
+                [
+                    'label' => 'Appointments',
+                    'icon' => 'fa-calendar-days',
+                    'url' => route('secretary.dashboard'),
+                    'active' => request()->routeIs('secretary.*'),
                 ],
             ];
         } elseif (request()->routeIs('radiology.*') || $doctorType === 'radiology') {

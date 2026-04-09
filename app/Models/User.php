@@ -67,6 +67,16 @@ class User extends Authenticatable
         return $this->hasOne(ClinicCenter::class, 'user_id');
     }
 
+    public function secretaryCenters()
+    {
+        return $this->belongsToMany(
+            ClinicCenter::class,
+            'clinic_center_secretaries',
+            'user_id',
+            'clinic_center_id'
+        )->withTimestamps();
+    }
+
     public function patient()
     {
         return $this->hasOne(Patient::class);
@@ -80,6 +90,19 @@ class User extends Authenticatable
     public function nutritionPlans()
     {
         return $this->hasMany(NutritionPlan::class);
+    }
+
+    public function dashboardCenter(): ?ClinicCenter
+    {
+        if ($this->hasRole('admin')) {
+            return $this->clinic_center;
+        }
+
+        if ($this->hasRole('secretary')) {
+            return $this->secretaryCenters()->first();
+        }
+
+        return $this->clinic_center;
     }
 
 }

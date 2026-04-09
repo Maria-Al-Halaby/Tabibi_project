@@ -17,6 +17,11 @@ class AuthController extends Controller
         return view("Auth.doctor-login");
     }
 
+    public function ShowSecretaryLoginPage()
+    {
+        return view('Auth.secretary-login');
+    }
+
     public function doctorLogin(Request $request)
     {
         $request->validate([
@@ -67,8 +72,12 @@ class AuthController extends Controller
                 return redirect()->route("SuperAdmin.Detials.index");
             }
 
-            if ($user->hasRole("admin") || $user->hasRole("secretary")) {
+            if ($user->hasRole("admin")) {
                 return redirect()->route("Admin.index");
+            }
+
+            if ($user->hasRole("secretary")) {
+                return redirect()->route("secretary.dashboard");
             }
 
             if ($user->hasRole("pharmacist")) {
@@ -88,6 +97,32 @@ class AuthController extends Controller
         }
 
         return back()->withErrors(["message" => "Invalid email/password"]);
+    }
+
+    public function secretaryLogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            return back()->withErrors(['message' => 'Invalid email/password'])->withInput();
+        }
+
+        $request->session()->regenerate();
+
+        $user = auth()->user();
+
+        if (!$user->hasRole('secretary')) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors(['message' => 'This account is not a secretary account'])->withInput();
+        }
+
+        return redirect()->route('secretary.dashboard');
     }
 
     public function logout(Request $request)

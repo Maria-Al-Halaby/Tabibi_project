@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Tabiby Login</title>
+    <title>Tabiby Secretary Login</title>
 
     <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">
 
@@ -298,6 +298,11 @@
             text-align: center;
         }
 
+        .alert {
+            border-radius: 18px;
+            border: 0;
+        }
+
         .back-link {
             margin-top: 1rem;
             display: inline-flex;
@@ -306,12 +311,12 @@
             gap: 0.45rem;
             padding: 0.9rem 1rem;
             border-radius: 18px;
-            text-decoration: none;
             color: var(--tabibi-primary);
-            background: rgba(15, 118, 110, 0.08);
-            border: 1px solid rgba(15, 118, 110, 0.14);
+            text-decoration: none;
             font-weight: 700;
             font-size: 0.92rem;
+            background: rgba(15, 118, 110, 0.08);
+            border: 1px solid rgba(15, 118, 110, 0.14);
             transition: 0.25s ease;
         }
 
@@ -320,11 +325,6 @@
             background: linear-gradient(135deg, var(--tabibi-primary), #14b8a6);
             border-color: transparent;
             transform: translateY(-1px);
-        }
-
-        .alert {
-            border-radius: 18px;
-            border: 0;
         }
 
         @media (max-width: 991.98px) {
@@ -350,26 +350,21 @@
                     </span>
                 </div>
 
-                <h1 class="showcase-title">One calm entry point for every operational role.</h1>
+                <h1 class="showcase-title">Access your appointment desk dashboard.</h1>
                 <p class="showcase-copy">
-                    Sign in to manage clinics, doctors, schedules, promotions, and platform oversight from a cleaner,
-                    more focused workspace.
+                    Sign in to review pending appointments, filter bookings by specialty, and support the center’s
+                    front-desk workflow.
                 </p>
 
                 <div class="showcase-grid">
                     <div class="showcase-card">
-                        <div class="showcase-card__label">For admins</div>
-                        <p class="showcase-card__value">Review appointments, staffing, and daily clinic flow.</p>
+                        <div class="showcase-card__label">Appointment Desk</div>
+                        <p class="showcase-card__value">Review and organize pending appointments for your center.</p>
                     </div>
 
                     <div class="showcase-card">
-                        <div class="showcase-card__label">For super admins</div>
-                        <p class="showcase-card__value">Oversee centers, providers, promotions, and quality signals.</p>
-                    </div>
-
-                    <div class="showcase-card">
-                        <div class="showcase-card__label">For secretaries</div>
-                        <p class="showcase-card__value">Work from a center-specific appointment desk with specialty filters.</p>
+                        <div class="showcase-card__label">Specialty Filters</div>
+                        <p class="showcase-card__value">Narrow the queue by specialty to act faster during busy hours.</p>
                     </div>
                 </div>
             </section>
@@ -377,11 +372,11 @@
             <section class="login-panel">
                 <div class="login-panel__header">
                     <span class="login-panel__eyebrow">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                        Staff Login
+                        <i class="bi bi-headset"></i>
+                        Secretary Login
                     </span>
                     <h2 class="login-panel__title">Welcome back</h2>
-                    <p class="login-panel__copy">Use your work email and password to enter the Tabiby dashboard.</p>
+                    <p class="login-panel__copy">Use your email and password to access your dashboard.</p>
                 </div>
 
                 @if (session('message'))
@@ -390,7 +385,7 @@
                     </div>
                 @endif
 
-                @if ($errors->any() && !($errors->has('email') || $errors->has('password')))
+                @if ($errors->any())
                     <div class="alert alert-danger shadow-sm mb-4" role="alert">
                         @foreach ($errors->all() as $error)
                             {{ $error }}@if (!$loop->last)<br>@endif
@@ -444,17 +439,12 @@
                     </button>
                 </form>
 
-                <a href="{{ route('doctor.login') }}" class="back-link">
-                    <i class="bi bi-stethoscope"></i>
-                    Doctor dashboard login
+                <a href="{{ route('login') }}" class="back-link">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to staff login
                 </a>
 
-                <a href="{{ route('secretary.login') }}" class="back-link">
-                    <i class="bi bi-headset"></i>
-                    Secretary dashboard login
-                </a>
-
-                <p class="support-copy">If you cannot access your account, contact the system administrator.</p>
+                <p class="support-copy">If you cannot access your account, contact your center administrator.</p>
             </section>
         </div>
     </main>

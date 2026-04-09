@@ -31,6 +31,16 @@ class ClinicCenter extends Model
 
     }
 
+    public function secretaries()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'clinic_center_secretaries',
+            'clinic_center_id',
+            'user_id'
+        )->withTimestamps();
+    }
+
     public function appointments()
     {
         return $this->hasMany(Appointment::class);

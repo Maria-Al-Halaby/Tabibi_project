@@ -20,6 +20,7 @@ use App\Http\Controllers\LabDashboardController;
 use App\Http\Controllers\PharmacyDashboardController;
 use App\Http\Controllers\AdminPharmacyController;
 use App\Http\Controllers\AdminPricingController;
+use App\Http\Controllers\AdminSecretaryController;
 use App\Http\Controllers\TypeOfMedicalImageController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
@@ -41,6 +42,10 @@ Route::post("/" , [AuthController::class , "login"])->name("login");
 /* doctor login route */
 Route::get("/doctor-login" , [AuthController::class , "ShowDoctorLoginPage"])->name("doctor.login");
 Route::post("/doctor-login" , [AuthController::class , "doctorLogin"])->name("doctor.login.submit");
+
+/* secretary login route */
+Route::get('/secretary-login', [AuthController::class, 'ShowSecretaryLoginPage'])->name('secretary.login');
+Route::post('/secretary-login', [AuthController::class, 'secretaryLogin'])->name('secretary.login.submit');
 
 /* super admin dashboard: */
 
@@ -149,6 +154,13 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
     Route::put('/pharmacy/update/{user}', [AdminPharmacyController::class, 'update'])->name('Admin.Pharmacy.update');
     Route::delete('/pharmacy/delete/{user}', [AdminPharmacyController::class, 'destroy'])->name('Admin.Pharmacy.destroy');
 
+    /* secretary routes */
+    Route::get('/secretaries', [AdminSecretaryController::class, 'index'])->name('Admin.Secretary.index');
+    Route::post('/secretaries/store', [AdminSecretaryController::class, 'store'])->name('Admin.Secretary.store');
+    Route::get('/secretaries/edit/{user}', [AdminSecretaryController::class, 'edit'])->name('Admin.Secretary.edit');
+    Route::put('/secretaries/update/{user}', [AdminSecretaryController::class, 'update'])->name('Admin.Secretary.update');
+    Route::delete('/secretaries/delete/{user}', [AdminSecretaryController::class, 'destroy'])->name('Admin.Secretary.destroy');
+
     /* end point is not exists */
     Route::fallback(function () {
         return view("Admin.404_not_found_page");
@@ -177,6 +189,11 @@ Route::middleware(['auth', 'role:pharmacist'])->group(function () {
     Route::post('/pharmacy/prescriptions/{prescription}/update-status', [PharmacyDashboardController::class, 'updateStatus'])->name('pharmacy.prescriptions.updateStatus');
 });
 
+Route::middleware(['auth', 'role:secretary'])->group(function () {
+    Route::get('/secretary/dashboard', [AppointmentController::class, 'index'])->name('secretary.dashboard');
+    Route::get('/secretary/appointments/cancel/{appointments}', [AppointmentController::class, 'cancel'])->name('secretary.appointments.cancel');
+});
+
 Route::middleware(["auth", "role:admin"])
     ->prefix("Admin/Dashboard")
     ->group(function () {
@@ -193,5 +210,4 @@ Route::middleware(["auth", "role:admin"])
 });
 //test route 
 /* Route::get("send-notification" , [FCMController::class , "send_notification"]); */
-
 
