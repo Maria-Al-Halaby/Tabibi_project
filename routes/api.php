@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\MedicalRecordController;
 use App\Http\Controllers\Api\LookupController;
 use App\Http\Controllers\Api\CenterServicesController;
 use App\Http\Controllers\Api\NutritionPlanController;
+use App\Http\Controllers\Api\NotificationController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -104,6 +105,8 @@ Route::middleware(["auth:sanctum" , "role:doctor"])->group(function(){
 
 Route::middleware("auth:sanctum")->group(function(){
     Route::post("logout" , [AuthController::class , "logout"]);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
 });
 
 Route::get('/lab-tests', [LookupController::class, 'labTests']);

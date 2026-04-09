@@ -10,6 +10,7 @@ use App\Models\Doctor;
 use App\Models\DoctorSchedules;
 use App\Models\LabResult;
 use App\Models\PatientMedicalRecord;
+use App\Notifications\AppointmentAlertNotification;
 use App\Traits\PushNotification;
 use App\Models\RadiologyAppointment;
 use App\Models\RadiologyResult;
@@ -599,12 +600,6 @@ class AppointmentsController extends Controller
     private function notifyDoctorNewAppointment(Appointment $appointment)
     {
         $doctorUser = $appointment->doctor->user;
-
-        $token = $doctorUser->fcm_token;
-        if (!$token) {
-            return;
-        }
-
         $patientName = $appointment->patient->user->name;
 
         $title = 'New Appointment Booked';
@@ -618,7 +613,16 @@ class AppointmentsController extends Controller
             'appointment_id' => (string) $appointment->id,
         ];
 
-        $this->sendNotification($token, $title, $body, $data);
+        $doctorUser->notify(new AppointmentAlertNotification(
+            title: $title,
+            body: $body,
+            type: 'new_appointment',
+            appointmentId: $appointment->id,
+        ));
+
+        if ($doctorUser->fcm_token) {
+            $this->sendNotification($doctorUser->fcm_token, $title, $body, $data);
+        }
     }
 
     public function appointment_details(Appointment $appointment)
@@ -900,8 +904,9 @@ class AppointmentsController extends Controller
 
         $appointment->update(['status' => 'canceled']);
 
-        //send notification
-        $this->notifyPatientAppointmentCancelled($appointment);
+        if ($isDoctorOwner) {
+            $this->notifyPatientAppointmentCancelled($appointment);
+        }
 
 
         return response()->json([
@@ -919,13 +924,6 @@ class AppointmentsController extends Controller
     {
         $user = $appointment->patient->user;
 
-        $token = $user->fcm_token;
-
-        if (!$token) 
-        {
-            return; 
-        }
-
         $title = 'Appointment Cancelled';
 
         $body = 'Your appointment scheduled on '
@@ -937,7 +935,16 @@ class AppointmentsController extends Controller
         'appointment_id' => (string) $appointment->id,
         ];
 
-        $this->sendNotification($token, $title, $body, $data);
+        $user->notify(new AppointmentAlertNotification(
+            title: $title,
+            body: $body,
+            type: 'appointment_cancelled',
+            appointmentId: $appointment->id,
+        ));
+
+        if ($user->fcm_token) {
+            $this->sendNotification($user->fcm_token, $title, $body, $data);
+        }
 
 
     }
