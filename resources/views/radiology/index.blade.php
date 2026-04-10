@@ -85,12 +85,9 @@
                 </div>
 
                 @if ($nextAppointment)
-                    @php
-                        $nextPatientName = trim(($nextAppointment->patient?->user?->name ?? '') . ' ' . ($nextAppointment->patient?->user?->last_name ?? ''));
-                    @endphp
                     <div class="mini-metric">
                         <div class="mini-metric__label">Next patient to review</div>
-                        <p class="mini-metric__value">{{ $nextPatientName !== '' ? $nextPatientName : 'Patient #' . $nextAppointment->patient_id }}</p>
+                        <p class="mini-metric__value">{{ $nextAppointment->patient_display_name }}</p>
                         <p class="section-copy mt-2 mb-0">
                             {{ optional($nextAppointment->start_at)->format('M d, Y - H:i') ?? 'No visit time selected yet' }}
                             at {{ $nextAppointment->clinic_center?->name ?? 'Unknown center' }}.
@@ -154,7 +151,7 @@
         <div class="row g-4">
             @foreach ($appointments as $appointment)
                 @php
-                    $patientName = trim(($appointment->patient?->user?->name ?? '') . ' ' . ($appointment->patient?->user?->last_name ?? ''));
+                    $patientName = $appointment->patient_display_name;
                     $patientInitials = collect(preg_split('/\s+/', $patientName ?: 'Patient'))
                         ->filter()
                         ->take(2)
@@ -169,7 +166,7 @@
                                 <span class="avatar-fallback">{{ $patientInitials !== '' ? $patientInitials : 'PT' }}</span>
                                 <div>
                                     <h2 class="record-card__title mb-1">
-                                        {{ $patientName !== '' ? $patientName : 'Patient #' . $appointment->patient_id }}
+                                        {{ $patientName }}
                                     </h2>
                                     <p class="record-card__copy">Radiology appointment #{{ $appointment->id }}</p>
                                 </div>

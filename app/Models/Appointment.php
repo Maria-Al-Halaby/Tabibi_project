@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Appointment extends Model
 {
     protected $fillable = [
         "patient_id",
+        "temp_patient_name",
+        "temp_patient_phone",
+        "temp_patient_gender",
+        "temp_patient_age",
         "doctor_id",
         "clinic_center_id", 
         "type",
@@ -107,5 +112,39 @@ class Appointment extends Model
         return $this->hasOne(DoctorRating::class, 'appointment_id');
     }
 
+    public function getPatientDisplayNameAttribute(): string
+    {
+        $registeredName = trim(($this->patient?->user?->name ?? '') . ' ' . ($this->patient?->user?->last_name ?? ''));
+
+        if ($registeredName !== '') {
+            return $registeredName;
+        }
+
+        if (!empty($this->temp_patient_name)) {
+            return $this->temp_patient_name;
+        }
+
+        return 'Patient #' . $this->id;
+    }
+
+    public function getPatientDisplayPhoneAttribute(): ?string
+    {
+        return $this->patient?->user?->phone ?? $this->temp_patient_phone;
+    }
+
+    public function getPatientProfileImageAttribute(): ?string
+    {
+        return $this->patient?->user?->profile_image;
+    }
+
+    public function getIsTemporaryPatientAttribute(): bool
+    {
+        return $this->patient_id === null;
+    }
+
+    public function registeredPatientUser(): ?User
+    {
+        return $this->patient?->user;
+    }
 
 }

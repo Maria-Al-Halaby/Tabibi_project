@@ -191,6 +191,9 @@ Route::middleware(['auth', 'role:pharmacist'])->group(function () {
 
 Route::middleware(['auth', 'role:secretary'])->group(function () {
     Route::get('/secretary/dashboard', [AppointmentController::class, 'index'])->name('secretary.dashboard');
+    Route::get('/secretary/doctors/{doctor}/available-days', [AppointmentController::class, 'availableDays'])->name('secretary.doctors.availableDays');
+    Route::get('/secretary/doctors/{doctor}/available-times/{date}', [AppointmentController::class, 'availableTimes'])->name('secretary.doctors.availableTimes');
+    Route::post('/secretary/appointments/store', [AppointmentController::class, 'store'])->name('secretary.appointments.store');
     Route::get('/secretary/appointments/cancel/{appointments}', [AppointmentController::class, 'cancel'])->name('secretary.appointments.cancel');
 });
 
@@ -210,4 +213,3 @@ Route::middleware(["auth", "role:admin"])
 });
 //test route 
 /* Route::get("send-notification" , [FCMController::class , "send_notification"]); */
-

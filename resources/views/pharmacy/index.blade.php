@@ -84,7 +84,7 @@
                                 @endphp
                                 <tr>
                                     <td class="fw-bold">#{{ $prescription->id }}</td>
-                                    <td>{{ trim(($prescription->appointment?->patient?->user?->name ?? '') . ' ' . ($prescription->appointment?->patient?->user?->last_name ?? '')) }}</td>
+                                    <td>{{ $prescription->appointment?->patient_display_name }}</td>
                                     <td>{{ trim(($prescription->appointment?->doctor?->user?->name ?? '') . ' ' . ($prescription->appointment?->doctor?->user?->last_name ?? '')) }}</td>
                                     <td>{{ optional($prescription->appointment?->start_at)->format('M d, Y') ?? '---' }}</td>
                                     <td>{{ number_format($prescription->items->count()) }}</td>

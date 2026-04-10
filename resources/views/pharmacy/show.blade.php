@@ -54,7 +54,7 @@
                 <div class="d-grid gap-3">
                     <div class="mini-metric">
                         <div class="mini-metric__label">Patient</div>
-                        <p class="mini-metric__value">{{ trim(($prescription->appointment?->patient?->user?->name ?? '') . ' ' . ($prescription->appointment?->patient?->user?->last_name ?? '')) }}</p>
+                        <p class="mini-metric__value">{{ $prescription->appointment?->patient_display_name }}</p>
                     </div>
 
                     <div class="mini-metric">

@@ -76,8 +76,8 @@ class DoctorAppointmentController extends Controller
         $data = $appointments->map(function ($a) {
             return [
                 'id' => $a->id,
-                'patient_name' => $a->patient?->user?->name ?? '',
-                'patient_profile' => $a->patient?->user?->profile_image ?? null , 
+                'patient_name' => $a->patient_display_name,
+                'patient_profile' => $a->patient_profile_image, 
                 'status' => $a->status,
                 'date' => Carbon::parse($a->start_at)->toDateString(),
                 'time' => Carbon::parse($a->start_at)->format('H:i'),
@@ -485,7 +485,11 @@ class DoctorAppointmentController extends Controller
 
     private function notifyPatientAppointmentCompleted(Appointment $appointment): void
     {
-        $user = $appointment->patient->user;
+        $user = $appointment->registeredPatientUser();
+
+        if (!$user) {
+            return;
+        }
 
         $title = 'Appointment Completed';
 

@@ -600,7 +600,7 @@ class AppointmentsController extends Controller
     private function notifyDoctorNewAppointment(Appointment $appointment)
     {
         $doctorUser = $appointment->doctor->user;
-        $patientName = $appointment->patient->user->name;
+        $patientName = $appointment->patient_display_name;
 
         $title = 'New Appointment Booked';
         $body  = 'A new appointment has been booked by '
@@ -659,6 +659,10 @@ class AppointmentsController extends Controller
 
         $patient = $appointment->patient;
         $patientUser = $patient?->user;
+        $patientFullName = $appointment->patient_display_name;
+        $patientPhone = $appointment->patient_display_phone;
+        $patientImage = $appointment->patient_profile_image;
+        $patientGender = $patient?->gender ?? $appointment->temp_patient_gender;
 
         $doctor = $appointment->doctor;
         $doctorUser = $doctor?->user;
@@ -714,9 +718,11 @@ class AppointmentsController extends Controller
                     'send_to_pharmacy' => optional($appointment->prescriptions)->send_to_pharmacy ?? false,
 
                     'patient' => [
-                        'image' => $patientUser?->profile_image ?? null,
-                        'full_name' => trim(($patientUser?->name ?? '') . ' ' . ($patientUser?->last_name ?? '')),
-                        'gender' => $patient?->gender ?? null,
+                        'image' => $patientImage,
+                        'full_name' => $patientFullName,
+                        'phone' => $patientPhone,
+                        'gender' => $patientGender,
+                        'age' => $appointment->temp_patient_age,
                         'height' => $patient?->height ?? null,
                         'weight' => $patient?->weight ?? null,
                         'has_children' => $patient?->has_children ?? null,
@@ -724,6 +730,7 @@ class AppointmentsController extends Controller
                         'birth_date' => $patient?->birth_date ?? null,
                         'smoker' => $patient?->is_smoke ?? null,
                         'marital_status' => $patient?->marital_status ?? null,
+                        'is_temporary' => $appointment->is_temporary_patient,
                     ],
 
                     'doctor' => [
@@ -800,8 +807,12 @@ class AppointmentsController extends Controller
         ]);
     }
 
-    private function serializeAttachedMedicalRecord($record, int $patientId): ?array
+    private function serializeAttachedMedicalRecord($record, ?int $patientId): ?array
     {
+        if (!$patientId) {
+            return null;
+        }
+
         return match ($record->record_source) {
             'patient_medical_record' => $this->serializePatientMedicalRecord($record->record_id, $patientId),
             'lab_result' => $this->serializeLabResult($record->record_id, $patientId),
@@ -810,8 +821,12 @@ class AppointmentsController extends Controller
         };
     }
 
-    private function serializePatientMedicalRecord(int $recordId, int $patientId): ?array
+    private function serializePatientMedicalRecord(int $recordId, ?int $patientId): ?array
     {
+        if (!$patientId) {
+            return null;
+        }
+
         $record = PatientMedicalRecord::where('id', $recordId)
             ->where('patient_id', $patientId)
             ->first();
@@ -832,8 +847,12 @@ class AppointmentsController extends Controller
         ];
     }
 
-    private function serializeLabResult(int $recordId, int $patientId): ?array
+    private function serializeLabResult(int $recordId, ?int $patientId): ?array
     {
+        if (!$patientId) {
+            return null;
+        }
+
         $record = LabResult::where('id', $recordId)
             ->whereHas('appointment', function ($query) use ($patientId) {
                 $query->where('patient_id', $patientId);
@@ -856,8 +875,12 @@ class AppointmentsController extends Controller
         ];
     }
 
-    private function serializeRadiologyResult(int $recordId, int $patientId): ?array
+    private function serializeRadiologyResult(int $recordId, ?int $patientId): ?array
     {
+        if (!$patientId) {
+            return null;
+        }
+
         $record = RadiologyResult::where('id', $recordId)
             ->whereHas('appointment', function ($query) use ($patientId) {
                 $query->where('patient_id', $patientId);
@@ -922,7 +945,11 @@ class AppointmentsController extends Controller
 
     private function notifyPatientAppointmentCancelled($appointment)
     {
-        $user = $appointment->patient->user;
+        $user = $appointment->registeredPatientUser();
+
+        if (!$user) {
+            return;
+        }
 
         $title = 'Appointment Cancelled';
 
