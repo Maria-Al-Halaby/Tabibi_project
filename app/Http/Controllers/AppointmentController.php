@@ -8,12 +8,16 @@ use App\Models\Doctor;
 use App\Models\DoctorSchedules;
 use App\Models\RadiologyAppointment;
 use App\Models\Specialization;
+use App\Notifications\AppointmentAlertNotification;
+use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
+    use PushNotification;
+
     /**
      * Display a listing of the resource.
      */
@@ -311,6 +315,8 @@ class AppointmentController extends Controller
             $appointments->update([
                 'status' => 'canceled',
             ]);
+
+            $this->notifyPatientAppointmentCancelledByStaff($appointments);
         }
 
         return redirect()
@@ -542,5 +548,35 @@ class AppointmentController extends Controller
     private function appointmentRouteName(): string
     {
         return auth()->user()?->hasRole('secretary') ? 'secretary.dashboard' : 'Admin.Appointment.index';
+    }
+
+    private function notifyPatientAppointmentCancelledByStaff(Appointment $appointment): void
+    {
+        $user = $appointment->registeredPatientUser();
+
+        if (!$user) {
+            return;
+        }
+
+        $title = 'Appointment Cancelled';
+        $body = 'Your appointment scheduled on '
+            . $appointment->start_at->format('Y-m-d H:i')
+            . ' has been cancelled by the clinic staff.';
+
+        $data = [
+            'type' => 'appointment_cancelled',
+            'appointment_id' => (string) $appointment->id,
+        ];
+
+        $user->notify(new AppointmentAlertNotification(
+            title: $title,
+            body: $body,
+            type: 'appointment_cancelled',
+            appointmentId: $appointment->id,
+        ));
+
+        if ($user->fcm_token) {
+            $this->sendNotification($user->fcm_token, $title, $body, $data);
+        }
     }
 }

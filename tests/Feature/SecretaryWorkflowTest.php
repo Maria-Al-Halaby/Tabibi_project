@@ -247,6 +247,12 @@ class SecretaryWorkflowTest extends TestCase
             'id' => $appointment->id,
             'status' => 'canceled',
         ]);
+
+        $notification = $patient->user->fresh()->notifications()->first();
+
+        $this->assertNotNull($notification);
+        $this->assertSame('appointment_cancelled', $notification->data['type']);
+        $this->assertSame($appointment->id, $notification->data['appointment_id']);
     }
 
     public function test_secretary_can_schedule_walk_in_appointment_and_type_is_derived_from_doctor_type(): void
