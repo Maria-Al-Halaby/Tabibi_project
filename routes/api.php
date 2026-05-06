@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AiFeatureUsageController;
 use App\Http\Controllers\Api\AppointmentsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClinicCenterController;
@@ -74,13 +75,19 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
     Route::post('/patient/medical_record/stroe' , [PatientMedicalRecordController::class , 'store']);
 
     Route::post('patient/medical_record/show_all' , [PatientMedicalRecordController::class , "getMedicalRecords"]);
+
+    /* ai feature usage  */
+    Route::post('/ai/use-feature', [AiFeatureUsageController::class, 'useFeature']);
+    Route::get('/ai/remaining', [AiFeatureUsageController::class, 'remaining']);
 });
 
 /* doctor home screen route and appointments */
 Route::middleware(["auth:sanctum" , "role:doctor|patient"])->group(function(){
     Route::get("/home" , [HomeController::class , "home"]);
     Route::get("/appointment_details/{appointment}" , [AppointmentsController::class , "appointment_details"]);
+
     Route::post('/appointments/cancel', [AppointmentsController::class, "cancelAppointment"]);
+
 
     /* reset password inside app */
 
