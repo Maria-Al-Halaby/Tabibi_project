@@ -12,11 +12,11 @@ class AiFeatureUsageController extends Controller
     public function useFeature(Request $request)
     {
         $data = $request->validate([
-            'patient_id' => ['required', 'exists:patients,id'],
+            //'patient_id' => ['required', 'exists:patients,id'],
             'feature_type' => ['required', 'string'],
         ]);
 
-        $patientId = $data['patient_id'];
+        $patientId = auth()->user()->patient->id;
         $featureType = $data['feature_type'];
 
         $featureConfig = config("ai_limits.$featureType");
@@ -89,11 +89,11 @@ class AiFeatureUsageController extends Controller
 
     public function remaining(Request $request)
     {
-        $data = $request->validate([
+       /*  $data = $request->validate([
             'patient_id' => ['required', 'exists:patients,id'],
         ]);
-
-        $patientId = $data['patient_id'];
+ */
+        $patientId = auth()->user()->patient->id;
         $result = [];
 
         foreach (config('ai_limits') as $featureType => $featureConfig) {
