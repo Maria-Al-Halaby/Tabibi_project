@@ -8,104 +8,69 @@ use Illuminate\Http\Request;
 
 class ClinicCenterController extends Controller
 {
-/*     public function show($center_id)
+ public function show($center_id)
     {
-        $center = ClinicCenter::with('specialties' , "user")->findOrFail($center_id);
+        $center = ClinicCenter::with([
+                'user',
+                'doctors.specialization',
+            ])->findOrFail($center_id);
 
-        $data = [
-            'id'      => $center->id,
-            'img'     => $center->user->profile_image,   
-            'address' => $center->address,
-            'bio'     => $center->bio,  
-
-            'specialties' => $center->specialties->map(function ($sp) {
+        $clinics = $center->doctors
+            ->pluck('specialization')    
+            ->filter()                    
+            ->unique('id')                
+            ->values()
+            ->map(function ($sp) {
                 return [
                     'id'   => $sp->id,
                     'name' => $sp->name,
-                    "img" => $sp->image
+                    'image'  => $sp->image ?? null,
                 ];
-            }),
+            });
+
+        $data = [
+            'id'      => $center->id,
+            'name' => $center->user->name ,
+            'image'     => $center->user->profile_image,
+            'address' => $center->address,
+            'bio'     => $center->bio,
+
+            'clinics' => $clinics,
         ];
 
         return response()->json([
-            "message" => "get clinic center information" , 
-            "status" => true , 
-            "data" => [
+            "message" => "get clinic center information",
+            "status"  => true,
+            "data"    => [
                 'center' => $data,
             ]
         ], 200);
-    } */
+    }
 
+    public function doctors($center_id)
+    {
+        $center = ClinicCenter::with(['doctors.user', 'doctors.specialization'])
+            ->findOrFail($center_id);
 
-/*         public function show($center_id)
-{
-    // نجلب المركز مع المستخدم والاختصاصات المرتبطة به
-    $center = ClinicCenter::with(['specialties', 'user'])->findOrFail($center_id);
-
-    $data = [
-        'id'      => $center->id,
-        'img'     => $center->user->profile_image,
-        'address' => $center->address,
-        'bio'     => $center->bio,
-
-        // كل "عيادة" هي اختصاص موجود في هذا المركز
-        'clinics' => $center->specialties->map(function ($sp) {
+        $doctors = $center->doctors()
+        ->with(['user', 'specialization'])
+        ->get()
+        ->map(function ($doctor) {
             return [
-                'id'   => $sp->id,
-                'name' => $sp->name,
-                'img'  => $sp->image,
-            ];
-        })->values(),
-    ];
-
-    return response()->json([
-        "message" => "get clinic center information",
-        "status"  => true,
-        "data"    => [
-            'center' => $data,
-        ]
-    ], 200);
-}
- */
-
-
-public function show($center_id)
-{
-    $center = ClinicCenter::with([
-            'user',
-            'doctors.specialization',
-        ])->findOrFail($center_id);
-
-    $clinics = $center->doctors
-        ->pluck('specialization')    
-        ->filter()                    
-        ->unique('id')                
-        ->values()
-        ->map(function ($sp) {
-            return [
-                'id'   => $sp->id,
-                'name' => $sp->name,
-                'image'  => $sp->image ?? null,
+                'id' => $doctor->id,
+                'name' => $doctor->user?->name,
+                'specialization' => $doctor->specialization?->name,
             ];
         });
 
-    $data = [
-        'id'      => $center->id,
-        'name' => $center->user->name ,
-        'image'     => $center->user->profile_image,
-        'address' => $center->address,
-        'bio'     => $center->bio,
+        return response()->json([
+            "message" => "get doctors by center",
+            "status" => true,
+            "data" => [
+                "doctors" => $doctors
+            ]
+        ]);
+    }
 
-        'clinics' => $clinics,
-    ];
-
-    return response()->json([
-        "message" => "get clinic center information",
-        "status"  => true,
-        "data"    => [
-            'center' => $data,
-        ]
-    ], 200);
-}
 
 }

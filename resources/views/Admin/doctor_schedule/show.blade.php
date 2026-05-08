@@ -101,7 +101,7 @@
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</td>
-                                <td>{{ isset($schedule->price) ? number_format($schedule->price) : '-' }}</td>
+                                <td>{{ $price !== '-' ? number_format($price) : '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
