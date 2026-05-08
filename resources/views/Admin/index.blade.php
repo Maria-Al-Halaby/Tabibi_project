@@ -110,6 +110,14 @@
                             <div class="action-tile__title">Manage clinic doctors</div>
                             <p class="action-tile__copy">Filter the medical team by specialty and keep center coverage balanced.</p>
                         </a>
+
+                        <a href="{{ route('Admin.Secretary.index') }}" class="action-tile">
+                            <span class="action-tile__icon">
+                                <i class="fas fa-headset"></i>
+                            </span>
+                            <div class="action-tile__title">Manage secretary desk</div>
+                            <p class="action-tile__copy">Add secretary accounts and keep appointment-desk access assigned to your center.</p>
+                        </a>
                     </div>
                 </div>
             </section>

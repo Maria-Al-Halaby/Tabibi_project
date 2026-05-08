@@ -12,6 +12,7 @@ use App\Models\DoctorRadiologyRequest;
 use App\Models\DoctorLabRequest;
 use App\Models\RadiologyResult;
 use App\Models\LabResult;
+use App\Notifications\AppointmentAlertNotification;
 use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -75,8 +76,8 @@ class DoctorAppointmentController extends Controller
         $data = $appointments->map(function ($a) {
             return [
                 'id' => $a->id,
-                'patient_name' => $a->patient?->user?->name ?? '',
-                'patient_profile' => $a->patient?->user?->profile_image ?? null , 
+                'patient_name' => $a->patient_display_name,
+                'patient_profile' => $a->patient_profile_image, 
                 'status' => $a->status,
                 'date' => Carbon::parse($a->start_at)->toDateString(),
                 'time' => Carbon::parse($a->start_at)->format('H:i'),
@@ -484,10 +485,9 @@ class DoctorAppointmentController extends Controller
 
     private function notifyPatientAppointmentCompleted(Appointment $appointment): void
     {
-        $user  = $appointment->patient->user;
-        $token = $user->fcm_token;
+        $user = $appointment->registeredPatientUser();
 
-        if (!$token) {
+        if (!$user) {
             return;
         }
 
@@ -502,8 +502,16 @@ class DoctorAppointmentController extends Controller
             'appointment_id' => (string) $appointment->id,
         ];
 
-        $this->sendNotification($token, $title, $body, $data);
+        $user->notify(new AppointmentAlertNotification(
+            title: $title,
+            body: $body,
+            type: 'appointment_completed',
+            appointmentId: $appointment->id,
+        ));
+
+        if ($user->fcm_token) {
+            $this->sendNotification($user->fcm_token, $title, $body, $data);
+        }
     }
 
 }
-

@@ -10,6 +10,7 @@ use App\Http\Controllers\ClinicManagement;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorSchedulesController;
 use App\Http\Controllers\FirebaseController;
+use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\PromotController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\SuperAdmin\DoctorRatingController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\LabDashboardController;
 use App\Http\Controllers\PharmacyDashboardController;
 use App\Http\Controllers\AdminPharmacyController;
 use App\Http\Controllers\AdminPricingController;
+use App\Http\Controllers\AdminSecretaryController;
+use App\Http\Controllers\TypeOfMedicalImageController;
 use App\Models\Appointment;
 use App\Models\ClinicCenter;
 use App\Models\DoctorSchedules;
@@ -36,6 +39,14 @@ use Illuminate\Support\Facades\Route;
 Route::get("/" , [AuthController::class , "ShowLoginPage"])->name("login");
 Route::post("/" , [AuthController::class , "login"])->name("login");
 
+/* doctor login route */
+Route::get("/doctor-login" , [AuthController::class , "ShowDoctorLoginPage"])->name("doctor.login");
+Route::post("/doctor-login" , [AuthController::class , "doctorLogin"])->name("doctor.login.submit");
+
+/* secretary login route */
+Route::get('/secretary-login', [AuthController::class, 'ShowSecretaryLoginPage'])->name('secretary.login');
+Route::post('/secretary-login', [AuthController::class, 'secretaryLogin'])->name('secretary.login.submit');
+
 /* super admin dashboard: */
 
 Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/")->group(function (){
@@ -52,6 +63,22 @@ Route::middleware(["auth" , "role:super admin"])->prefix("/SuperAdmin/Dashborad/
     Route::get("/update/specialization/{specialization}" , [SpecializationController::class , "edit"])->name("SuperAdmin.specialization.edit");
     Route::put("/update/specialization/{specialization}" , [SpecializationController::class , "update"])->name("SuperAdmin.specialization.update");
     Route::delete("/delete/specialization/{specialization}" , [SpecializationController::class , "destroy"])->name("SuperAdmin.specialization.destroy");
+
+    /* lab tests route */
+    Route::get("/lab-tests", [LabTestController::class, "index"])->name("SuperAdmin.labTest.index");
+    Route::get("/addNew/lab-test", [LabTestController::class, "create"])->name("SuperAdmin.labTest.create");
+    Route::post("/addNew/lab-test", [LabTestController::class, "store"])->name("SuperAdmin.labTest.store");
+    Route::get("/update/lab-test/{labTest}", [LabTestController::class, "edit"])->name("SuperAdmin.labTest.edit");
+    Route::put("/update/lab-test/{labTest}", [LabTestController::class, "update"])->name("SuperAdmin.labTest.update");
+    Route::delete("/delete/lab-test/{labTest}", [LabTestController::class, "destroy"])->name("SuperAdmin.labTest.destroy");
+
+    /* medical image types route */
+    Route::get("/medical-image-types", [TypeOfMedicalImageController::class, "index"])->name("SuperAdmin.medicalImageType.index");
+    Route::get("/addNew/medical-image-type", [TypeOfMedicalImageController::class, "create"])->name("SuperAdmin.medicalImageType.create");
+    Route::post("/addNew/medical-image-type", [TypeOfMedicalImageController::class, "store"])->name("SuperAdmin.medicalImageType.store");
+    Route::get("/update/medical-image-type/{typeOfMedicalImage}", [TypeOfMedicalImageController::class, "edit"])->name("SuperAdmin.medicalImageType.edit");
+    Route::put("/update/medical-image-type/{typeOfMedicalImage}", [TypeOfMedicalImageController::class, "update"])->name("SuperAdmin.medicalImageType.update");
+    Route::delete("/delete/medical-image-type/{typeOfMedicalImage}", [TypeOfMedicalImageController::class, "destroy"])->name("SuperAdmin.medicalImageType.destroy");
 
     /* doctors route */
     Route::get("/doctors" , [DoctorController::class , "index"])->name("SuperAdmin.doctor.index");
@@ -127,6 +154,13 @@ Route::middleware(["auth" , "role:admin"])->prefix("Admin/Dashboard")->group(fun
     Route::put('/pharmacy/update/{user}', [AdminPharmacyController::class, 'update'])->name('Admin.Pharmacy.update');
     Route::delete('/pharmacy/delete/{user}', [AdminPharmacyController::class, 'destroy'])->name('Admin.Pharmacy.destroy');
 
+    /* secretary routes */
+    Route::get('/secretaries', [AdminSecretaryController::class, 'index'])->name('Admin.Secretary.index');
+    Route::post('/secretaries/store', [AdminSecretaryController::class, 'store'])->name('Admin.Secretary.store');
+    Route::get('/secretaries/edit/{user}', [AdminSecretaryController::class, 'edit'])->name('Admin.Secretary.edit');
+    Route::put('/secretaries/update/{user}', [AdminSecretaryController::class, 'update'])->name('Admin.Secretary.update');
+    Route::delete('/secretaries/delete/{user}', [AdminSecretaryController::class, 'destroy'])->name('Admin.Secretary.destroy');
+
     /* end point is not exists */
     Route::fallback(function () {
         return view("Admin.404_not_found_page");
@@ -155,6 +189,14 @@ Route::middleware(['auth', 'role:pharmacist'])->group(function () {
     Route::post('/pharmacy/prescriptions/{prescription}/update-status', [PharmacyDashboardController::class, 'updateStatus'])->name('pharmacy.prescriptions.updateStatus');
 });
 
+Route::middleware(['auth', 'role:secretary'])->group(function () {
+    Route::get('/secretary/dashboard', [AppointmentController::class, 'index'])->name('secretary.dashboard');
+    Route::get('/secretary/doctors/{doctor}/available-days', [AppointmentController::class, 'availableDays'])->name('secretary.doctors.availableDays');
+    Route::get('/secretary/doctors/{doctor}/available-times/{date}', [AppointmentController::class, 'availableTimes'])->name('secretary.doctors.availableTimes');
+    Route::post('/secretary/appointments/store', [AppointmentController::class, 'store'])->name('secretary.appointments.store');
+    Route::get('/secretary/appointments/cancel/{appointments}', [AppointmentController::class, 'cancel'])->name('secretary.appointments.cancel');
+});
+
 Route::middleware(["auth", "role:admin"])
     ->prefix("Admin/Dashboard")
     ->group(function () {
@@ -171,6 +213,3 @@ Route::middleware(["auth", "role:admin"])
 });
 //test route 
 /* Route::get("send-notification" , [FCMController::class , "send_notification"]); */
-
-
-

@@ -8,8 +8,12 @@ use App\Models\ClinicCenter;
 use App\Models\ClinicCenterDoctor;
 use App\Models\Doctor;
 use App\Models\DoctorSchedules;
+use App\Models\LabResult;
+use App\Models\PatientMedicalRecord;
+use App\Notifications\AppointmentAlertNotification;
 use App\Traits\PushNotification;
 use App\Models\RadiologyAppointment;
+use App\Models\RadiologyResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 //use Illuminate\Support\Carbon;
@@ -72,7 +76,7 @@ class AppointmentsController extends Controller
             if ($appointment->status === 'completed') {
                 $base['doctor_notes'] = [
                     'note' => $appointment->doctor_note ?? null, 
-                    'prescription' => $appointment->prescriptions->first()->prescriptions_note  ?? '', 
+                    'prescription' => $appointment->prescriptions?->first()?->prescriptions_note ?? '', 
                     /*    'prescription' => $appointment->prescriptions->map(fn($p) => [
                         // 'id' => $p->id,
                         'note' => $p->prescriptions_note, //
@@ -540,7 +544,7 @@ class AppointmentsController extends Controller
                 'type'             => $data['type'],
                 'note'             => $data['note'] ?? null,
                 'status'           => 'pending',
-                'emergency'        => $data['is_emergency'] ?? null,
+                'emergency'        => $data['is_emergency'] ?? false,
                 'result_ratio'     => $data['diagnosis_ratio'] ?? null,
                 'expected_disease' => $data['diagnosis_name'] ?? null,
                 'price'            => $totalPrice,
@@ -596,13 +600,7 @@ class AppointmentsController extends Controller
     private function notifyDoctorNewAppointment(Appointment $appointment)
     {
         $doctorUser = $appointment->doctor->user;
-
-        $token = $doctorUser->fcm_token;
-        if (!$token) {
-            return;
-        }
-
-        $patientName = $appointment->patient->user->name;
+        $patientName = $appointment->patient_display_name;
 
         $title = 'New Appointment Booked';
         $body  = 'A new appointment has been booked by '
@@ -615,7 +613,16 @@ class AppointmentsController extends Controller
             'appointment_id' => (string) $appointment->id,
         ];
 
-        $this->sendNotification($token, $title, $body, $data);
+        $doctorUser->notify(new AppointmentAlertNotification(
+            title: $title,
+            body: $body,
+            type: 'new_appointment',
+            appointmentId: $appointment->id,
+        ));
+
+        if ($doctorUser->fcm_token) {
+            $this->sendNotification($doctorUser->fcm_token, $title, $body, $data);
+        }
     }
 
     public function appointment_details(Appointment $appointment)
@@ -647,10 +654,15 @@ class AppointmentsController extends Controller
             'labResult',
             'radiologyAppointment.type',
             'labTests',
+            'attachedMedicalRecords',
         ]);
 
         $patient = $appointment->patient;
         $patientUser = $patient?->user;
+        $patientFullName = $appointment->patient_display_name;
+        $patientPhone = $appointment->patient_display_phone;
+        $patientImage = $appointment->patient_profile_image;
+        $patientGender = $patient?->gender ?? $appointment->temp_patient_gender;
 
         $doctor = $appointment->doctor;
         $doctorUser = $doctor?->user;
@@ -706,9 +718,11 @@ class AppointmentsController extends Controller
                     'send_to_pharmacy' => optional($appointment->prescriptions)->send_to_pharmacy ?? false,
 
                     'patient' => [
-                        'image' => $patientUser?->profile_image ?? null,
-                        'full_name' => trim(($patientUser?->name ?? '') . ' ' . ($patientUser?->last_name ?? '')),
-                        'gender' => $patient?->gender ?? null,
+                        'image' => $patientImage,
+                        'full_name' => $patientFullName,
+                        'phone' => $patientPhone,
+                        'gender' => $patientGender,
+                        'age' => $appointment->temp_patient_age,
                         'height' => $patient?->height ?? null,
                         'weight' => $patient?->weight ?? null,
                         'has_children' => $patient?->has_children ?? null,
@@ -716,6 +730,7 @@ class AppointmentsController extends Controller
                         'birth_date' => $patient?->birth_date ?? null,
                         'smoker' => $patient?->is_smoke ?? null,
                         'marital_status' => $patient?->marital_status ?? null,
+                        'is_temporary' => $appointment->is_temporary_patient,
                     ],
 
                     'doctor' => [
@@ -745,6 +760,8 @@ class AppointmentsController extends Controller
                         ? $appointment->labRequests->flatMap(function ($req) {
                             return $req->tests->map(function ($test) use ($req) {
                                 return [
+                                    'lab_test_id' => $test->id,
+                                    'request_id' => $req->id,
                                     'name' => $test->name,
                                     'notes' => $req->notes
                                 ];
@@ -756,6 +773,8 @@ class AppointmentsController extends Controller
                     'radiology_requests' => $appointment->type === 'doctor'
                         ? $appointment->radiologyRequests->map(function ($req) {
                             return [
+                                'type_of_medical_image_id' => $req->type?->id,
+                                'request_id' => $req->id,
                                 'type_name' => $req->type?->name ?? null,
                                 'notes' => $req->notes
                             ];
@@ -778,9 +797,110 @@ class AppointmentsController extends Controller
                         ]
                         : null,
 
+                    'attached_medical_records' => $appointment->attachedMedicalRecords
+                        ->map(fn($record) => $this->serializeAttachedMedicalRecord($record, $appointment->patient_id))
+                        ->filter()
+                        ->values(),
+
                 ]
             ]
         ]);
+    }
+
+    private function serializeAttachedMedicalRecord($record, ?int $patientId): ?array
+    {
+        if (!$patientId) {
+            return null;
+        }
+
+        return match ($record->record_source) {
+            'patient_medical_record' => $this->serializePatientMedicalRecord($record->record_id, $patientId),
+            'lab_result' => $this->serializeLabResult($record->record_id, $patientId),
+            'radiology_result' => $this->serializeRadiologyResult($record->record_id, $patientId),
+            default => null,
+        };
+    }
+
+    private function serializePatientMedicalRecord(int $recordId, ?int $patientId): ?array
+    {
+        if (!$patientId) {
+            return null;
+        }
+
+        $record = PatientMedicalRecord::where('id', $recordId)
+            ->where('patient_id', $patientId)
+            ->first();
+
+        if (!$record) {
+            return null;
+        }
+
+        return [
+            'record_source' => 'patient_medical_record',
+            'record_id' => $record->id,
+            'type' => $record->type,
+            'title' => $record->title,
+            'record_date' => $record->record_date,
+            'file_path' => $record->file_path,
+            'file_url' => url(Storage::url($record->file_path)),
+            'source_label' => 'Patient Upload',
+        ];
+    }
+
+    private function serializeLabResult(int $recordId, ?int $patientId): ?array
+    {
+        if (!$patientId) {
+            return null;
+        }
+
+        $record = LabResult::where('id', $recordId)
+            ->whereHas('appointment', function ($query) use ($patientId) {
+                $query->where('patient_id', $patientId);
+            })
+            ->first();
+
+        if (!$record) {
+            return null;
+        }
+
+        return [
+            'record_source' => 'lab_result',
+            'record_id' => $record->id,
+            'type' => 'lab',
+            'title' => 'Lab Result #' . $record->id,
+            'record_date' => optional($record->created_at)->toDateString(),
+            'file_path' => $record->result_file,
+            'file_url' => url(Storage::url($record->result_file)),
+            'source_label' => 'Appointment Result',
+        ];
+    }
+
+    private function serializeRadiologyResult(int $recordId, ?int $patientId): ?array
+    {
+        if (!$patientId) {
+            return null;
+        }
+
+        $record = RadiologyResult::where('id', $recordId)
+            ->whereHas('appointment', function ($query) use ($patientId) {
+                $query->where('patient_id', $patientId);
+            })
+            ->first();
+
+        if (!$record) {
+            return null;
+        }
+
+        return [
+            'record_source' => 'radiology_result',
+            'record_id' => $record->id,
+            'type' => 'radiology',
+            'title' => 'Radiology Result #' . $record->id,
+            'record_date' => optional($record->created_at)->toDateString(),
+            'file_path' => $record->image_path,
+            'file_url' => url(Storage::url($record->image_path)),
+            'source_label' => 'Appointment Result',
+        ];
     }
 
     public function cancelAppointment(Request $request)
@@ -807,8 +927,9 @@ class AppointmentsController extends Controller
 
         $appointment->update(['status' => 'canceled']);
 
-        //send notification
-        $this->notifyPatientAppointmentCancelled($appointment);
+        if ($isDoctorOwner) {
+            $this->notifyPatientAppointmentCancelled($appointment);
+        }
 
 
         return response()->json([
@@ -824,13 +945,10 @@ class AppointmentsController extends Controller
 
     private function notifyPatientAppointmentCancelled($appointment)
     {
-        $user = $appointment->patient->user;
+        $user = $appointment->registeredPatientUser();
 
-        $token = $user->fcm_token;
-
-        if (!$token) 
-        {
-            return; 
+        if (!$user) {
+            return;
         }
 
         $title = 'Appointment Cancelled';
@@ -844,7 +962,16 @@ class AppointmentsController extends Controller
         'appointment_id' => (string) $appointment->id,
         ];
 
-        $this->sendNotification($token, $title, $body, $data);
+        $user->notify(new AppointmentAlertNotification(
+            title: $title,
+            body: $body,
+            type: 'appointment_cancelled',
+            appointmentId: $appointment->id,
+        ));
+
+        if ($user->fcm_token) {
+            $this->sendNotification($user->fcm_token, $title, $body, $data);
+        }
 
 
     }

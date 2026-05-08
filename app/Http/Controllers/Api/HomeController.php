@@ -112,7 +112,7 @@ class HomeController extends Controller
                 ->map(function ($a) {
                     return [
                         'id'           => $a->id,
-                        'patient_name' => $a->patient?->user?->name ?? '',
+                        'patient_name' => $a->patient_display_name,
                         'status'       => $a->status,
                         'date'         => Carbon::parse($a->start_at)->toDateString(),
                         'time'         => Carbon::parse($a->start_at)->format('H:i'),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AiFeatureUsageController;
 use App\Http\Controllers\Api\AppointmentsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClinicCenterController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\MedicalRecordController;
 use App\Http\Controllers\Api\LookupController;
 use App\Http\Controllers\Api\CenterServicesController;
 use App\Http\Controllers\Api\NutritionPlanController;
+use App\Http\Controllers\Api\NotificationController;
 
 
 use Illuminate\Http\Request;
@@ -74,13 +76,19 @@ Route::middleware(["auth:sanctum" , "role:patient"])->group(function()
     Route::post('/patient/medical_record/stroe' , [PatientMedicalRecordController::class , 'store']);
 
     Route::post('patient/medical_record/show_all' , [PatientMedicalRecordController::class , "getMedicalRecords"]);
+
+    /* ai feature usage  */
+    Route::post('/ai/use-feature', [AiFeatureUsageController::class, 'useFeature']);
+    Route::get('/ai/remaining', [AiFeatureUsageController::class, 'remaining']);
 });
 
 /* doctor home screen route and appointments */
 Route::middleware(["auth:sanctum" , "role:doctor|patient"])->group(function(){
     Route::get("/home" , [HomeController::class , "home"]);
     Route::get("/appointment_details/{appointment}" , [AppointmentsController::class , "appointment_details"]);
+
     Route::post('/appointments/cancel', [AppointmentsController::class, "cancelAppointment"]);
+
 
     /* reset password inside app */
 
@@ -105,6 +113,8 @@ Route::middleware(["auth:sanctum" , "role:doctor"])->group(function(){
 
 Route::middleware("auth:sanctum")->group(function(){
     Route::post("logout" , [AuthController::class , "logout"]);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
 });
 
 Route::get('/lab-tests', [LookupController::class, 'labTests']);
@@ -117,8 +127,12 @@ Route::middleware('auth:sanctum')->get('/me', [LookupController::class, 'me']);
 Route::get('/centers/{id}/services', [CenterServicesController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/nutrition-plans', [NutritionPlanController::class, 'index']);
     Route::post('/nutrition-plans', [NutritionPlanController::class, 'store']);
     Route::get('/nutrition-plans/latest', [NutritionPlanController::class, 'latest']);
+    Route::get('/nutrition-plans/{id}', [NutritionPlanController::class, 'show']);
 });
 
+
 Route::get('/clinic-centers/{center}/doctors',[ClinicCenterController::class, 'doctors']);
+

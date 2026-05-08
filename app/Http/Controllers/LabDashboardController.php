@@ -11,20 +11,27 @@ class LabDashboardController extends Controller
 {
     public function __construct()
     {
-        if (auth()->check()) {
-            if (!auth()->user()->doctor || auth()->user()->doctor->doctor_type !== 'lab') {
+        $this->middleware(function ($request, $next) {
+            $doctor = auth()->user()?->doctor;
+
+            if (!$doctor || $doctor->doctor_type !== 'lab') {
                 abort(403, 'Unauthorized');
             }
-        }
+
+            return $next($request);
+        });
     }
 
     public function index()
     {
+        $doctor = auth()->user()->doctor;
+
         $appointments = Appointment::with([
             'patient.user',
             'clinic_center',
             'labTests',
         ])
+        ->where('doctor_id', $doctor->id)
         ->where('type', 'lab')
         ->where('status', 'pending')
         ->orderBy('start_at', 'asc')
@@ -35,7 +42,9 @@ class LabDashboardController extends Controller
 
     public function showCompleteForm(Appointment $appointment)
     {
-        if ($appointment->type !== 'lab') {
+        $doctor = auth()->user()->doctor;
+
+        if ($appointment->type !== 'lab' || $appointment->doctor_id !== $doctor->id) {
             abort(404);
         }
 
@@ -50,6 +59,8 @@ class LabDashboardController extends Controller
 
     public function complete(Request $request)
     {
+        $doctor = auth()->user()->doctor;
+
         $data = $request->validate([
             'appointment_id' => 'required|exists:appointments,id',
             'result_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:6000',
@@ -57,6 +68,7 @@ class LabDashboardController extends Controller
         ]);
 
         $appointment = Appointment::where('id', $data['appointment_id'])
+            ->where('doctor_id', $doctor->id)
             ->where('type', 'lab')
             ->firstOrFail();
 

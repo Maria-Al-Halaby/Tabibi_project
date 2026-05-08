@@ -93,6 +93,7 @@ class AuthController extends Controller
         "favorite_foods"        => "required|string" , 
         "disliked_foods"        => "required|string" , 
         "food_allergies"        => "required|string" , 
+        "digestion_issues"      => "nullable|string" ,
         "blood_type"            => "required|string|in:O+,O-,A+,A-,B+,B-,AB+,AB-",    
         "fcm_token"             => "nullable|string" , 
     ]);
@@ -127,6 +128,7 @@ class AuthController extends Controller
             "favorite_foods" => $request->favorite_foods , 
             "disliked_foods" => $request->disliked_foods , 
             "food_allergies" => $request->food_allergies , 
+            "digestion_issues" => $request->digestion_issues, 
             "blood_type" => $request->blood_type 
         ]);
 

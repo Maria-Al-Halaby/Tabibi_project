@@ -4,62 +4,66 @@ namespace App\Http\Controllers;
 
 use App\Models\TypeOfMedicalImage;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TypeOfMedicalImageController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $typeOfMedicalImages = TypeOfMedicalImage::withCount('clinicCenters')
+            ->orderBy('name')
+            ->get();
+
+        return view('Super Admin.medical_image_types.index', compact('typeOfMedicalImages'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('Super Admin.medical_image_types.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:type_of_medical_images,name'],
+        ]);
+
+        TypeOfMedicalImage::create($data);
+
+        return redirect()
+            ->route('SuperAdmin.medicalImageType.index')
+            ->with('message', 'Medical image type created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(TypeOfMedicalImage $typeOfMedicalImage)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(TypeOfMedicalImage $typeOfMedicalImage)
     {
-        //
+        return view('Super Admin.medical_image_types.edit', compact('typeOfMedicalImage'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, TypeOfMedicalImage $typeOfMedicalImage)
     {
-        //
+        $data = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('type_of_medical_images', 'name')->ignore($typeOfMedicalImage->id),
+            ],
+        ]);
+
+        $typeOfMedicalImage->update($data);
+
+        return redirect()
+            ->route('SuperAdmin.medicalImageType.index')
+            ->with('message', 'Medical image type updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(TypeOfMedicalImage $typeOfMedicalImage)
     {
-        //
+        $typeOfMedicalImage->delete();
+
+        return redirect()
+            ->route('SuperAdmin.medicalImageType.index')
+            ->with('message', 'Medical image type deleted successfully.');
     }
 }
