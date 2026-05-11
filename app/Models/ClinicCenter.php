@@ -3,16 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\LabTest;
-use App\Models\TypeOfMedicalImage;
 
 class ClinicCenter extends Model
 {
     protected $fillable = [
-        "user_id", 
-        "name", 
-        "address" , 
-        "is_active"
+        'user_id',
+        'name',
+        'address',
+        'is_active',
     ];
 
     public function user()
@@ -22,12 +20,12 @@ class ClinicCenter extends Model
 
     public function doctors()
     {
-            return $this->belongsToMany(
+        return $this->belongsToMany(
             Doctor::class,
-            'clinic_center_doctor',  
-            'clinic_center_id',     
-            'doctor_id'            
-        );
+            'clinic_center_doctor',
+            'clinic_center_id',
+            'doctor_id'
+        )->withPivot('price', 'appointment_duration_minutes');
 
     }
 
@@ -48,7 +46,7 @@ class ClinicCenter extends Model
 
     public function specialties()
     {
-    return $this->belongsToMany(Specialization::class, 'center_specialization');
+        return $this->belongsToMany(Specialization::class, 'center_specialization');
     }
 
     public function labTests()

@@ -86,6 +86,7 @@
                             <th>Days</th>
                             <th>From</th>
                             <th>To</th>
+                            <th>Duration</th>
                             <th>Price</th>
                         </tr>
                     </thead>
@@ -101,6 +102,7 @@
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</td>
+                                <td>{{ $appointmentDuration }} minutes</td>
                                 <td>{{ $price !== '-' ? number_format($price) : '-' }}</td>
                             </tr>
                         @endforeach

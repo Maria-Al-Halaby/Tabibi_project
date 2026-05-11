@@ -1130,6 +1130,13 @@
                 'meta' => 'Marketing content',
             ],
             [
+                'label' => 'AI Limits',
+                'icon' => 'bi-cpu-fill',
+                'url' => route('SuperAdmin.AiLimits.index'),
+                'active' => request()->routeIs('SuperAdmin.AiLimits.*'),
+                'meta' => 'Usage governance',
+            ],
+            [
                 'label' => 'Ratings',
                 'icon' => 'bi-stars',
                 'url' => route('doctor_ratings.index'),

@@ -4,24 +4,27 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AiFeatureUsage;
+use App\Services\AiFeatureLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AiFeatureUsageController extends Controller
 {
+    public function __construct(private readonly AiFeatureLimitService $limits) {}
+
     public function useFeature(Request $request)
     {
         $data = $request->validate([
-            //'patient_id' => ['required', 'exists:patients,id'],
+            // 'patient_id' => ['required', 'exists:patients,id'],
             'feature_type' => ['required', 'string'],
         ]);
 
         $patientId = auth()->user()->patient->id;
         $featureType = $data['feature_type'];
 
-        $featureConfig = config("ai_limits.$featureType");
+        $featureConfig = $this->limits->get($featureType);
 
-        if (!$featureConfig) {
+        if (! $featureConfig) {
             return response()->json([
                 'message' => 'Invalid feature type.',
             ], 422);
@@ -45,7 +48,7 @@ class AiFeatureUsageController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            if (!$usage) {
+            if (! $usage) {
                 $usage = AiFeatureUsage::create([
                     'patient_id' => $patientId,
                     'feature_type' => $featureType,
@@ -64,10 +67,10 @@ class AiFeatureUsageController extends Controller
             return $usage->fresh();
         });
 
-        if (!$usage) {
+        if (! $usage) {
             return response()->json([
                 'message' => 'You have reached the limit for this AI feature.',
-                'status' => 404 ,
+                'status' => 429,
                 'feature_type' => $featureType,
                 'limit' => $limit,
                 'used' => $limit,
@@ -77,7 +80,8 @@ class AiFeatureUsageController extends Controller
 
         return response()->json([
             'message' => 'AI feature usage recorded successfully.',
-            'stauts' => 200 ,
+            'status' => 200,
+            'stauts' => 200,
             'feature_type' => $featureType,
             'limit' => $limit,
             'used' => $usage->used_count,
@@ -89,14 +93,14 @@ class AiFeatureUsageController extends Controller
 
     public function remaining(Request $request)
     {
-       /*  $data = $request->validate([
+        /*  $data = $request->validate([
             'patient_id' => ['required', 'exists:patients,id'],
         ]);
  */
         $patientId = auth()->user()->patient->id;
         $result = [];
 
-        foreach (config('ai_limits') as $featureType => $featureConfig) {
+        foreach ($this->limits->all() as $featureType => $featureConfig) {
             [$periodStart, $periodEnd] = $this->getPeriodRange($featureConfig['period']);
 
             $usage = AiFeatureUsage::where('patient_id', $patientId)
@@ -117,9 +121,11 @@ class AiFeatureUsageController extends Controller
             ];
         }
 
-        return response()->json(["message" => "remaining of use" ,
-        "status" => 200 , 
-        "remaining" => $result]);
+        return response()->json([
+            'message' => 'remaining of use',
+            'status' => 200,
+            'remaining' => $result,
+        ]);
     }
 
     private function getPeriodRange(string $period): array

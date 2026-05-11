@@ -6,41 +6,39 @@ use Illuminate\Database\Eloquent\Model;
 
 class Doctor extends Model
 {
-    protected $fillable  = [
-        "user_id",
-        "specialization_id", 
-        "bio" , 
-        "is_active" , 
-        "profile_image" , 
-        "bio" ,
-        "experience_years",
-        'doctor_type'
+    protected $fillable = [
+        'user_id',
+        'specialization_id',
+        'bio',
+        'is_active',
+        'profile_image',
+        'bio',
+        'experience_years',
+        'doctor_type',
     ];
-
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    /*public function specializtion()  
+    /*public function specializtion()
     {
         return $this->hasOne(Specialization::class);
     } */
 
-        public function specialization()
-        {
-            return $this->belongsTo(Specialization::class);
-        }
-
+    public function specialization()
+    {
+        return $this->belongsTo(Specialization::class);
+    }
 
     public function clinic_center()
     {
         return $this->belongsToMany(
-        ClinicCenter::class,
-        'clinic_center_doctor',
-        'doctor_id',
-        'clinic_center_id'
-        )->withPivot('price');
+            ClinicCenter::class,
+            'clinic_center_doctor',
+            'doctor_id',
+            'clinic_center_id'
+        )->withPivot('price', 'appointment_duration_minutes');
     }
 
     public function appointments()
@@ -50,13 +48,11 @@ class Doctor extends Model
 
     public function ratings()
     {
-    return $this->hasMany(DoctorRating::class);
-    } 
-    
+        return $this->hasMany(DoctorRating::class);
+    }
+
     public function schedules()
     {
         return $this->hasMany(DoctorSchedules::class);
     }
-
-
 }

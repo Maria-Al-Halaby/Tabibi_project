@@ -26,17 +26,17 @@ class AppointmentController extends Controller
         $user = auth()->user();
         $center = $this->resolveCenterForUser();
 
-        if (!$center) {
+        if (! $center) {
             abort(404, 'Center not found for this account');
         }
 
         $selectedSpecializationId = $request->integer('specialization_id') ?: null;
 
         $appointments = Appointment::with([
-                'patient.user',
-                'doctor.user',
-                'doctor.specialization',
-            ])
+            'patient.user',
+            'doctor.user',
+            'doctor.specialization',
+        ])
             ->where('clinic_center_id', $center->id)
             ->where('status', 'pending')
             ->when($selectedSpecializationId, function ($query) use ($selectedSpecializationId) {
@@ -48,11 +48,11 @@ class AppointmentController extends Controller
             ->get();
 
         $specializations = Specialization::whereHas('doctors', function ($doctorQuery) use ($center) {
-                $doctorQuery->whereHas('appointments', function ($appointmentQuery) use ($center) {
-                    $appointmentQuery->where('clinic_center_id', $center->id)
-                        ->where('status', 'pending');
-                });
-            })
+            $doctorQuery->whereHas('appointments', function ($appointmentQuery) use ($center) {
+                $appointmentQuery->where('clinic_center_id', $center->id)
+                    ->where('status', 'pending');
+            });
+        })
             ->orderBy('name')
             ->get();
 
@@ -86,8 +86,6 @@ class AppointmentController extends Controller
         ));
     }
 
-    
-
     /**
      * Show the form for creating a new resource.
      */
@@ -103,13 +101,13 @@ class AppointmentController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user || !$user->hasRole('secretary')) {
+        if (! $user || ! $user->hasRole('secretary')) {
             abort(403);
         }
 
         $center = $this->resolveCenterForUser();
 
-        if (!$center) {
+        if (! $center) {
             return back()->withErrors(['message' => 'Center not found for this account.'])->withInput();
         }
 
@@ -134,11 +132,11 @@ class AppointmentController extends Controller
             ->where('doctor_id', $doctor->id)
             ->first();
 
-        if (!$pivot) {
+        if (! $pivot) {
             return back()->withErrors(['doctor_id' => 'Selected doctor does not belong to this center.'])->withInput();
         }
 
-        if (!empty($data['specialization_id']) && (int) $doctor->specialization_id !== (int) $data['specialization_id']) {
+        if (! empty($data['specialization_id']) && (int) $doctor->specialization_id !== (int) $data['specialization_id']) {
             return back()->withErrors(['specialization_id' => 'Selected doctor does not belong to the selected specialty.'])->withInput();
         }
 
@@ -150,15 +148,15 @@ class AppointmentController extends Controller
             return back()->withErrors(['type_of_medical_image_id' => 'Please select the image type for radiology appointments.'])->withInput();
         }
 
-        if ($doctor->doctor_type !== 'lab' && !empty($data['lab_tests'])) {
+        if ($doctor->doctor_type !== 'lab' && ! empty($data['lab_tests'])) {
             return back()->withErrors(['lab_tests' => 'Lab tests can only be selected for lab doctors.'])->withInput();
         }
 
-        if ($doctor->doctor_type !== 'radiology' && !empty($data['type_of_medical_image_id'])) {
+        if ($doctor->doctor_type !== 'radiology' && ! empty($data['type_of_medical_image_id'])) {
             return back()->withErrors(['type_of_medical_image_id' => 'Image type can only be selected for radiology doctors.'])->withInput();
         }
 
-        if ($doctor->doctor_type === 'lab' && !empty($data['lab_tests'])) {
+        if ($doctor->doctor_type === 'lab' && ! empty($data['lab_tests'])) {
             $centerLabTestCount = DB::table('clinic_center_lab_tests')
                 ->where('clinic_center_id', $center->id)
                 ->whereIn('lab_test_id', $data['lab_tests'])
@@ -169,20 +167,20 @@ class AppointmentController extends Controller
             }
         }
 
-        if ($doctor->doctor_type === 'radiology' && !empty($data['type_of_medical_image_id'])) {
+        if ($doctor->doctor_type === 'radiology' && ! empty($data['type_of_medical_image_id'])) {
             $imageTypeExists = DB::table('clinic_center_medical_images')
                 ->where('clinic_center_id', $center->id)
                 ->where('type_of_medical_image_id', $data['type_of_medical_image_id'])
                 ->exists();
 
-            if (!$imageTypeExists) {
+            if (! $imageTypeExists) {
                 return back()->withErrors(['type_of_medical_image_id' => 'The selected image type is not available in this center.'])->withInput();
             }
         }
 
         try {
             $dateObj = Carbon::createFromFormat('Y-m-d', $data['appointment_date'])->startOfDay();
-            $startAt = Carbon::createFromFormat('Y-m-d H:i', $data['appointment_date'] . ' ' . $data['appointment_time']);
+            $startAt = Carbon::createFromFormat('Y-m-d H:i', $data['appointment_date'].' '.$data['appointment_time']);
         } catch (\Throwable $e) {
             return back()->withErrors(['appointment_date' => 'Invalid appointment date or time.'])->withInput();
         }
@@ -195,15 +193,21 @@ class AppointmentController extends Controller
             return back()->withErrors(['appointment_time' => 'Cannot book an appointment in the past.'])->withInput();
         }
 
-        $inSchedule = DoctorSchedules::where('doctor_id', $doctor->id)
+        $schedules = DoctorSchedules::where('doctor_id', $doctor->id)
             ->where('clinic_center_doctor_id', $pivot->id)
             ->where('day_of_week', $dateObj->dayOfWeek)
-            ->whereTime('start_time', '<=', $startAt->format('H:i:s'))
-            ->whereTime('end_time', '>', $startAt->format('H:i:s'))
-            ->exists();
+            ->orderBy('start_time')
+            ->get();
 
-        if (!$inSchedule) {
+        if ($schedules->isEmpty()) {
             return back()->withErrors(['appointment_time' => 'Selected time is outside the doctor schedule.'])->withInput();
+        }
+
+        $appointmentDuration = $this->appointmentDurationForPivot($pivot);
+        $availableSlots = $this->buildAvailableSlotsForDate($doctor, $center->id, $dateObj, $schedules, $appointmentDuration);
+
+        if (! in_array($startAt->format('H:i'), $availableSlots, true)) {
+            return back()->withErrors(['appointment_time' => 'Selected time is not available for this doctor schedule.'])->withInput();
         }
 
         $isBooked = Appointment::where('doctor_id', $doctor->id)
@@ -248,11 +252,11 @@ class AppointmentController extends Controller
                 'price' => $price,
             ]);
 
-            if ($doctor->doctor_type === 'lab' && !empty($data['lab_tests'])) {
+            if ($doctor->doctor_type === 'lab' && ! empty($data['lab_tests'])) {
                 $appointment->labTests()->attach($data['lab_tests']);
             }
 
-            if ($doctor->doctor_type === 'radiology' && !empty($data['type_of_medical_image_id'])) {
+            if ($doctor->doctor_type === 'radiology' && ! empty($data['type_of_medical_image_id'])) {
                 RadiologyAppointment::create([
                     'appointment_id' => $appointment->id,
                     'type_of_medical_image_id' => $data['type_of_medical_image_id'],
@@ -292,16 +296,13 @@ class AppointmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Appointment $appointments)
-    {
-        
-    }
+    public function destroy(Appointment $appointments) {}
 
     public function cancel(Appointment $appointments)
     {
         $center = $this->resolveCenterForUser();
 
-        if (!$center || $appointments->clinic_center_id !== $center->id) {
+        if (! $center || $appointments->clinic_center_id !== $center->id) {
             abort(403);
         }
 
@@ -328,7 +329,7 @@ class AppointmentController extends Controller
     {
         $center = $this->resolveCenterForUser();
 
-        if (!$center || !auth()->user()?->hasRole('secretary')) {
+        if (! $center || ! auth()->user()?->hasRole('secretary')) {
             abort(403);
         }
 
@@ -336,7 +337,7 @@ class AppointmentController extends Controller
             ->where('doctor_id', $doctor->id)
             ->first();
 
-        if (!$pivot) {
+        if (! $pivot) {
             return response()->json([
                 'status' => false,
                 'message' => 'Doctor does not belong to this center.',
@@ -370,15 +371,16 @@ class AppointmentController extends Controller
             $daySchedules = $availableWeekdays->where('day_of_week', $date->dayOfWeek)->values();
 
             if ($daySchedules->isNotEmpty()) {
-                $availableSlots = $this->buildAvailableSlotsForDate($doctor, $center->id, $date, $daySchedules);
+                $appointmentDuration = $this->appointmentDurationForPivot($pivot);
+                $availableSlots = $this->buildAvailableSlotsForDate($doctor, $center->id, $date, $daySchedules, $appointmentDuration);
 
-                if (!empty($availableSlots)) {
+                if (! empty($availableSlots)) {
                     $timeWindows = $daySchedules
                         ->map(function ($schedule) {
-                            $start = Carbon::createFromFormat('H:i:s', strlen($schedule->start_time) === 5 ? $schedule->start_time . ':00' : $schedule->start_time);
-                            $end = Carbon::createFromFormat('H:i:s', strlen($schedule->end_time) === 5 ? $schedule->end_time . ':00' : $schedule->end_time);
+                            $start = Carbon::createFromFormat('H:i:s', strlen($schedule->start_time) === 5 ? $schedule->start_time.':00' : $schedule->start_time);
+                            $end = Carbon::createFromFormat('H:i:s', strlen($schedule->end_time) === 5 ? $schedule->end_time.':00' : $schedule->end_time);
 
-                            return $start->format('H:i') . ' - ' . $end->format('H:i');
+                            return $start->format('H:i').' - '.$end->format('H:i');
                         })
                         ->unique()
                         ->values()
@@ -387,12 +389,13 @@ class AppointmentController extends Controller
                     $label = $date->format('l, M d Y');
 
                     if ($timeWindows !== '') {
-                        $label .= ' | ' . $timeWindows;
+                        $label .= ' | '.$timeWindows;
                     }
 
                     $days[] = [
                         'date' => $date->toDateString(),
                         'label' => $label,
+                        'appointment_duration_minutes' => $appointmentDuration,
                     ];
                 }
             }
@@ -411,7 +414,7 @@ class AppointmentController extends Controller
     {
         $center = $this->resolveCenterForUser();
 
-        if (!$center || !auth()->user()?->hasRole('secretary')) {
+        if (! $center || ! auth()->user()?->hasRole('secretary')) {
             abort(403);
         }
 
@@ -429,7 +432,7 @@ class AppointmentController extends Controller
             ->where('clinic_center_id', $center->id)
             ->first();
 
-        if (!$pivot) {
+        if (! $pivot) {
             return response()->json([
                 'status' => false,
                 'message' => 'Doctor does not belong to this center.',
@@ -449,7 +452,8 @@ class AppointmentController extends Controller
             ]);
         }
 
-        $availableSlots = $this->buildAvailableSlotsForDate($doctor, $center->id, $dateObj, $schedules);
+        $appointmentDuration = $this->appointmentDurationForPivot($pivot);
+        $availableSlots = $this->buildAvailableSlotsForDate($doctor, $center->id, $dateObj, $schedules, $appointmentDuration);
 
         return response()->json([
             'status' => true,
@@ -457,7 +461,9 @@ class AppointmentController extends Controller
                 'times' => array_map(fn ($time) => [
                     'time' => $time,
                     'label' => Carbon::createFromFormat('H:i', $time)->format('H:i'),
+                    'duration_minutes' => $appointmentDuration,
                 ], $availableSlots),
+                'appointment_duration_minutes' => $appointmentDuration,
             ],
         ]);
     }
@@ -469,7 +475,7 @@ class AppointmentController extends Controller
 
     private function getCenterDoctors($center)
     {
-        if (!$center) {
+        if (! $center) {
             return collect();
         }
 
@@ -477,40 +483,53 @@ class AppointmentController extends Controller
             ->join('clinic_center_doctor', 'doctors.id', '=', 'clinic_center_doctor.doctor_id')
             ->where('clinic_center_doctor.clinic_center_id', $center->id)
             ->with(['user:id,name,last_name', 'specialization:id,name'])
-            ->select('doctors.*', 'clinic_center_doctor.price as center_price')
+            ->select('doctors.*', 'clinic_center_doctor.price as center_price', 'clinic_center_doctor.appointment_duration_minutes as appointment_duration_minutes')
             ->orderBy('specialization_id')
             ->orderBy('doctors.id')
             ->get();
     }
 
-    private function buildAvailableSlotsForDate(Doctor $doctor, int $centerId, Carbon $dateObj, $schedules): array
+    private function buildAvailableSlotsForDate(Doctor $doctor, int $centerId, Carbon $dateObj, $schedules, int $stepMinutes = 30): array
     {
-        $bookedTimes = Appointment::where('doctor_id', $doctor->id)
+        $bookedIntervals = Appointment::where('doctor_id', $doctor->id)
             ->where('clinic_center_id', $centerId)
             ->whereDate('start_at', $dateObj->toDateString())
             ->where('status', '!=', 'canceled')
             ->get()
-            ->map(fn ($appointment) => Carbon::parse($appointment->start_at)->format('H:i'))
-            ->toArray();
+            ->map(function ($appointment) use ($stepMinutes) {
+                $start = Carbon::parse($appointment->start_at);
+
+                return [
+                    'start' => $start,
+                    'end' => $start->copy()->addMinutes($stepMinutes),
+                ];
+            });
 
         $allSlots = [];
 
         foreach ($schedules as $schedule) {
             $allSlots = array_merge(
                 $allSlots,
-                $this->buildSlots($schedule->start_time, $schedule->end_time, 30)
+                $this->buildSlots($schedule->start_time, $schedule->end_time, $stepMinutes)
             );
         }
 
         $allSlots = array_values(array_unique($allSlots));
         sort($allSlots);
 
-        $availableSlots = array_values(array_diff($allSlots, $bookedTimes));
+        $availableSlots = array_values(array_filter($allSlots, function ($time) use ($dateObj, $bookedIntervals, $stepMinutes) {
+            $slotStart = Carbon::parse($dateObj->toDateString().' '.$time.':00');
+            $slotEnd = $slotStart->copy()->addMinutes($stepMinutes);
+
+            return $bookedIntervals->every(function ($booked) use ($slotStart, $slotEnd) {
+                return $slotEnd->lte($booked['start']) || $slotStart->gte($booked['end']);
+            });
+        }));
 
         if ($dateObj->isSameDay(Carbon::today())) {
             $now = Carbon::now();
             $availableSlots = array_values(array_filter($availableSlots, function ($time) use ($dateObj, $now) {
-                $slotDateTime = Carbon::parse($dateObj->toDateString() . ' ' . $time . ':00');
+                $slotDateTime = Carbon::parse($dateObj->toDateString().' '.$time.':00');
 
                 return $slotDateTime->greaterThan($now);
             }));
@@ -521,7 +540,7 @@ class AppointmentController extends Controller
 
     private function buildSlots(?string $startTime, ?string $endTime, int $stepMinutes = 30): array
     {
-        if (!$startTime || !$endTime) {
+        if (! $startTime || ! $endTime) {
             return [];
         }
 
@@ -537,12 +556,17 @@ class AppointmentController extends Controller
         $end = Carbon::createFromFormat('H:i:s', $endTime);
         $slots = [];
 
-        while ($start->lt($end)) {
+        while ($start->copy()->addMinutes($stepMinutes)->lte($end)) {
             $slots[] = $start->format('H:i');
             $start->addMinutes($stepMinutes);
         }
 
         return $slots;
+    }
+
+    private function appointmentDurationForPivot(ClinicCenterDoctor $pivot): int
+    {
+        return (int) ($pivot->appointment_duration_minutes ?: 30);
     }
 
     private function appointmentRouteName(): string
@@ -554,14 +578,14 @@ class AppointmentController extends Controller
     {
         $user = $appointment->registeredPatientUser();
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
         $title = 'Appointment Cancelled';
         $body = 'Your appointment scheduled on '
-            . $appointment->start_at->format('Y-m-d H:i')
-            . ' has been cancelled by the clinic staff.';
+            .$appointment->start_at->format('Y-m-d H:i')
+            .' has been cancelled by the clinic staff.';
 
         $data = [
             'type' => 'appointment_cancelled',
