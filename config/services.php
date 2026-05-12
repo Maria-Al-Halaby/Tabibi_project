@@ -36,6 +36,11 @@ return [
     ],
     'firebase' => [
         'key_path' => public_path(env('FIREBASE_CREDENTIALS'))
+    ],
+
+    'n8n' => [
+        'base_url' => env('N8N_BASE_URL'),
+        'secret_key' => env('N8N_SECRET_KEY'),
     ]
 
 ];

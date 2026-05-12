@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AiFeatureUsageController;
+use App\Http\Controllers\Api\AiFeatureController;
 use App\Http\Controllers\Api\AppointmentsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClinicCenterController;
@@ -127,6 +128,8 @@ Route::middleware('auth:sanctum')->get('/me', [LookupController::class, 'me']);
 Route::get('/centers/{id}/services', [CenterServicesController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/ai/{feature}', [AiFeatureController::class, 'proxy']);
+
     Route::get('/nutrition-plans', [NutritionPlanController::class, 'index']);
     Route::post('/nutrition-plans', [NutritionPlanController::class, 'store']);
     Route::get('/nutrition-plans/latest', [NutritionPlanController::class, 'latest']);
@@ -135,4 +138,3 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 Route::get('/clinic-centers/{center}/doctors',[ClinicCenterController::class, 'doctors']);
-
