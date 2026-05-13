@@ -41,6 +41,7 @@ return [
     'n8n' => [
         'base_url' => env('N8N_BASE_URL'),
         'secret_key' => env('N8N_SECRET_KEY'),
+        'timeout' => env('N8N_TIMEOUT', 180),
     ]
 
 ];

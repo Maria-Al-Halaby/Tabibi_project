@@ -78,6 +78,7 @@ class ProfileSettingController extends Controller
                     "first_name" =>  $user->name , 
                     "last_name" => $user->last_name , 
                     "phone" => $user->phone , 
+                    "email" => $user->email ,
                     "profile_image" => $user->profile_image,  
                 ] , 
                 "more_data" =>  $patient

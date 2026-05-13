@@ -797,6 +797,22 @@ class AppointmentsController extends Controller
             $diagnose = null;
         }
 
+        $selectedRadiologyImageType = $appointment->type === 'radiology' && $appointment->radiologyAppointment
+            ? [
+                'type_of_medical_image_id' => $appointment->radiologyAppointment->type?->id,
+                'type_name' => $appointment->radiologyAppointment->type?->name,
+            ]
+            : null;
+
+        $selectedLabTests = $appointment->type === 'lab'
+            ? $appointment->labTests->map(function ($test) {
+                return [
+                    'lab_test_id' => $test->id,
+                    'name' => $test->name,
+                ];
+            })->values()
+            : [];
+
         $hasPharmacy = DB::table('clinic_center_pharmacists')
             ->where('clinic_center_id', $appointment->clinic_center_id)
             ->exists();
@@ -820,6 +836,8 @@ class AppointmentsController extends Controller
                     'doctor_note' => $appointment->doctor_note ?? null,
 
                     'diagnosis' => $diagnose,
+                    'selected_radiology_image_type' => $selectedRadiologyImageType,
+                    'selected_lab_tests' => $selectedLabTests,
                     'has_pharmacy' => $hasPharmacy,
                     'send_to_pharmacy' => optional($appointment->prescriptions)->send_to_pharmacy ?? false,
 

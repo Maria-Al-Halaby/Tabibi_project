@@ -31,6 +31,9 @@ class AiFeatureController extends Controller
 
     public function proxy(Request $request, string $feature)
     {
+        $timeoutSeconds = max(1, (int) config('services.n8n.timeout', 180));
+        set_time_limit($timeoutSeconds + 10);
+
         if (! in_array($feature, self::ALLOWED_FEATURES, true)) {
             return response()->json([
                 'message' => 'Invalid AI feature.',
@@ -63,7 +66,10 @@ class AiFeatureController extends Controller
         try {
             $response = Http::withHeaders([
                 'TABIBY-AI-N8N' => $secretKey,
-            ])->post("{$baseUrl}/webhook-test/{$feature}", $request->all());
+            ])
+                ->timeout($timeoutSeconds)
+                ->connectTimeout(10)
+                ->post("{$baseUrl}/webhook/{$feature}", $request->all());
 
             if (! $response->successful() || $response->status() !== 200) {
                 Log::error('n8n proxy request failed.', [
