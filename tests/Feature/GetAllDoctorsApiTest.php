@@ -80,13 +80,13 @@ class GetAllDoctorsApiTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('status', true)
             ->assertJsonPath('data.doctors.0.id', $doctorWithMoreBookings->id)
-            ->assertJsonPath('data.doctors.0.rate', 5.0)
+            ->assertJsonPath('data.doctors.0.rate', 5)
             ->assertJsonPath('data.doctors.0.booked_appointments_count', 4)
             ->assertJsonPath('data.doctors.1.id', $doctorWithFewerBookings->id)
-            ->assertJsonPath('data.doctors.1.rate', 5.0)
+            ->assertJsonPath('data.doctors.1.rate', 5)
             ->assertJsonPath('data.doctors.1.booked_appointments_count', 1)
             ->assertJsonPath('data.doctors.2.id', $doctorWithLowerRate->id)
-            ->assertJsonPath('data.doctors.2.rate', 4.0)
+            ->assertJsonPath('data.doctors.2.rate', 4)
             ->assertJsonPath('data.doctors.2.booked_appointments_count', 1);
     }
 
@@ -112,9 +112,14 @@ class GetAllDoctorsApiTest extends TestCase
 
         return Patient::create([
             'user_id' => $user->id,
+            'address' => 'Damascus',
             'gender' => 'female',
+            'weight' => 64,
+            'height' => 168,
             'marital_status' => 'single',
+            'has_children' => false,
             'birth_date' => '1995-01-01',
+            'is_smoke' => false,
         ]);
     }
 

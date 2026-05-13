@@ -29,6 +29,10 @@
 
         <div class="helper-badges">
             <span class="helper-badge">
+                <i class="fas fa-user-doctor"></i>
+                Dr. {{ $doctorName ?: 'Doctor' }}
+            </span>
+            <span class="helper-badge">
                 <i class="fas fa-images"></i>
                 {{ number_format($appointments->count()) }} pending appointments
             </span>
@@ -152,6 +156,7 @@
             @foreach ($appointments as $appointment)
                 @php
                     $patientName = $appointment->patient_display_name;
+                    $attachedRecords = \App\Support\AppointmentMedicalRecordPresenter::forAppointment($appointment);
                     $patientInitials = collect(preg_split('/\s+/', $patientName ?: 'Patient'))
                         ->filter()
                         ->take(2)
@@ -226,6 +231,20 @@
                             <div class="mini-metric mb-4">
                                 <div class="mini-metric__label">Patient note</div>
                                 <p class="record-card__copy mb-0">{{ $appointment->note }}</p>
+                            </div>
+                        @endif
+
+                        @if ($attachedRecords->isNotEmpty())
+                            <div class="mini-metric mb-4">
+                                <div class="mini-metric__label">Attached medical files</div>
+                                <div class="list-pills mt-3">
+                                    @foreach ($attachedRecords as $record)
+                                        <a href="{{ $record['file_url'] }}" target="_blank" class="list-pill">
+                                            <i class="fas fa-paperclip"></i>
+                                            {{ $record['title'] }}
+                                        </a>
+                                    @endforeach
+                                </div>
                             </div>
                         @endif
 

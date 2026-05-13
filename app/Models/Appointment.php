@@ -17,6 +17,7 @@ class Appointment extends Model
         "clinic_center_id", 
         "type",
         "start_at" , 
+        "end_at",
         "status" , 
         "result_ratio" , 
         "expected_disease" , 

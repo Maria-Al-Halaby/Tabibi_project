@@ -61,6 +61,24 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="mt-4">
+                    <div class="mini-metric">
+                        <div class="mini-metric__label">Attached medical files</div>
+                        @if ($attachedMedicalRecords->isEmpty())
+                            <p class="record-card__meta mb-0">No files were attached to this appointment.</p>
+                        @else
+                            <div class="list-pills mt-3">
+                                @foreach ($attachedMedicalRecords as $record)
+                                    <a href="{{ $record['file_url'] }}" target="_blank" class="list-pill">
+                                        <i class="fas fa-paperclip"></i>
+                                        {{ $record['title'] }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </section>
         </div>
 

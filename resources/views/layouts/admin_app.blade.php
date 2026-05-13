@@ -1172,6 +1172,28 @@
                     'active' => request()->routeIs('secretary.*'),
                 ],
             ];
+        } elseif (request()->routeIs('doctor.*') || $doctorType === 'doctor') {
+            $brandTitle = 'Tabiby Doctor';
+            $brandSubtitle = 'Clinical workflow dashboard';
+            $brandRoute = route('doctor.dashboard');
+            $userRoleLabel = 'Doctor';
+            $workflowCopy = 'Review appointments, filter the schedule, complete visits, and write prescriptions.';
+            $navItems = [
+                [
+                    'label' => 'Appointments',
+                    'icon' => 'fa-stethoscope',
+                    'url' => route('doctor.dashboard'),
+                    'active' => request()->routeIs('doctor.dashboard'),
+                ],
+            ];
+            if (request()->routeIs('doctor.appointments.complete.form')) {
+                $navItems[] = [
+                    'label' => 'Complete Visit',
+                    'icon' => 'fa-file-prescription',
+                    'url' => $currentCompleteUrl,
+                    'active' => true,
+                ];
+            }
         } elseif (request()->routeIs('radiology.*') || $doctorType === 'radiology') {
             $brandTitle = 'Tabiby Radiology';
             $brandSubtitle = 'Imaging workflow dashboard';

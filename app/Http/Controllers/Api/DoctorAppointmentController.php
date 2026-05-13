@@ -29,7 +29,8 @@ class DoctorAppointmentController extends Controller
         $date = $date ?? 'today';
 
         $query = Appointment::with(['patient.user' , 'clinic_center:id,name'])
-            ->where('doctor_id', $doctor->id);
+            ->where('doctor_id', $doctor->id)
+            ->where('start_at', '>=', Carbon::today()->startOfDay());
 
         if ($centerId) {
             $query->where('clinic_center_id', $centerId);
@@ -49,7 +50,7 @@ class DoctorAppointmentController extends Controller
                 Carbon::today()->endOfWeek()->endOfDay(),
             ]); */
             $query->whereBetween('start_at', 
-            [Carbon::today()->startOfWeek()->startOfDay(), 
+            [Carbon::today()->startOfDay(), 
             Carbon::today()->endOfWeek()->endOfDay()
             ]);
 
@@ -57,6 +58,15 @@ class DoctorAppointmentController extends Controller
             // YYYY-MM-DD
             try {
                 $day = Carbon::createFromFormat('Y-m-d', $date);
+
+                if ($day->lt(Carbon::today())) {
+                    return response()->json([
+                        'message' => 'Past appointments are not available',
+                        'status' => false,
+                        'data' => [],
+                    ], 200);
+                }
+
                 //$query->whereDate('start_at', $day);
                 $query->whereBetween('start_at', 
         [

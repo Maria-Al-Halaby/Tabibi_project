@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 use App\Models\Appointment;
+use App\Support\AppointmentMedicalRecordPresenter;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -24,19 +26,22 @@ class RadiologyDashboardController extends Controller
     public function index()
     {
         $doctor = auth()->user()->doctor;
+        $doctorName = trim((auth()->user()->name ?? '').' '.(auth()->user()->last_name ?? ''));
 
         $appointments = Appointment::with([
             'patient.user',
             'clinic_center',
             'radiologyAppointment.type',
+            'attachedMedicalRecords',
         ])
         ->where('doctor_id', $doctor->id)
         ->where('type', 'radiology')
         ->where('status', 'pending')
+        ->where('start_at', '>=', Carbon::today()->startOfDay())
         ->orderBy('start_at', 'asc')
         ->get();
 
-        return view('radiology.index', compact('appointments'));
+        return view('radiology.index', compact('appointments', 'doctorName'));
     }
 
     public function showCompleteForm(Appointment $appointment)
@@ -51,9 +56,12 @@ class RadiologyDashboardController extends Controller
             'patient.user',
             'clinic_center',
             'radiologyAppointment.type',
+            'attachedMedicalRecords',
         ]);
 
-        return view('radiology.complete', compact('appointment'));
+        $attachedMedicalRecords = AppointmentMedicalRecordPresenter::forAppointment($appointment);
+
+        return view('radiology.complete', compact('appointment', 'attachedMedicalRecords'));
     }
 
     public function complete(Request $request)

@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClinicCenterController;
 use App\Http\Controllers\ClinicManagement;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\DoctorDashboardController;
 use App\Http\Controllers\DoctorSchedulesController;
 use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\LabDashboardController;
@@ -176,6 +177,14 @@ Route::middleware(['auth', 'role:doctor'])->group(function () {
     Route::get('/lab/dashboard', [LabDashboardController::class, 'index'])->name('lab.dashboard');
     Route::get('/lab/appointments/{appointment}/complete', [LabDashboardController::class, 'showCompleteForm'])->name('lab.appointments.complete.form');
     Route::post('/lab/appointments/complete', [LabDashboardController::class, 'complete'])->name('lab.appointments.complete');
+});
+
+/* doctor dashboard */
+Route::middleware(['auth', 'role:doctor'])->group(function () {
+    Route::get('/doctor/dashboard', [DoctorDashboardController::class, 'index'])->name('doctor.dashboard');
+    Route::get('/doctor/appointments/{appointment}/complete', [DoctorDashboardController::class, 'showCompleteForm'])->name('doctor.appointments.complete.form');
+    Route::post('/doctor/appointments/complete', [DoctorDashboardController::class, 'complete'])->name('doctor.appointments.complete');
+    Route::post('/doctor/appointments/{appointment}/cancel', [DoctorDashboardController::class, 'cancel'])->name('doctor.appointments.cancel');
 });
 
 /* pharmacy dashboard */

@@ -137,6 +137,7 @@ class AuthController extends Controller
     private function resolveDoctorDashboardRoute(?string $doctorType): ?string
     {
         return match ($doctorType) {
+            'doctor' => 'doctor.dashboard',
             'radiology' => 'radiology.dashboard',
             'lab' => 'lab.dashboard',
             default => null,
