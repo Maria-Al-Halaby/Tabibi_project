@@ -10,6 +10,26 @@ class FCMController extends Controller
 {
     use PushNotification;
 
+    public function update(Request $request)
+    {
+        $data = $request->validate([
+            'fcm_token' => ['required', 'string', 'max:4096'],
+        ]);
+
+        $user = $request->user();
+        $user->update([
+            'fcm_token' => $data['fcm_token'],
+        ]);
+
+        return response()->json([
+            'message' => 'FCM token updated successfully',
+            'status' => true,
+            'data' => [
+                'fcm_token' => $user->fcm_token,
+            ],
+        ], 200);
+    }
+
 /*     public function send_notification()
     {
         $deviceToken = FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> { if(task.isSuccessful()) {$token = task.getResult(); Log.d("FCM Token", $token); }});

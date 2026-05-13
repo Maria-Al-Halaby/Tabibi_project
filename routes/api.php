@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ClinicCenterController;
 use App\Http\Controllers\Api\DoctorAppointmentController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\DoctorRatingController;
+use App\Http\Controllers\Api\FCMController;
 use App\Http\Controllers\Api\ForgetPasswordController;
 use App\Http\Controllers\Api\GetAllController;
 use App\Http\Controllers\Api\HomeController;
@@ -114,6 +115,7 @@ Route::middleware(["auth:sanctum" , "role:doctor"])->group(function(){
 
 Route::middleware("auth:sanctum")->group(function(){
     Route::post("logout" , [AuthController::class , "logout"]);
+    Route::put('/fcm-token', [FCMController::class, 'update']);
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
 });
