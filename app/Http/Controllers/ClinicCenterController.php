@@ -43,16 +43,13 @@ class ClinicCenterController extends Controller
         ]);
 
         $image = $request->file("profile_image")->store("clinic_centers/icons/" , 'public');
-        $path = "storage/" . $image ;
-
-        $completePath = url($path);
 
         $user = User::create([
             "name" => $request->name , 
             "email" => $request->email , 
             "phone" => $request->phone , 
             "password" => Hash::make($request->password) ,
-            "profile_image" => $completePath
+            "profile_image" => $image
         ]);
 
         $user->assignRole("admin");
@@ -98,26 +95,21 @@ class ClinicCenterController extends Controller
             "profile_image" => "nullable|image"
         ]);
 
+        $userData = [
+            "email" => $validateData["email"], 
+            "phone" => $validateData["phone"], 
+            "password" => empty($validateData["password"]) ? $clinicCenter->user->password 
+            : Hash::make($validateData["password"]) ,
+        ];
+
         if($request->hasFile("profile_image"))
         {
-            $image = $request->file("profile_image")->store("clinic_centers/icons/" , 'public');
-            $path = "storage/" . $image ;
-
-            $completePath = url($path);
-        }else
-        {
-            $completePath = $clinicCenter->user->profile_image;
+            $userData["profile_image"] = $request->file("profile_image")->store("clinic_centers/icons/" , 'public');
         }
 
         //$user = User::where('id' , $userId)->get();
 
-        $clinicCenter->user()->update([
-            "email" => $validateData["email"], 
-            "phone" => $validateData["phone"], 
-            "password" => empty($validateData["password"]) ? $clinicCenter->user->password 
-            : Hash::make($validateData["password"]) , 
-            "profile_image" => $completePath 
-        ]);
+        $clinicCenter->user()->update($userData);
 
 
         $clinicCenter->update([

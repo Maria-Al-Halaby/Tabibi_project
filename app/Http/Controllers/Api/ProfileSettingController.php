@@ -35,35 +35,28 @@ class ProfileSettingController extends Controller
             "weight" => "required|numeric" ,
             "height" => "required|numeric" , 
             "marital_status" => "required|string|in:single,married,divorced,widowed", 
-            "is_smoke" => "required|boolean"
+            "is_smoke" => "required|boolean",
+            "digestion_issues" => "nullable|string"
         ]);
 
 
         $user = User::where("id" , $userId)->first();
 
 
-        if($request->hasFile("profile_image"))
-        {
-            $path = $request->file("profile_image")->store("patients/patients_profile_image" , "public");
-            $image = "storage/" . $path;
-            $image_path = url($image);
-            
-
-
-        }else
-        {
-            $image_path = $user->profile_image;
-        }
-
-
-        $user->update([
+        $userData = [
             "name" => $request->first_name , 
             "last_name" => $request->last_name , 
             "phone" => $request->phone , 
             "email" => $request->email , 
-            "password" => $request->filled("password") ? Hash::make($request->password) : $user->password, 
-            "profile_image" => $image_path
-        ]);
+            "password" => $request->filled("password") ? Hash::make($request->password) : $user->password,
+        ];
+
+        if($request->hasFile("profile_image"))
+        {
+            $userData["profile_image"] = $request->file("profile_image")->store("patients/patients_profile_image" , "public");
+        }
+
+        $user->update($userData);
 
         $patient->update([
             "address" => $request->address ,
@@ -71,6 +64,7 @@ class ProfileSettingController extends Controller
             "height" => $request->height , 
             "marital_status" => $request->marital_status , 
             "is_smoke" => $request->is_smoke , 
+            "digestion_issues" => $request->digestion_issues,
         ]);
         
 
@@ -174,5 +168,3 @@ class ProfileSettingController extends Controller
         ], 200);
     }
 }
-
-

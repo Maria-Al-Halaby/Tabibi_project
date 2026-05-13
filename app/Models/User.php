@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 //use App\Interfaces\MustVerifyMobile as IMustVerifyMobile;
 
 class User extends Authenticatable 
@@ -54,13 +55,46 @@ class User extends Authenticatable
     }
 
 
-/*     public function getProfileImageAttribute() 
+    public function getProfileImageAttribute($value): ?string
     {
-        if($this->profile_image)
-        {
-            return url("storage/" . $this->profile_image);
+        $value = $this->normalizeProfileImagePath($value);
+
+        if ($value === null) {
+            return null;
         }
-    } */
+
+        return url('storage/'.$value);
+    }
+
+    public function setProfileImageAttribute($value): void
+    {
+        $this->attributes['profile_image'] = $this->normalizeProfileImagePath($value);
+    }
+
+    private function normalizeProfileImagePath($value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        if (Str::startsWith($value, ['http://', 'https://'])) {
+            $path = parse_url($value, PHP_URL_PATH) ?: '';
+
+            if (! Str::contains($path, '/storage/')) {
+                return $value;
+            }
+
+            $value = Str::after($path, '/storage/');
+        }
+
+        $value = ltrim($value, '/');
+
+        if (Str::startsWith($value, 'storage/')) {
+            $value = Str::after($value, 'storage/');
+        }
+
+        return $value;
+    }
 
     public function clinic_center()
     {

@@ -23,6 +23,7 @@ class Patient extends Model
         "favorite_foods",
         "disliked_foods",
         "food_allergies",
+        "digestion_issues",
         "blood_type",
     ]; 
     

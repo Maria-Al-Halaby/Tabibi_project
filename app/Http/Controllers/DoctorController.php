@@ -51,16 +51,12 @@ class DoctorController extends Controller
     $imagePath = "";
 
     if ($request->hasFile('profile_image')) {
-        $path = $request->file('profile_image')
+        $imagePath = $request->file('profile_image')
         ->store('doctors/doctors_profile_images', 'public'); 
-
-        $completePath = "storage/" . $path ;
-        
-        $imagePath = url($completePath);
     }
     else
     {
-        $imagePath = url('storage/doctors/default_image/doctor.png');
+        $imagePath = 'doctors/default_image/doctor.png';
     }
 
 
@@ -124,24 +120,23 @@ class DoctorController extends Controller
 
         $user = $doctor->user;
 
-        $imagePath = $user->profile_image;
-
         if($request->hasFile("profile_image"))
         {
-            $path = $request->file("profile_image")->store('doctors/doctors_profile_images', 'public');
-
-            $completePath = "storage/" . $path ;
-
-            $imagePath = url($completePath);
+            $imagePath = $request->file("profile_image")->store('doctors/doctors_profile_images', 'public');
         }
 
-        $user->update([
+        $userData = [
             "name" => $data["name"], 
             "email" => $data["email"],
             "phone" => $data["phone"],
             "password" => empty($data["password"]) ? $user->password : Hash::make($data["password"]),
-            "profile_image" => $imagePath
-        ]);
+        ];
+
+        if (isset($imagePath)) {
+            $userData["profile_image"] = $imagePath;
+        }
+
+        $user->update($userData);
 
         $user->syncRoles(['doctor']);
 
