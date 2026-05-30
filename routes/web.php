@@ -51,6 +51,7 @@ Route::middleware(['auth', 'role:super admin'])->prefix('/SuperAdmin/Dashborad/'
     /* Details route */
 
     Route::get('Details/', [SuperAdminDashboardController::class, 'index'])->name('SuperAdmin.Detials.index');
+    Route::get('event-logs/', [SuperAdminDashboardController::class, 'eventLogs'])->name('SuperAdmin.EventLogs.index');
 
     /* specialization route */
 

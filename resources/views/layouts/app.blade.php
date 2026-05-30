@@ -1137,6 +1137,13 @@
                 'meta' => 'Usage governance',
             ],
             [
+                'label' => 'Event Logs',
+                'icon' => 'bi-clipboard-data-fill',
+                'url' => route('SuperAdmin.EventLogs.index'),
+                'active' => request()->routeIs('SuperAdmin.EventLogs.*'),
+                'meta' => 'Audit trail',
+            ],
+            [
                 'label' => 'Ratings',
                 'icon' => 'bi-stars',
                 'url' => route('doctor_ratings.index'),
