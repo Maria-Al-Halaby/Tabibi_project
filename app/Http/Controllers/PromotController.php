@@ -32,7 +32,7 @@ class PromotController extends Controller
     {
         $request->validate([
             'information' => ["required" , 'string'] , 
-            'image' => ["required" , 'file']
+            'image' => ["required" , 'image']
         ]);
 
         $image = $request->file("image")->store("Promot/Images" , "public");
@@ -72,7 +72,7 @@ class PromotController extends Controller
     {
         $request->validate([
             "information" => ["required" , "string"], 
-            "image" => ["nullable" , 'file']
+            "image" => ["nullable" , 'image']
         ]);
 
         $imageCompletePath = null;
@@ -93,7 +93,7 @@ class PromotController extends Controller
 
         $promot->update([
             'information' => $request->information , 
-            "imgage" => $imageCompletePath
+            "image" => $imageCompletePath
         ]);
 
         return redirect()->route("SuperAdmin.Promot.index")->with("message" , "promot updated successfully!!");
