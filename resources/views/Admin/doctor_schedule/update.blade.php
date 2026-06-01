@@ -1,18 +1,18 @@
 @extends('layouts.admin_app')
 
-@section('title', 'Update Doctor Schedule')
+@section('title', __('Update Doctor Schedule'))
 
 @section('content')
 
 @php
     $days = [
-        0 => 'Sunday',
-        1 => 'Monday',
-        2 => 'Tuesday',
-        3 => 'Wednesday',
-        4 => 'Thursday',
-        5 => 'Friday',
-        6 => 'Saturday',
+        0 => __('Sunday'),
+        1 => __('Monday'),
+        2 => __('Tuesday'),
+        3 => __('Wednesday'),
+        4 => __('Thursday'),
+        5 => __('Friday'),
+        6 => __('Saturday'),
     ];
 
     $existingSchedules = [];
@@ -32,14 +32,12 @@
     <div>
         <span class="eyebrow">
             <i class="fas fa-pen-to-square"></i>
-            Schedule Update
-        </span>
+            {{ __('Schedule Update') }}</span>
         <h1 class="page-title">
-            Update the working schedule for {{ $doctor->user->name }}.
+            {{ __('Update the working schedule for :name.', ['name' => $doctor->user->name]) }}
         </h1>
         <p class="page-subtitle">
-            Refine working days, hours, or price while keeping the structure consistent with the rest of the admin area.
-        </p>
+            {{ __('Refine working days, hours, or price while keeping the structure consistent with the rest of the admin area.') }}</p>
     </div>
 </div>
 
@@ -51,12 +49,12 @@
 
         <div class="row g-3 mb-4">
             <div class="col-md-6">
-                <label for="priceInput" class="field-label">Appointment Price</label>
+                <label for="priceInput" class="field-label">{{ __('Appointment Price') }}</label>
                 {{-- السعر  قيمته الحالية --}}
                 <input type="number"
                        id="priceInput"
                        name="price"
-                       placeholder="Enter appointment price"
+                       placeholder="{{ __('Enter appointment price') }}"
                        value="{{ old('price', $currentPrice) }}"
                        class="form-control @error('price') is-invalid @enderror">
                 @error('price')
@@ -65,7 +63,7 @@
             </div>
 
             <div class="col-md-6">
-                <label for="appointmentDurationInput" class="field-label">Appointment Duration (minutes)</label>
+                <label for="appointmentDurationInput" class="field-label">{{ __('Appointment Duration (minutes)') }}</label>
                 <input type="number"
                        id="appointmentDurationInput"
                        name="appointment_duration_minutes"
@@ -117,7 +115,7 @@
                         <div class="row g-3">
 
                             <div class="col-md-6">
-                                <label class="field-label">Start Time</label>
+                                <label class="field-label">{{ __('Start Time') }}</label>
                                 <input type="time"
                                        name="schedules[{{ $key }}][start_time]"
                                        class="form-control @error("schedules.$key.start_time") is-invalid @enderror"
@@ -129,7 +127,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="field-label">End Time</label>
+                                <label class="field-label">{{ __('End Time') }}</label>
                                 <input type="time"
                                        name="schedules[{{ $key }}][end_time]"
                                        class="form-control @error("schedules.$key.end_time") is-invalid @enderror"
@@ -151,12 +149,10 @@
         <div class="toolbar-actions mt-4">
             <button type="submit" class="btn btn-tabibi">
                 <i class="fas fa-floppy-disk"></i>
-                Update schedule
-            </button>
+                {{ __('Update schedule') }}</button>
             <a href="{{ route('Admin.DoctorSchedule.show', $doctor->id) }}" class="ghost-button">
                 <i class="fas fa-arrow-left"></i>
-                Back to schedule
-            </a>
+                {{ __('Back to schedule') }}</a>
         </div>
 
     </form>

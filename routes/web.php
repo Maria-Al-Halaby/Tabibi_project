@@ -25,6 +25,7 @@ use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\TypeOfMedicalImageController;
 use App\Models\Appointment;
 use App\Models\Specialization;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /* Route::get('/', function () {
@@ -35,6 +36,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AuthController::class, 'ShowLoginPage'])->name('login');
 Route::post('/', [AuthController::class, 'login'])->name('login');
+
+Route::post('/language/{locale}', function (Request $request, string $locale) {
+    abort_unless(in_array($locale, ['en', 'ar'], true), 404);
+
+    $request->session()->put('locale', $locale);
+
+    return back();
+})->name('language.switch');
 
 /* doctor login route */
 Route::get('/doctor-login', [AuthController::class, 'ShowDoctorLoginPage'])->name('doctor.login');

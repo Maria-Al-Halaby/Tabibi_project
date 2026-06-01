@@ -77,17 +77,19 @@ class NutritionPlanApiTest extends TestCase
 
         $this->assertDatabaseHas('nutrition_plans', [
             'user_id' => $user->id,
-            'summary' => $payload['plan']['summary_ar'],
-            'diet_type' => $payload['plan']['diet_type_applied'],
-            'daily_calories_target' => 1800,
         ]);
 
         $plan = NutritionPlan::query()->firstOrFail();
 
+        $this->assertSame($payload['plan']['summary_ar'], $plan->summary);
+        $this->assertSame($payload['plan']['diet_type_applied'], $plan->diet_type);
+        $this->assertSame(1800, $plan->daily_calories_target);
         $this->assertEquals($payload['request'], $plan->generation_inputs);
         $this->assertSame($payload['plan']['daily_macros_summary'], $plan->macros);
         $this->assertSame($payload['plan']['week_plan']['Saturday'], $plan->saturday_plan);
         $this->assertSame($payload['plan']['week_plan']['Sunday'], $plan->sunday_plan);
+        $this->assertNotSame($payload['plan']['summary_ar'], $plan->getRawOriginal('summary'));
+        $this->assertNotSame($payload['plan']['diet_type_applied'], $plan->getRawOriginal('diet_type'));
     }
 
     public function test_it_lists_only_the_authenticated_users_plans_with_pagination_and_compact_plan_data(): void

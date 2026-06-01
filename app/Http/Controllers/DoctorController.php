@@ -80,7 +80,7 @@ class DoctorController extends Controller
 
         //$user->notify(new SendPasswordNotification);
 
-        return redirect()->route("SuperAdmin.doctor.index")->with('message', 'Doctor added successfully!');
+        return redirect()->route("SuperAdmin.doctor.index")->with('message', __('Doctor added successfully!'));
 
     }
 
@@ -147,7 +147,7 @@ class DoctorController extends Controller
             "experience_years" => $request->experience_years
         ]);
 
-        return redirect()->route("SuperAdmin.doctor.index")->with("message" , "doctor updated successfully!!");
+        return redirect()->route("SuperAdmin.doctor.index")->with("message" , __("doctor updated successfully!!"));
 
 
 
@@ -161,6 +161,6 @@ class DoctorController extends Controller
     {
         $doctor->delete();
 
-        return redirect()->route("SuperAdmin.doctor.index")->with("message" , "doctor deleted successfully!!");
+        return redirect()->route("SuperAdmin.doctor.index")->with("message" , __("doctor deleted successfully!!"));
     }
 }

@@ -32,7 +32,7 @@ class TypeOfMedicalImageController extends Controller
 
         return redirect()
             ->route('SuperAdmin.medicalImageType.index')
-            ->with('message', 'Medical image type created successfully.');
+            ->with('message', __('Medical image type created successfully.'));
     }
 
     public function edit(TypeOfMedicalImage $typeOfMedicalImage)
@@ -55,7 +55,7 @@ class TypeOfMedicalImageController extends Controller
 
         return redirect()
             ->route('SuperAdmin.medicalImageType.index')
-            ->with('message', 'Medical image type updated successfully.');
+            ->with('message', __('Medical image type updated successfully.'));
     }
 
     public function destroy(TypeOfMedicalImage $typeOfMedicalImage)
@@ -64,6 +64,6 @@ class TypeOfMedicalImageController extends Controller
 
         return redirect()
             ->route('SuperAdmin.medicalImageType.index')
-            ->with('message', 'Medical image type deleted successfully.');
+            ->with('message', __('Medical image type deleted successfully.'));
     }
 }

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Tabiby Secretary Login</title>
+    <title>{{ __('Tabiby Secretary Login') }}</title>
 
     <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
         rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -37,7 +37,7 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Manrope', 'Cairo', sans-serif;
             color: var(--tabibi-text);
             background:
                 radial-gradient(circle at top left, rgba(45, 212, 191, 0.16), transparent 28%),
@@ -126,6 +126,12 @@
             margin-bottom: 1rem;
         }
 
+        [dir="rtl"] .showcase-title {
+            font-family: 'Cairo', sans-serif;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
         .showcase-copy {
             max-width: 520px;
             font-size: 1rem;
@@ -194,6 +200,12 @@
             margin-bottom: 0.6rem;
         }
 
+        [dir="rtl"] .login-panel__title {
+            font-family: 'Cairo', sans-serif;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
         .login-panel__copy {
             color: var(--tabibi-muted);
             margin-bottom: 0;
@@ -220,6 +232,11 @@
             pointer-events: none;
         }
 
+        [dir="rtl"] .field-icon {
+            left: auto;
+            right: 1rem;
+        }
+
         .form-control {
             height: 58px;
             border-radius: 20px;
@@ -228,6 +245,11 @@
             padding-left: 2.9rem;
             padding-right: 3rem;
             box-shadow: none !important;
+        }
+
+        [dir="rtl"] .form-control {
+            padding-left: 3rem;
+            padding-right: 2.9rem;
         }
 
         .form-control:focus {
@@ -246,6 +268,11 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+        }
+
+        [dir="rtl"] .password-toggle {
+            right: auto;
+            left: 0.65rem;
         }
 
         .password-toggle:hover {
@@ -303,6 +330,29 @@
             border: 0;
         }
 
+        .language-switcher {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .language-switcher__button {
+            border: 1px solid rgba(15, 118, 110, 0.14);
+            border-radius: 999px;
+            padding: 0.45rem 0.75rem;
+            color: var(--tabibi-primary);
+            background: rgba(15, 118, 110, 0.08);
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .language-switcher__button.is-active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--tabibi-primary), #14b8a6);
+            border-color: transparent;
+        }
+
         .back-link {
             margin-top: 1rem;
             display: inline-flex;
@@ -346,37 +396,46 @@
             <section class="login-showcase">
                 <div class="brand-row">
                     <span class="brand-mark">
-                        <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="Tabiby logo">
+                        <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="{{ __('Tabiby logo') }}">
                     </span>
                 </div>
 
-                <h1 class="showcase-title">Access your appointment desk dashboard.</h1>
+                <h1 class="showcase-title">{{ __('Access your appointment desk dashboard.') }}</h1>
                 <p class="showcase-copy">
-                    Sign in to review pending appointments, filter bookings by specialty, and support the center’s
-                    front-desk workflow.
-                </p>
+                    {{ __('Sign in to review pending appointments, filter bookings by specialty, and support the center’s
+                    front-desk workflow.') }}</p>
 
                 <div class="showcase-grid">
                     <div class="showcase-card">
-                        <div class="showcase-card__label">Appointment Desk</div>
-                        <p class="showcase-card__value">Review and organize pending appointments for your center.</p>
+                        <div class="showcase-card__label">{{ __('Appointment Desk') }}</div>
+                        <p class="showcase-card__value">{{ __('Review and organize pending appointments for your center.') }}</p>
                     </div>
 
                     <div class="showcase-card">
-                        <div class="showcase-card__label">Specialty Filters</div>
-                        <p class="showcase-card__value">Narrow the queue by specialty to act faster during busy hours.</p>
+                        <div class="showcase-card__label">{{ __('Specialty Filters') }}</div>
+                        <p class="showcase-card__value">{{ __('Narrow the queue by specialty to act faster during busy hours.') }}</p>
                     </div>
                 </div>
             </section>
 
             <section class="login-panel">
+                <div class="language-switcher" aria-label="{{ __('Language switcher') }}">
+                    @foreach (['en' => __('EN'), 'ar' => __('AR')] as $locale => $label)
+                        <form action="{{ route('language.switch', $locale) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="language-switcher__button {{ app()->getLocale() === $locale ? 'is-active' : '' }}">
+                                {{ $label }}
+                            </button>
+                        </form>
+                    @endforeach
+                </div>
+
                 <div class="login-panel__header">
                     <span class="login-panel__eyebrow">
                         <i class="bi bi-headset"></i>
-                        Secretary Login
-                    </span>
-                    <h2 class="login-panel__title">Welcome back</h2>
-                    <p class="login-panel__copy">Use your email and password to access your dashboard.</p>
+                        {{ __('Secretary Login') }}</span>
+                    <h2 class="login-panel__title">{{ __('Welcome back') }}</h2>
+                    <p class="login-panel__copy">{{ __('Use your email and password to access your dashboard.') }}</p>
                 </div>
 
                 @if (session('message'))
@@ -385,8 +444,7 @@
                     </div>
                 @endif
 
-                @if ($errors->any())
-                    <div class="alert alert-danger shadow-sm mb-4" role="alert">
+                @if ($errors->any())<div class="alert alert-danger shadow-sm mb-4" role="alert">
                         @foreach ($errors->all() as $error)
                             {{ $error }}@if (!$loop->last)<br>@endif
                         @endforeach
@@ -397,12 +455,12 @@
                     @csrf
 
                     <div class="mb-4">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="email" class="form-label">{{ __('Email') }}</label>
                         <div class="field-shell">
                             <span class="field-icon"><i class="bi bi-envelope"></i></span>
                             <input type="email" name="email" id="email" value="{{ old('email') }}"
                                 class="form-control @error('email') is-invalid @enderror"
-                                placeholder="Enter your email" required>
+                                placeholder="{{ __('Enter your email') }}" required>
                         </div>
                         @error('email')
                             <div class="text-danger small mt-2">{{ $message }}</div>
@@ -410,13 +468,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="password_input" class="form-label">Password</label>
+                        <label for="password_input" class="form-label">{{ __('Password') }}</label>
                         <div class="field-shell">
                             <span class="field-icon"><i class="bi bi-lock"></i></span>
                             <input type="password" name="password" id="password_input"
                                 class="form-control @error('password') is-invalid @enderror"
-                                placeholder="Enter your password" required>
-                            <button class="password-toggle" type="button" id="togglePassword" aria-label="Toggle password visibility">
+                                placeholder="{{ __('Enter your password') }}" required>
+                            <button class="password-toggle" type="button" id="togglePassword" aria-label="{{ __('Toggle password visibility') }}">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
@@ -426,25 +484,22 @@
                     </div>
 
                     <div class="login-meta">
-                        <span>Protected account access</span>
+                        <span>{{ __('Protected account access') }}</span>
                         <span class="status-chip">
                             <i class="bi bi-shield-lock-fill"></i>
-                            Encrypted session
-                        </span>
+                            {{ __('Encrypted session') }}</span>
                     </div>
 
                     <button type="submit" class="btn btn-login">
                         <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Log in
-                    </button>
+                        {{ __('Log in') }}</button>
                 </form>
 
                 <a href="{{ route('login') }}" class="back-link">
                     <i class="bi bi-arrow-left"></i>
-                    Back to staff login
-                </a>
+                    {{ __('Back to staff login') }}</a>
 
-                <p class="support-copy">If you cannot access your account, contact your center administrator.</p>
+                <p class="support-copy">{{ __('If you cannot access your account, contact your center administrator.') }}</p>
             </section>
         </div>
     </main>

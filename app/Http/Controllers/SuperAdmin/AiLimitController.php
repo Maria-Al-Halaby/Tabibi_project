@@ -61,7 +61,7 @@ class AiLimitController extends Controller
 
         return redirect()
             ->route('SuperAdmin.AiLimits.index')
-            ->with('message', 'AI feature limit updated successfully.');
+            ->with('message', __('AI feature limit updated successfully.'));
     }
 
     public function updateUsage(Request $request, AiFeatureUsage $usage)
@@ -76,6 +76,6 @@ class AiLimitController extends Controller
 
         return redirect()
             ->route('SuperAdmin.AiLimits.index', $request->only(['feature_type', 'search', 'page']))
-            ->with('message', 'User AI usage updated successfully.');
+            ->with('message', __('User AI usage updated successfully.'));
     }
 }

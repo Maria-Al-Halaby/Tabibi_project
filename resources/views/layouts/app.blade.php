@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'Tabiby Super Admin Dashboard')</title>
+    <title>@yield('title', __('dashboard.brands.super_admin_title'))</title>
 
     <link rel="icon" href="{{ asset('project_icon/logo.png') }}?v=3" type="image/png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -39,12 +39,16 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Manrope', 'Cairo', sans-serif;
             color: var(--tabibi-text-color);
             background:
                 radial-gradient(circle at top left, rgba(45, 212, 191, 0.18), transparent 28%),
                 radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 24%),
                 linear-gradient(180deg, #f8fffe 0%, #f4f8fb 45%, #eef4f8 100%);
+        }
+
+        html[dir="rtl"] body {
+            font-family: 'Cairo', 'Manrope', sans-serif;
         }
 
         .tabibi-text-primary {
@@ -302,6 +306,37 @@
             justify-content: flex-end;
         }
 
+        .language-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem;
+            border-radius: 999px;
+            background: rgba(248, 250, 252, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .language-switcher form {
+            margin: 0;
+        }
+
+        .language-switcher__button {
+            border: 0;
+            border-radius: 999px;
+            padding: 0.52rem 0.75rem;
+            color: var(--tabibi-muted-color);
+            background: transparent;
+            font-size: 0.78rem;
+            font-weight: 800;
+            transition: 0.2s ease;
+        }
+
+        .language-switcher__button.active {
+            color: #fff;
+            background: var(--tabibi-primary-color);
+            box-shadow: 0 10px 20px rgba(15, 118, 110, 0.18);
+        }
+
         .topbar-chip {
             display: flex;
             flex-direction: column;
@@ -379,6 +414,15 @@
         .logout-button:hover {
             background: #dc2626;
             color: #fff;
+        }
+
+        html[dir="rtl"] .sidebar-link:hover {
+            transform: translateX(-4px);
+        }
+
+        html[dir="rtl"] .me-2 {
+            margin-right: 0 !important;
+            margin-left: 0.5rem !important;
         }
 
         .content-wrapper {
@@ -1064,8 +1108,9 @@
 <body>
     @php
         $superUser = auth()->user();
+        $locale = app()->getLocale();
         $displayName = trim(($superUser->name ?? '') . ' ' . ($superUser->last_name ?? ''));
-        $displayName = $displayName !== '' ? $displayName : 'Super Admin';
+        $displayName = $displayName !== '' ? $displayName : __('dashboard.brands.super_admin_title');
         $nameParts = preg_split('/\s+/', trim($displayName)) ?: [];
         $initials = collect($nameParts)
             ->filter()
@@ -1073,82 +1118,82 @@
             ->map(fn($part) => strtoupper(substr($part, 0, 1)))
             ->implode('');
         $userInitials = $initials !== '' ? $initials : 'SA';
-        $brandTitle = 'Super Admin Panel';
-        $brandSubtitle = 'Platform oversight and governance';
+        $brandTitle = __('dashboard.brands.super_admin_title');
+        $brandSubtitle = __('dashboard.brands.super_admin_subtitle');
         $brandRoute = route('SuperAdmin.Detials.index');
-        $centerDisplay = 'Tabiby Platform';
-        $userRoleLabel = 'Platform governance';
-        $workflowCopy = 'Oversee platform structure, service catalogs, clinics, doctors, promotions, and quality signals.';
+        $centerDisplay = __('dashboard.brands.super_admin_center');
+        $userRoleLabel = __('dashboard.roles.platform_governance');
+        $workflowCopy = __('dashboard.brands.super_admin_workflow');
         $navItems = [
             [
-                'label' => 'Overview',
+                'label' => __('dashboard.nav.overview'),
                 'icon' => 'bi-bar-chart-line-fill',
                 'url' => route('SuperAdmin.Detials.index'),
                 'active' => request()->routeIs('SuperAdmin.Detials.*'),
-                'meta' => 'Platform snapshot',
+                'meta' => __('dashboard.nav.platform_snapshot'),
             ],
             [
-                'label' => 'Specializations',
+                'label' => __('dashboard.nav.specializations'),
                 'icon' => 'bi-grid-1x2-fill',
                 'url' => route('SuperAdmin.specialization.index'),
                 'active' => request()->routeIs('SuperAdmin.specialization.*'),
-                'meta' => 'Medical taxonomy',
+                'meta' => __('dashboard.nav.clinical_taxonomy'),
             ],
             [
-                'label' => 'Lab Tests',
+                'label' => __('dashboard.nav.lab_tests'),
                 'icon' => 'bi-capsule',
                 'url' => route('SuperAdmin.labTest.index'),
                 'active' => request()->routeIs('SuperAdmin.labTest.*'),
-                'meta' => 'Service catalog',
+                'meta' => __('dashboard.nav.service_catalog'),
             ],
             [
-                'label' => 'Image Types',
+                'label' => __('dashboard.nav.image_types'),
                 'icon' => 'bi-badge-ad',
                 'url' => route('SuperAdmin.medicalImageType.index'),
                 'active' => request()->routeIs('SuperAdmin.medicalImageType.*'),
-                'meta' => 'Radiology catalog',
+                'meta' => __('dashboard.nav.radiology_catalog'),
             ],
             [
-                'label' => 'Doctors',
+                'label' => __('dashboard.nav.doctors'),
                 'icon' => 'bi-person-badge-fill',
                 'url' => route('SuperAdmin.doctor.index'),
                 'active' => request()->routeIs('SuperAdmin.doctor.*'),
-                'meta' => 'Provider directory',
+                'meta' => __('dashboard.nav.provider_directory'),
             ],
             [
-                'label' => 'Clinics',
+                'label' => __('dashboard.nav.clinics'),
                 'icon' => 'bi-hospital-fill',
                 'url' => route('SuperAdmin.ClinicCenter.index'),
                 'active' => request()->routeIs('SuperAdmin.ClinicCenter.index') || request()->routeIs('SuperAdmin.clinicCenter.*') || request()->routeIs('SuperAdmin.clinic_center.*'),
-                'meta' => 'Center management',
+                'meta' => __('dashboard.nav.center_management'),
             ],
             [
-                'label' => 'Promotions',
+                'label' => __('dashboard.nav.promotions'),
                 'icon' => 'bi-megaphone-fill',
                 'url' => route('SuperAdmin.Promot.index'),
                 'active' => request()->routeIs('SuperAdmin.Promot.*'),
-                'meta' => 'Marketing content',
+                'meta' => __('dashboard.nav.marketing_content'),
             ],
             [
-                'label' => 'AI Limits',
+                'label' => __('dashboard.nav.ai_limits'),
                 'icon' => 'bi-cpu-fill',
                 'url' => route('SuperAdmin.AiLimits.index'),
                 'active' => request()->routeIs('SuperAdmin.AiLimits.*'),
-                'meta' => 'Usage governance',
+                'meta' => __('dashboard.nav.usage_governance'),
             ],
             [
-                'label' => 'Event Logs',
+                'label' => __('dashboard.nav.event_logs'),
                 'icon' => 'bi-clipboard-data-fill',
                 'url' => route('SuperAdmin.EventLogs.index'),
                 'active' => request()->routeIs('SuperAdmin.EventLogs.*'),
-                'meta' => 'Audit trail',
+                'meta' => __('dashboard.nav.audit_trail'),
             ],
             [
-                'label' => 'Ratings',
+                'label' => __('dashboard.nav.ratings'),
                 'icon' => 'bi-stars',
                 'url' => route('doctor_ratings.index'),
                 'active' => request()->routeIs('doctor_ratings.*') || request()->routeIs('doctors.deactivate') || request()->routeIs('doctors.destroy'),
-                'meta' => 'Quality signals',
+                'meta' => __('dashboard.nav.quality_signals'),
             ],
         ];
     @endphp
@@ -1161,14 +1206,14 @@
                 <section class="sidebar-card">
                     <span class="sidebar-card__eyebrow">
                         <i class="bi bi-shield-lock-fill"></i>
-                        Control Panel
+                        {{ __('dashboard.control_panel') }}
                     </span>
                     <h2 class="sidebar-card__title">{{ $brandTitle }}</h2>
                     <p class="sidebar-card__copy">{{ $workflowCopy }}</p>
                 </section>
 
                 <section class="sidebar-section">
-                    <span class="sidebar-section__label">Navigation</span>
+                    <span class="sidebar-section__label">{{ __('dashboard.navigation') }}</span>
                     <nav class="sidebar-nav">
                         @foreach ($navItems as $navItem)
                             <a href="{{ $navItem['url'] }}" class="sidebar-link @if ($navItem['active']) active @endif">
@@ -1191,13 +1236,13 @@
                 <div class="topbar-inner">
                     <div class="topbar-leading">
                         <button type="button" class="sidebar-toggle d-xl-none" id="sidebarToggle"
-                            aria-label="Open dashboard sidebar">
+                            aria-label="{{ __('dashboard.open_sidebar') }}">
                             <i class="bi bi-list"></i>
                         </button>
 
                         <a class="brand-block" href="{{ $brandRoute }}">
                             <span class="brand-mark">
-                                <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="Tabiby logo">
+                                <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="{{ __('Tabiby logo') }}">
                             </span>
 
                             <span class="brand-copy">
@@ -1208,8 +1253,23 @@
                     </div>
 
                     <div class="topbar-meta">
+                        <div class="language-switcher" aria-label="{{ __('dashboard.language') }}">
+                            <form action="{{ route('language.switch', 'en') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="language-switcher__button @if ($locale === 'en') active @endif"
+                                    aria-label="{{ __('dashboard.english') }}">{{ __('EN') }}</button>
+                            </form>
+                            <form action="{{ route('language.switch', 'ar') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="language-switcher__button @if ($locale === 'ar') active @endif"
+                                    aria-label="{{ __('dashboard.arabic') }}">{{ __('AR') }}</button>
+                            </form>
+                        </div>
+
                         <div class="topbar-chip">
-                            <span class="topbar-chip__label">Center</span>
+                            <span class="topbar-chip__label">{{ __('dashboard.center') }}</span>
                             <span class="topbar-chip__value">{{ $centerDisplay }}</span>
                         </div>
 
@@ -1224,7 +1284,7 @@
                         <form action="{{ route('logout') }}" method="POST" class="m-0">
                             @csrf
                             <button type="submit" class="logout-button">
-                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                <i class="bi bi-box-arrow-right me-2"></i>{{ __('dashboard.logout') }}
                             </button>
                         </form>
                     </div>
@@ -1233,15 +1293,14 @@
 
             <main class="content-wrapper">
                 <div class="container-xxl px-0">
-                    @if (session('success') || session('error') || $errors->any())
-                        <div class="alert-stack">
+                    @if (session('success') || session('error') || $errors->any())<div class="alert-stack">
                             @if (session('success'))
                                 <div class="alert-banner alert-banner--success">
                                     <span class="alert-banner__icon">
                                         <i class="bi bi-check-circle-fill"></i>
                                     </span>
                                     <div>
-                                        <p class="alert-banner__title">Success</p>
+                                        <p class="alert-banner__title">{{ __('dashboard.success') }}</p>
                                         <p class="alert-banner__copy">{{ session('success') }}</p>
                                     </div>
                                 </div>
@@ -1253,19 +1312,18 @@
                                         <i class="bi bi-exclamation-circle-fill"></i>
                                     </span>
                                     <div>
-                                        <p class="alert-banner__title">Something needs attention</p>
+                                        <p class="alert-banner__title">{{ __('dashboard.attention') }}</p>
                                         <p class="alert-banner__copy">{{ session('error') }}</p>
                                     </div>
                                 </div>
                             @endif
 
-                            @if ($errors->any())
-                                <div class="alert-banner alert-banner--danger">
+                            @if ($errors->any())<div class="alert-banner alert-banner--danger">
                                     <span class="alert-banner__icon">
                                         <i class="bi bi-exclamation-triangle-fill"></i>
                                     </span>
                                     <div>
-                                        <p class="alert-banner__title">Please review the highlighted details</p>
+                                        <p class="alert-banner__title">{{ __('dashboard.review_details') }}</p>
                                         <p class="alert-banner__copy">{{ $errors->first() }}</p>
                                     </div>
                                 </div>

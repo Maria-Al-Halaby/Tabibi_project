@@ -50,14 +50,14 @@ class DoctorRatingController extends Controller
     {
         $doctor->update(['is_active' => false]); 
 
-        return back()->with('success', 'doctor not active from now!!');
+        return back()->with('success', __('doctor not active from now!!'));
     }
 
     public function destroyDoctor(Doctor $doctor)
     {
         $doctor->delete();
 
-        return back()->with('success', 'doctor deleted successfully from our system!!');
+        return back()->with('success', __('doctor deleted successfully from our system!!'));
     }
 }
 

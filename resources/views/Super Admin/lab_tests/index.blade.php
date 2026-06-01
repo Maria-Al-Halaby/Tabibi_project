@@ -1,25 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Lab Tests')
+@section('title', __('Lab Tests'))
 
 @section('content')
     <div class="page-header">
         <div>
             <span class="eyebrow">
                 <i class="bi bi-capsule"></i>
-                Lab Tests
-            </span>
-            <h1 class="page-title">Keep the lab test catalog structured and easy to maintain.</h1>
+                {{ __('Lab Tests') }}</span>
+            <h1 class="page-title">{{ __('Keep the lab test catalog structured and easy to maintain.') }}</h1>
             <p class="page-subtitle">
-                This new Super Admin section gives lab tests the same polished CRUD workflow used across the rest of the
-                platform.
-            </p>
+                {{ __('This new Super Admin section gives lab tests the same polished CRUD workflow used across the rest of the
+                platform.') }}</p>
         </div>
 
         <div class="helper-badges">
             <span class="helper-badge">
                 <i class="bi bi-list-check"></i>
-                {{ number_format($labTests->count()) }} lab tests
+                {{ __(':count lab tests', ['count' => number_format($labTests->count())]) }}
             </span>
         </div>
     </div>
@@ -30,25 +28,23 @@
 
     <div class="toolbar-row">
         <div>
-            <h2 class="section-heading">Lab test directory</h2>
-            <p class="section-copy">Review, edit, or remove tests from one clean management surface.</p>
+            <h2 class="section-heading">{{ __('Lab test directory') }}</h2>
+            <p class="section-copy">{{ __('Review, edit, or remove tests from one clean management surface.') }}</p>
         </div>
 
         <div class="toolbar-actions">
             <a href="{{ route('SuperAdmin.labTest.create') }}" class="btn btn-tabibi">
                 <i class="bi bi-plus-circle"></i>
-                Add lab test
-            </a>
+                {{ __('Add lab test') }}</a>
         </div>
     </div>
 
-    @if ($labTests->isEmpty())
-        <section class="section-card empty-state">
+    @if ($labTests->isEmpty())<section class="section-card empty-state">
             <div class="empty-state__icon">
                 <i class="bi bi-clipboard2-pulse"></i>
             </div>
-            <h2 class="empty-state__title">No lab tests have been added yet.</h2>
-            <p class="empty-state__copy">Create the first lab test to start managing laboratory services centrally.</p>
+            <h2 class="empty-state__title">{{ __('No lab tests have been added yet.') }}</h2>
+            <p class="empty-state__copy">{{ __('Create the first lab test to start managing laboratory services centrally.') }}</p>
         </section>
     @else
         <div class="row g-4">
@@ -62,21 +58,21 @@
 
                             <div>
                                 <h2 class="record-card__title mb-1">{{ $labTest->name }}</h2>
-                                <p class="record-card__copy">Platform lab service</p>
+                                <p class="record-card__copy">{{ __('Platform lab service') }}</p>
                             </div>
                         </div>
 
                         <div class="row g-3 mb-4">
                             <div class="col-6">
                                 <div class="mini-metric h-100">
-                                    <div class="mini-metric__label">Clinics</div>
+                                    <div class="mini-metric__label">{{ __('Clinics') }}</div>
                                     <p class="mini-metric__value">{{ number_format($labTest->clinic_centers_count) }}</p>
                                 </div>
                             </div>
 
                             <div class="col-6">
                                 <div class="mini-metric h-100">
-                                    <div class="mini-metric__label">Appointments</div>
+                                    <div class="mini-metric__label">{{ __('Appointments') }}</div>
                                     <p class="mini-metric__value">{{ number_format($labTest->appointments_count) }}</p>
                                 </div>
                             </div>
@@ -85,17 +81,15 @@
                         <div class="toolbar-actions">
                             <a href="{{ route('SuperAdmin.labTest.edit', $labTest->id) }}" class="outline-button">
                                 <i class="bi bi-pencil-square"></i>
-                                Edit
-                            </a>
+                                {{ __('Edit') }}</a>
 
                             <form action="{{ route('SuperAdmin.labTest.destroy', $labTest->id) }}" method="POST"
-                                onsubmit="return confirm('Are you sure you want to delete lab test {{ $labTest->name }}?')">
+                                onsubmit="return confirm(@js(__('Are you sure you want to delete lab test :name?', ['name' => $labTest->name])))">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="danger-outline-button">
                                     <i class="bi bi-trash3"></i>
-                                    Delete
-                                </button>
+                                    {{ __('Delete') }}</button>
                             </form>
                         </div>
                     </section>

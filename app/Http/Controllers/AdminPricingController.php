@@ -65,7 +65,7 @@ class AdminPricingController extends Controller
             ]
         );
 
-        return back()->with('success', 'Lab price updated');
+        return back()->with('success', __('Lab price updated'));
     }
 
 
@@ -88,6 +88,6 @@ class AdminPricingController extends Controller
             ]
         );
 
-        return back()->with('success', 'Radiology price updated');
+        return back()->with('success', __('Radiology price updated'));
     }
 }

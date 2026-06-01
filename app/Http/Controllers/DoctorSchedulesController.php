@@ -62,7 +62,7 @@ class DoctorSchedulesController extends Controller
 
         return redirect()
             ->route('Admin.DoctorSchedule.show', compact('doctor'))
-            ->with('message', 'Doctor schedule added successfully');
+            ->with('message', __('Doctor schedule added successfully'));
     }
 
     public function show(Doctor $doctor)
@@ -124,7 +124,7 @@ class DoctorSchedulesController extends Controller
             ->first();
 
         if (! $pivot) {
-            return redirect()->back()->withErrors(['error' => 'Schedule not found.']);
+            return redirect()->back()->withErrors(['error' => __('Schedule not found.')]);
         }
 
         $this->assertScheduleTimes($data['schedules']);
@@ -140,7 +140,7 @@ class DoctorSchedulesController extends Controller
 
         return redirect()
             ->route('Admin.DoctorSchedule.show', compact('doctor'))
-            ->with('message', 'Doctor schedule updated successfully');
+            ->with('message', __('Doctor schedule updated successfully'));
     }
 
     public function destroy(Doctor $doctor)
@@ -152,7 +152,7 @@ class DoctorSchedulesController extends Controller
             ->first();
 
         if (! $pivot) {
-            return back()->with('message', 'This doctor is not linked to your center.');
+            return back()->with('message', __('This doctor is not linked to your center.'));
         }
 
         DoctorSchedules::where('clinic_center_doctor_id', $pivot->id)->delete();
@@ -161,7 +161,7 @@ class DoctorSchedulesController extends Controller
 
         return redirect()
             ->route('Admin.ClinicManagement.index')
-            ->with('message', 'Doctor removed from your center successfully.');
+            ->with('message', __('Doctor removed from your center successfully.'));
     }
 
     private function normalizeScheduleInput(array $schedules): array
@@ -206,7 +206,7 @@ class DoctorSchedulesController extends Controller
         foreach ($schedules as $index => $schedule) {
             if ($schedule['end_time'] <= $schedule['start_time']) {
                 throw ValidationException::withMessages([
-                    "schedules.$index.end_time" => 'End time must be after start time.',
+                    "schedules.$index.end_time" => __('End time must be after start time.'),
                 ]);
             }
         }

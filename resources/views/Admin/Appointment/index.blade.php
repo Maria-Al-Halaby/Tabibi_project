@@ -1,22 +1,46 @@
 @extends('layouts.admin_app')
 
-@section('title', 'Appointments')
+@section('title', __('Appointments'))
 
 @section('content')
     @php
         $appointmentCount = $appointments->count();
         $isSecretaryDashboard = ($dashboardMode ?? 'admin') === 'secretary';
-        $dashboardTitle = $isSecretaryDashboard ? 'Secretary Appointment Desk' : 'Appointments';
+        $dashboardTitle = $isSecretaryDashboard ? __('Secretary Appointment Desk') : __('Appointments');
         $dashboardLead = $isSecretaryDashboard
-            ? 'Manage the front-desk queue by specialty, then cancel visits when scheduling changes need quick action.'
-            : 'Upcoming appointments are presented as a clear action queue so your team can review schedules and resolve issues faster.';
-        $dashboardBadge = $isSecretaryDashboard ? 'Appointment desk' : 'Appointments';
+            ? __('Manage the front-desk queue by specialty, then cancel visits when scheduling changes need quick action.')
+            : __('Upcoming appointments are presented as a clear action queue so your team can review schedules and resolve issues faster.');
+        $dashboardBadge = $isSecretaryDashboard ? __('Appointment desk') : __('Appointments');
         $dashboardHomeRoute = $isSecretaryDashboard ? route('secretary.dashboard') : route('Admin.index');
         $filterRoute = $isSecretaryDashboard ? route('secretary.dashboard') : route('Admin.Appointment.index');
         $cancelRouteName = $isSecretaryDashboard ? 'secretary.appointments.cancel' : 'Admin.Appointment.cancel';
         $selectedWalkInSpecializationId = old('specialization_id');
         $selectedWalkInLabTests = collect(old('lab_tests', []))->map(fn ($item) => (string) $item)->all();
         $selectedWalkInImageTypeId = old('type_of_medical_image_id');
+        $availabilityLabels = [
+            'loadingAvailableTimes' => __('Loading available times...'),
+            'selectDayFirst' => __('Select a day first'),
+            'checkingOpenTimeSlots' => __('Checking open time slots...'),
+            'chooseDayToViewOpenTimeSlots' => __('Choose a day to view open time slots.'),
+            'selectAvailableTime' => __('Select available time'),
+            'noOpenTimeSlotsFound' => __('No open time slots found'),
+            'onlyFreeTimeSlotsShown' => __('Only free time slots are shown here.'),
+            'noFreeTimeSlotsAvailable' => __('No free time slots are available for the selected day.'),
+            'unableToLoadAvailableTimes' => __('Unable to load available times'),
+            'couldNotLoadAvailableTimes' => __('Could not load available times. Please try again.'),
+            'loadingAvailableDays' => __('Loading available days...'),
+            'selectDoctorFirst' => __('Select doctor first'),
+            'checkingDoctorSchedule' => __('Checking the doctor schedule...'),
+            'chooseDoctorToViewAvailableDays' => __('Choose a doctor to view available days.'),
+            'selectAvailableDay' => __('Select available day'),
+            'noAvailableDaysFound' => __('No available days found'),
+            'chooseAvailableDay' => __('Choose one of the days available in the doctor schedule.'),
+            'doctorHasNoAvailableDays' => __('This doctor does not have available days right now.'),
+            'unableToLoadAvailableDays' => __('Unable to load available days'),
+            'couldNotLoadAvailableDays' => __('Could not load available days. Please try again.'),
+            'selectDoctor' => __('Select doctor'),
+            'selectSpecialtyFirst' => __('Select specialty first'),
+        ];
     @endphp
 
     @if ($isSecretaryDashboard)
@@ -138,7 +162,7 @@
                 <i class="fas fa-calendar-check"></i>
                 {{ $dashboardTitle }}
             </span>
-            <h1 class="page-title">Track bookings before they become bottlenecks.</h1>
+            <h1 class="page-title">{{ __('Track bookings before they become bottlenecks.') }}</h1>
             <p class="page-subtitle">
                 {{ $dashboardLead }}
             </p>
@@ -151,7 +175,7 @@
             </span>
             <span class="helper-badge">
                 <i class="fas fa-list-check"></i>
-                {{ number_format($appointmentCount) }} appointments
+                {{ __(':count appointments', ['count' => number_format($appointmentCount)]) }}
             </span>
         </div>
     </div>
@@ -160,17 +184,15 @@
         <section class="section-card form-panel mb-4">
             <div class="toolbar-row mb-4">
                 <div>
-                    <h2 class="section-heading">Schedule a walk-in appointment</h2>
-                    <p class="section-copy">Create a pending appointment for an on-site patient without a mobile account.</p>
+                    <h2 class="section-heading">{{ __('Schedule a walk-in appointment') }}</h2>
+                    <p class="section-copy">{{ __('Create a pending appointment for an on-site patient without a mobile account.') }}</p>
                 </div>
                 <span class="helper-badge helper-badge--accent">
                     <i class="fas fa-user-plus"></i>
-                    Walk-in booking
-                </span>
+                    {{ __('Walk-in booking') }}</span>
             </div>
 
-            @if ($errors->any())
-                <div class="alert alert-danger mb-4" role="alert">
+            @if ($errors->any())<div class="alert alert-danger mb-4" role="alert">
                     @foreach ($errors->all() as $error)
                         <div>{{ $error }}</div>
                     @endforeach
@@ -181,36 +203,36 @@
                 @csrf
 
                 <div class="col-md-6">
-                    <label for="patient_name" class="field-label">Patient name</label>
+                    <label for="patient_name" class="field-label">{{ __('Patient name') }}</label>
                     <input type="text" id="patient_name" name="patient_name" value="{{ old('patient_name') }}"
-                        class="form-control" placeholder="Enter patient name" required>
+                        class="form-control" placeholder="{{ __('Enter patient name') }}" required>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="patient_phone" class="field-label">Patient phone</label>
+                    <label for="patient_phone" class="field-label">{{ __('Patient phone') }}</label>
                     <input type="text" id="patient_phone" name="patient_phone" value="{{ old('patient_phone') }}"
-                        class="form-control" placeholder="Enter phone number" required>
+                        class="form-control" placeholder="{{ __('Enter phone number') }}" required>
                 </div>
 
                 <div class="col-md-3">
-                    <label for="patient_gender" class="field-label">Gender</label>
+                    <label for="patient_gender" class="field-label">{{ __('Gender') }}</label>
                     <select name="patient_gender" id="patient_gender" class="form-select">
-                        <option value="">Select gender</option>
-                        <option value="male" @selected(old('patient_gender') === 'male')>Male</option>
-                        <option value="female" @selected(old('patient_gender') === 'female')>Female</option>
+                        <option value="">{{ __('Select gender') }}</option>
+                        <option value="male" @selected(old('patient_gender') === 'male')>{{ __('Male') }}</option>
+                        <option value="female" @selected(old('patient_gender') === 'female')>{{ __('Female') }}</option>
                     </select>
                 </div>
 
                 <div class="col-md-3">
-                    <label for="patient_age" class="field-label">Age</label>
+                    <label for="patient_age" class="field-label">{{ __('Age') }}</label>
                     <input type="number" id="patient_age" name="patient_age" value="{{ old('patient_age') }}"
-                        class="form-control" min="0" max="120" placeholder="Age">
+                        class="form-control" min="0" max="120" placeholder="{{ __('Age') }}">
                 </div>
 
                 <div class="col-md-3">
-                    <label for="walkin_specialization_id" class="field-label">Specialty</label>
+                    <label for="walkin_specialization_id" class="field-label">{{ __('Specialty') }}</label>
                     <select name="specialization_id" id="walkin_specialization_id" class="form-select">
-                        <option value="">Select specialty</option>
+                        <option value="">{{ __('Select specialty') }}</option>
                         @foreach ($centerDoctorSpecializations as $specialization)
                             <option value="{{ $specialization->id }}" @selected((string) $selectedWalkInSpecializationId === (string) $specialization->id)>
                                 {{ $specialization->name }}
@@ -220,13 +242,13 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label for="doctor_id" class="field-label">Assigned doctor</label>
+                    <label for="doctor_id" class="field-label">{{ __('Assigned doctor') }}</label>
                     <select name="doctor_id" id="doctor_id" class="form-select" required>
-                        <option value="">Select specialty first</option>
+                        <option value="">{{ __('Select specialty first') }}</option>
                         @foreach ($centerDoctors as $doctor)
                             @php
                                 $doctorLabel = trim(($doctor->user?->name ?? '') . ' ' . ($doctor->user?->last_name ?? ''));
-                                $specialtyLabel = $doctor->specialization?->name ?? 'No specialty';
+                                $specialtyLabel = $doctor->specialization?->name ?? __('No specialty');
                             @endphp
                             <option value="{{ $doctor->id }}"
                                 data-doctor-type="{{ $doctor->doctor_type }}"
@@ -241,13 +263,13 @@
                 <div class="col-12 d-none" id="lab-tests-shell">
                     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
                         <div>
-                            <label class="field-label d-block mb-1">Lab tests</label>
-                            <p class="section-copy mb-0">Choose the requested tests for this walk-in lab appointment.</p>
+                            <label class="field-label d-block mb-1">{{ __('Lab tests') }}</label>
+                            <p class="section-copy mb-0">{{ __('Choose the requested tests for this walk-in lab appointment.') }}</p>
                         </div>
 
                         <div class="lab-total-card">
                             <div>
-                                <p class="lab-total-card__label">Total price</p>
+                                <p class="lab-total-card__label">{{ __('Total price') }}</p>
                                 <p class="lab-total-card__value" id="lab-total-price">0.00</p>
                             </div>
                         </div>
@@ -270,17 +292,17 @@
                                     <div class="service-card__name">{{ $labTest->name }}</div>
                                     <span class="service-card__price">{{ number_format($labTestPrice, 2) }}</span>
                                 </div>
-                                <p class="service-card__copy">Selectable lab service for walk-in booking.</p>
+                                <p class="service-card__copy">{{ __('Selectable lab service for walk-in booking.') }}</p>
                             </label>
                         @endforeach
                     </div>
-                    <p class="field-note">Select one or more test types for lab appointments.</p>
+                    <p class="field-note">{{ __('Select one or more test types for lab appointments.') }}</p>
                 </div>
 
                 <div class="col-12 d-none" id="radiology-type-shell">
-                    <label for="type_of_medical_image_id" class="field-label">Image type</label>
+                    <label for="type_of_medical_image_id" class="field-label">{{ __('Image type') }}</label>
                     <select name="type_of_medical_image_id" id="type_of_medical_image_id" class="form-select">
-                        <option value="">Select image type</option>
+                        <option value="">{{ __('Select image type') }}</option>
                         @foreach ($centerMedicalImageTypes as $imageType)
                             <option value="{{ $imageType->id }}" @selected((string) $selectedWalkInImageTypeId === (string) $imageType->id)>
                                 {{ $imageType->name }}{{ isset($imageType->price) ? ' | ' . number_format((float) $imageType->price, 2) : '' }}
@@ -290,36 +312,35 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label for="appointment_date" class="field-label">Available day</label>
+                    <label for="appointment_date" class="field-label">{{ __('Available day') }}</label>
                     <div class="availability-shell">
                         <select id="appointment_date" name="appointment_date" class="form-select" required disabled
                             data-selected-value="{{ old('appointment_date') }}">
-                            <option value="">Select doctor first</option>
+                            <option value="">{{ __('Select doctor first') }}</option>
                         </select>
-                        <p class="availability-note" id="available-days-note">Choose a doctor to view available days.</p>
+                        <p class="availability-note" id="available-days-note">{{ __('Choose a doctor to view available days.') }}</p>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="appointment_time" class="field-label">Available time</label>
+                    <label for="appointment_time" class="field-label">{{ __('Available time') }}</label>
                     <div class="availability-shell">
                         <select id="appointment_time" name="appointment_time" class="form-select" required disabled
                             data-selected-value="{{ old('appointment_time') }}">
-                            <option value="">Select a day first</option>
+                            <option value="">{{ __('Select a day first') }}</option>
                         </select>
-                        <p class="availability-note" id="available-times-note">Choose a day to view open time slots.</p>
+                        <p class="availability-note" id="available-times-note">{{ __('Choose a day to view open time slots.') }}</p>
                     </div>
                 </div>
 
                 <div class="col-12">
-                    <label for="note" class="field-label">Appointment note</label>
-                    <textarea name="note" id="note" class="form-control" placeholder="Add any visit note for the doctor or desk">{{ old('note') }}</textarea>
+                    <label for="note" class="field-label">{{ __('Appointment note') }}</label>
+                    <textarea name="note" id="note" class="form-control" placeholder="{{ __('Add any visit note for the doctor or desk') }}">{{ old('note') }}</textarea>
                 </div>
 
                 <div class="col-12 d-flex justify-content-end">
                     <button type="submit" class="btn btn-tabibi">
-                        <i class="fas fa-calendar-plus me-2"></i>Schedule appointment
-                    </button>
+                        <i class="fas fa-calendar-plus me-2"></i>{{ __('Schedule appointment') }}</button>
                 </div>
             </form>
         </section>
@@ -328,8 +349,8 @@
     <section class="section-card mb-4">
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
             <div>
-                <h2 class="section-heading mb-1">Filter by specialty</h2>
-                <p class="section-copy mb-0">Focus the queue on one specialty when the front desk needs a narrower view.</p>
+                <h2 class="section-heading mb-1">{{ __('Filter by specialty') }}</h2>
+                <p class="section-copy mb-0">{{ __('Focus the queue on one specialty when the front desk needs a narrower view.') }}</p>
             </div>
             <span class="helper-badge helper-badge--accent">
                 <i class="fas fa-filter"></i>
@@ -339,9 +360,9 @@
 
         <form action="{{ $filterRoute }}" method="GET" class="row g-3 align-items-end">
             <div class="col-12 col-md-8 col-xl-6">
-                <label for="specialization_id" class="field-label">Specialty</label>
+                <label for="specialization_id" class="field-label">{{ __('Specialty') }}</label>
                 <select name="specialization_id" id="specialization_id" class="form-select">
-                    <option value="">All specialties</option>
+                    <option value="">{{ __('All specialties') }}</option>
                     @foreach ($specializations as $specialization)
                         <option value="{{ $specialization->id }}" @selected(($selectedSpecializationId ?? null) == $specialization->id)>
                             {{ $specialization->name }}
@@ -352,31 +373,27 @@
 
             <div class="col-12 col-md-auto d-flex gap-2">
                 <button type="submit" class="btn btn-tabibi">
-                    <i class="fas fa-filter me-2"></i>Apply filter
-                </button>
+                    <i class="fas fa-filter me-2"></i>{{ __('Apply filter') }}</button>
 
                 @if (!empty($selectedSpecializationId))
                     <a href="{{ $filterRoute }}" class="ghost-button">
                         <i class="fas fa-rotate-left"></i>
-                        Clear
-                    </a>
+                        {{ __('Clear') }}</a>
                 @endif
             </div>
         </form>
     </section>
 
-    @if ($appointments->isEmpty())
-        <section class="section-card empty-state">
+    @if ($appointments->isEmpty())<section class="section-card empty-state">
             <div class="empty-state__icon">
                 <i class="fas fa-calendar-xmark"></i>
             </div>
-            <h2 class="empty-state__title">No appointments are waiting right now.</h2>
+            <h2 class="empty-state__title">{{ __('No appointments are waiting right now.') }}</h2>
             <p class="empty-state__copy">
-                This center does not currently have pending appointments in the selected queue.
-            </p>
+                {{ __('This center does not currently have pending appointments in the selected queue.') }}</p>
             <a href="{{ $dashboardHomeRoute }}" class="ghost-button">
                 <i class="fas fa-arrow-left"></i>
-                {{ $isSecretaryDashboard ? 'Refresh appointment desk' : 'Back to overview' }}
+                {{ $isSecretaryDashboard ? __('Refresh appointment desk') : __('Back to overview') }}
             </a>
         </section>
     @else
@@ -388,13 +405,12 @@
                             <div>
                                 <span class="status-pill status-pill--success">
                                     <i class="fas fa-circle-check"></i>
-                                    Scheduled
-                                </span>
+                                    {{ __('Scheduled') }}</span>
                             </div>
 
                             <span class="helper-badge">
                                 <i class="fas fa-clock"></i>
-                                {{ \Carbon\Carbon::parse($appointment->start_at)->format('M d, H:i') }}
+                                {{ \Carbon\Carbon::parse($appointment->start_at)->translatedFormat('M d, H:i') }}
                             </span>
                         </div>
 
@@ -402,40 +418,39 @@
 
                         <div class="d-grid gap-3 mb-4">
                             <div class="mini-metric">
-                                <div class="mini-metric__label">Appointment type</div>
-                                <p class="mini-metric__value">{{ ucfirst($appointment->type) }}</p>
+                                <div class="mini-metric__label">{{ __('Appointment type') }}</div>
+                                <p class="mini-metric__value">{{ __(ucfirst($appointment->type)) }}</p>
                             </div>
 
                             <div class="mini-metric">
-                                <div class="mini-metric__label">Assigned doctor</div>
+                                <div class="mini-metric__label">{{ __('Assigned doctor') }}</div>
                                 <p class="mini-metric__value">{{ $appointment->doctor->user->name }}</p>
                             </div>
 
                             <div class="mini-metric">
-                                <div class="mini-metric__label">Specialty</div>
-                                <p class="mini-metric__value">{{ $appointment->doctor->specialization->name ?? 'General' }}</p>
+                                <div class="mini-metric__label">{{ __('Specialty') }}</div>
+                                <p class="mini-metric__value">{{ $appointment->doctor->specialization->name ?? __('General') }}</p>
                             </div>
 
                             @if ($appointment->patient_display_phone)
                                 <div class="mini-metric">
-                                    <div class="mini-metric__label">Patient phone</div>
+                                    <div class="mini-metric__label">{{ __('Patient phone') }}</div>
                                     <p class="mini-metric__value">{{ $appointment->patient_display_phone }}</p>
                                 </div>
                             @endif
 
                             <div class="mini-metric">
-                                <div class="mini-metric__label">Visit time</div>
-                                <p class="mini-metric__value">{{ \Carbon\Carbon::parse($appointment->start_at)->format('l, M d Y - H:i') }}</p>
+                                <div class="mini-metric__label">{{ __('Visit time') }}</div>
+                                <p class="mini-metric__value">{{ \Carbon\Carbon::parse($appointment->start_at)->translatedFormat('l, M d Y - H:i') }}</p>
                             </div>
                             </div>
 
                             <div class="toolbar-actions">
                                 <a href="{{ route($cancelRouteName, ['appointments' => $appointment->id, 'specialization_id' => $selectedSpecializationId]) }}"
                                     class="danger-outline-button"
-                                    onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                    onclick="return confirm(@js(__('Are you sure you want to cancel this appointment?')))">
                                     <i class="fas fa-ban"></i>
-                                    Cancel appointment
-                                </a>
+                                    {{ __('Cancel appointment') }}</a>
                             </div>
                         </section>
                     </div>
@@ -460,6 +475,7 @@
                 const daysNote = document.getElementById('available-days-note');
                 const timesNote = document.getElementById('available-times-note');
                 let initialDoctorValue = doctorSelect.value;
+                const labels = @json($availabilityLabels);
                 const doctorPool = Array.from(doctorSelect.options)
                     .filter((option) => option.value)
                     .map((option) => ({
@@ -537,12 +553,12 @@
                     const doctorId = doctorSelect.value;
                     const date = daySelect?.value;
 
-                    resetSelect(timeSelect, date ? 'Loading available times...' : 'Select a day first');
+                    resetSelect(timeSelect, date ? labels.loadingAvailableTimes : labels.selectDayFirst);
 
                     if (timesNote) {
                         timesNote.textContent = date
-                            ? 'Checking open time slots...'
-                            : 'Choose a day to view open time slots.';
+                            ? labels.checkingOpenTimeSlots
+                            : labels.chooseDayToViewOpenTimeSlots;
                     }
 
                     if (!doctorId || !date) {
@@ -560,7 +576,7 @@
                         const payload = await response.json();
                         const times = payload?.data?.times ?? [];
 
-                        resetSelect(timeSelect, times.length ? 'Select available time' : 'No open time slots found', times.length === 0);
+                        resetSelect(timeSelect, times.length ? labels.selectAvailableTime : labels.noOpenTimeSlotsFound, times.length === 0);
 
                         times.forEach((time) => {
                             const option = document.createElement('option');
@@ -576,14 +592,14 @@
 
                         if (timesNote) {
                             timesNote.textContent = times.length
-                                ? 'Only free time slots are shown here.'
-                                : 'No free time slots are available for the selected day.';
+                                ? labels.onlyFreeTimeSlotsShown
+                                : labels.noFreeTimeSlotsAvailable;
                         }
                     } catch (error) {
-                        resetSelect(timeSelect, 'Unable to load available times');
+                        resetSelect(timeSelect, labels.unableToLoadAvailableTimes);
 
                         if (timesNote) {
-                            timesNote.textContent = 'Could not load available times. Please try again.';
+                            timesNote.textContent = labels.couldNotLoadAvailableTimes;
                         }
                     }
                 };
@@ -591,17 +607,17 @@
                 const populateDays = async () => {
                     const doctorId = doctorSelect.value;
 
-                    resetSelect(daySelect, doctorId ? 'Loading available days...' : 'Select doctor first');
-                    resetSelect(timeSelect, 'Select a day first');
+                    resetSelect(daySelect, doctorId ? labels.loadingAvailableDays : labels.selectDoctorFirst);
+                    resetSelect(timeSelect, labels.selectDayFirst);
 
                     if (daysNote) {
                         daysNote.textContent = doctorId
-                            ? 'Checking the doctor schedule...'
-                            : 'Choose a doctor to view available days.';
+                            ? labels.checkingDoctorSchedule
+                            : labels.chooseDoctorToViewAvailableDays;
                     }
 
                     if (timesNote) {
-                        timesNote.textContent = 'Choose a day to view open time slots.';
+                        timesNote.textContent = labels.chooseDayToViewOpenTimeSlots;
                     }
 
                     if (!doctorId) {
@@ -619,7 +635,7 @@
                         const payload = await response.json();
                         const days = payload?.data?.days ?? [];
 
-                        resetSelect(daySelect, days.length ? 'Select available day' : 'No available days found', days.length === 0);
+                        resetSelect(daySelect, days.length ? labels.selectAvailableDay : labels.noAvailableDaysFound, days.length === 0);
 
                         days.forEach((day) => {
                             const option = document.createElement('option');
@@ -635,16 +651,16 @@
 
                         if (daysNote) {
                             daysNote.textContent = days.length
-                                ? 'Choose one of the days available in the doctor schedule.'
-                                : 'This doctor does not have available days right now.';
+                                ? labels.chooseAvailableDay
+                                : labels.doctorHasNoAvailableDays;
                         }
 
                         await populateTimes();
                     } catch (error) {
-                        resetSelect(daySelect, 'Unable to load available days');
+                        resetSelect(daySelect, labels.unableToLoadAvailableDays);
 
                         if (daysNote) {
-                            daysNote.textContent = 'Could not load available days. Please try again.';
+                            daysNote.textContent = labels.couldNotLoadAvailableDays;
                         }
                     }
                 };
@@ -656,7 +672,7 @@
                         ? doctorPool.filter((doctor) => doctor.specializationId === selectedSpecializationId)
                         : [];
 
-                    resetSelect(doctorSelect, selectedSpecializationId ? 'Select doctor' : 'Select specialty first', !selectedSpecializationId);
+                    resetSelect(doctorSelect, selectedSpecializationId ? labels.selectDoctor : labels.selectSpecialtyFirst, !selectedSpecializationId);
 
                     filteredDoctors.forEach((doctor) => {
                         const option = document.createElement('option');

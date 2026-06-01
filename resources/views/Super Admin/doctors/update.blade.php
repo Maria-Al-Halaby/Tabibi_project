@@ -1,18 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Update Doctor')
+@section('title', __('Update Doctor'))
 
 @section('content')
+    @php
+        $doctorTypeOptions = [
+            'doctor' => __('Doctor'),
+            'radiology' => __('Radiology'),
+            'lab' => __('Lab'),
+        ];
+    @endphp
+
     <div class="page-header">
         <div>
             <span class="eyebrow">
                 <i class="bi bi-person-fill-gear"></i>
-                Edit Doctor
-            </span>
-            <h1 class="page-title">Update {{ $doctor->user->name }} with a cleaner editing flow.</h1>
+                {{ __('Edit Doctor') }}</span>
+            <h1 class="page-title">{{ __('Update :name with a cleaner editing flow.', ['name' => $doctor->user->name]) }}</h1>
             <p class="page-subtitle">
-                Review profile data, refresh account details, and replace media without wrestling with the form.
-            </p>
+                {{ __('Review profile data, refresh account details, and replace media without wrestling with the form.') }}</p>
         </div>
     </div>
 
@@ -23,39 +29,39 @@
 
             <div class="row g-4">
                 <div class="col-lg-6">
-                    <label for="name" class="field-label">Doctor name</label>
+                    <label for="name" class="field-label">{{ __('Doctor name') }}</label>
                     <input type="text" name="name" id="name"
                         value="{{ old('name', $doctor->user->name) }}"
-                        placeholder="Enter doctor name" class="form-control @error('name') is-invalid @enderror">
+                        placeholder="{{ __('Enter doctor name') }}" class="form-control @error('name') is-invalid @enderror">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="col-lg-6">
-                    <label for="email" class="field-label">Email</label>
+                    <label for="email" class="field-label">{{ __('Email') }}</label>
                     <input type="email" name="email" id="email"
                         value="{{ old('email', $doctor->user->email) }}"
-                        placeholder="Enter doctor email" class="form-control @error('email') is-invalid @enderror">
+                        placeholder="{{ __('Enter doctor email') }}" class="form-control @error('email') is-invalid @enderror">
                     @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="col-lg-6">
-                    <label for="phone" class="field-label">Phone</label>
+                    <label for="phone" class="field-label">{{ __('Phone') }}</label>
                     <input type="text" name="phone" id="phone"
                         value="{{ old('phone', $doctor->user->phone) }}"
-                        placeholder="Enter doctor phone" class="form-control @error('phone') is-invalid @enderror">
+                        placeholder="{{ __('Enter doctor phone') }}" class="form-control @error('phone') is-invalid @enderror">
                     @error('phone')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="col-lg-6">
-                    <label for="password" class="field-label">New password</label>
+                    <label for="password" class="field-label">{{ __('New password') }}</label>
                     <input type="password" name="password" id="password"
-                        placeholder="Leave blank to keep current password"
+                        placeholder="{{ __('Leave blank to keep current password') }}"
                         class="form-control @error('password') is-invalid @enderror">
                     @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -63,10 +69,10 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <label for="experience_years" class="field-label">Experience years</label>
+                    <label for="experience_years" class="field-label">{{ __('Experience years') }}</label>
                     <input type="number" name="experience_years" id="experience_years"
                         value="{{ old('experience_years', $doctor->experience_years) }}"
-                        placeholder="Enter years of experience"
+                        placeholder="{{ __('Enter years of experience') }}"
                         class="form-control @error('experience_years') is-invalid @enderror">
                     @error('experience_years')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -74,7 +80,7 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <label for="specialization_id" class="field-label">Specialization</label>
+                    <label for="specialization_id" class="field-label">{{ __('Specialization') }}</label>
                     <select name="specialization_id" id="specialization_id"
                         class="form-select @error('specialization_id') is-invalid @enderror">
                         @foreach ($specializations as $specialization)
@@ -90,8 +96,8 @@
                 </div>
 
                 <div class="col-12">
-                    <label for="bio" class="field-label">Bio</label>
-                    <textarea name="bio" id="bio" placeholder="Enter doctor bio"
+                    <label for="bio" class="field-label">{{ __('Bio') }}</label>
+                    <textarea name="bio" id="bio" placeholder="{{ __('Enter doctor bio') }}"
                         class="form-control @error('bio') is-invalid @enderror">{{ old('bio', $doctor->bio) }}</textarea>
                     @error('bio')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -99,9 +105,9 @@
                 </div>
 
                 <div class="col-lg-7">
-                    <label class="field-label">Doctor type</label>
+                    <label class="field-label">{{ __('Doctor type') }}</label>
                     <div class="type-grid">
-                        @foreach (['doctor' => 'Doctor', 'radiology' => 'Radiology', 'lab' => 'Lab'] as $value => $label)
+                        @foreach ($doctorTypeOptions as $value => $label)
                             <label class="type-card">
                                 <input type="radio" name="doctor_type" value="{{ $value }}"
                                     @checked(old('doctor_type', $doctor->doctor_type) === $value)>
@@ -115,7 +121,7 @@
                 </div>
 
                 <div class="col-lg-5">
-                    <label for="profile_image_input" class="field-label">Current image</label>
+                    <label for="profile_image_input" class="field-label">{{ __('Current image') }}</label>
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <img src="{{ $doctor->user->profile_image }}" alt="{{ $doctor->user->name }}"
                             class="image-preview"
@@ -125,7 +131,7 @@
                     <div class="file-drop">
                         <input type="file" name="profile_image" id="profile_image_input"
                             class="form-control @error('profile_image') is-invalid @enderror">
-                        <div class="field-note">Upload only if you want to replace the current image.</div>
+                        <div class="field-note">{{ __('Upload only if you want to replace the current image.') }}</div>
                     </div>
                     @error('profile_image')
                         <div class="text-danger small mt-2">{{ $message }}</div>
@@ -136,12 +142,10 @@
             <div class="toolbar-actions mt-4">
                 <button type="submit" class="btn btn-tabibi">
                     <i class="bi bi-floppy-fill"></i>
-                    Update doctor
-                </button>
+                    {{ __('Update doctor') }}</button>
                 <a href="{{ route('SuperAdmin.doctor.index') }}" class="ghost-button">
                     <i class="bi bi-arrow-left"></i>
-                    Back to doctors
-                </a>
+                    {{ __('Back to doctors') }}</a>
             </div>
         </form>
     </section>

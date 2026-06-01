@@ -1,25 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Event Logs')
+@section('title', __('Event Logs'))
 
 @section('content')
     <div class="page-header">
         <div>
             <span class="eyebrow">
                 <i class="bi bi-clipboard-data-fill"></i>
-                Event Logs
-            </span>
-            <h1 class="page-title">Track platform activity with a clear audit trail.</h1>
+                {{ __('Event Logs') }}</span>
+            <h1 class="page-title">{{ __('Track platform activity with a clear audit trail.') }}</h1>
             <p class="page-subtitle">
-                Review who performed each add or delete event, which role they had, what table changed, and the captured
-                event parameters.
-            </p>
+                {{ __('Review who performed each add or delete event, which role they had, what table changed, and the captured
+                event parameters.') }}</p>
         </div>
 
         <div class="helper-badges">
             <span class="helper-badge helper-badge--accent">
                 <i class="bi bi-list-check"></i>
-                {{ number_format($totalLogs) }} total logs
+                {{ __(':count total logs', ['count' => number_format($totalLogs)]) }}
             </span>
         </div>
     </div>
@@ -29,14 +27,14 @@
             <section class="section-card stat-card">
                 <div class="stat-card__top">
                     <div>
-                        <div class="stat-card__eyebrow">All events</div>
+                        <div class="stat-card__eyebrow">{{ __('All events') }}</div>
                         <div class="stat-card__value">{{ number_format($totalLogs) }}</div>
                     </div>
                     <span class="stat-card__icon" style="background: linear-gradient(135deg, #0f766e, #2dd4bf);">
                         <i class="bi bi-activity"></i>
                     </span>
                 </div>
-                <p class="stat-card__description">Every recorded add and delete event.</p>
+                <p class="stat-card__description">{{ __('Every recorded add and delete event.') }}</p>
             </section>
         </div>
 
@@ -44,14 +42,14 @@
             <section class="section-card stat-card">
                 <div class="stat-card__top">
                     <div>
-                        <div class="stat-card__eyebrow">Added</div>
+                        <div class="stat-card__eyebrow">{{ __('Added') }}</div>
                         <div class="stat-card__value">{{ number_format($addLogs) }}</div>
                     </div>
                     <span class="stat-card__icon" style="background: linear-gradient(135deg, #2563eb, #60a5fa);">
                         <i class="bi bi-plus-circle-fill"></i>
                     </span>
                 </div>
-                <p class="stat-card__description">Records created across tracked tables.</p>
+                <p class="stat-card__description">{{ __('Records created across tracked tables.') }}</p>
             </section>
         </div>
 
@@ -59,14 +57,14 @@
             <section class="section-card stat-card">
                 <div class="stat-card__top">
                     <div>
-                        <div class="stat-card__eyebrow">Deleted</div>
+                        <div class="stat-card__eyebrow">{{ __('Deleted') }}</div>
                         <div class="stat-card__value">{{ number_format($deleteLogs) }}</div>
                     </div>
                     <span class="stat-card__icon" style="background: linear-gradient(135deg, #dc2626, #fb7185);">
                         <i class="bi bi-trash3-fill"></i>
                     </span>
                 </div>
-                <p class="stat-card__description">Records removed by platform users.</p>
+                <p class="stat-card__description">{{ __('Records removed by platform users.') }}</p>
             </section>
         </div>
 
@@ -74,14 +72,14 @@
             <section class="section-card stat-card">
                 <div class="stat-card__top">
                     <div>
-                        <div class="stat-card__eyebrow">Actors</div>
+                        <div class="stat-card__eyebrow">{{ __('Actors') }}</div>
                         <div class="stat-card__value">{{ number_format($actorCount) }}</div>
                     </div>
                     <span class="stat-card__icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
                         <i class="bi bi-people-fill"></i>
                     </span>
                 </div>
-                <p class="stat-card__description">Authenticated users represented in the log.</p>
+                <p class="stat-card__description">{{ __('Authenticated users represented in the log.') }}</p>
             </section>
         </div>
     </div>
@@ -89,24 +87,24 @@
     <section class="section-card mb-4">
         <form action="{{ route('SuperAdmin.EventLogs.index') }}" method="GET" class="row g-3 align-items-end">
             <div class="col-md-6 col-xl-3">
-                <label for="search" class="field-label">Search</label>
+                <label for="search" class="field-label">{{ __('Search') }}</label>
                 <input type="search" id="search" name="search" value="{{ request('search') }}" class="form-control"
-                    placeholder="Message, actor, or record id">
+                    placeholder="{{ __('Message, actor, or record id') }}">
             </div>
 
             <div class="col-md-6 col-xl-2">
-                <label for="status" class="field-label">Status</label>
+                <label for="status" class="field-label">{{ __('Status') }}</label>
                 <select id="status" name="status" class="form-select">
-                    <option value="">All statuses</option>
-                    <option value="add" @selected(request('status') === 'add')>Add</option>
-                    <option value="delete" @selected(request('status') === 'delete')>Delete</option>
+                    <option value="">{{ __('All statuses') }}</option>
+                    <option value="add" @selected(request('status') === 'add')>{{ __('Add') }}</option>
+                    <option value="delete" @selected(request('status') === 'delete')>{{ __('Delete') }}</option>
                 </select>
             </div>
 
             <div class="col-md-6 col-xl-3">
-                <label for="table_name" class="field-label">Table</label>
+                <label for="table_name" class="field-label">{{ __('Table') }}</label>
                 <select id="table_name" name="table_name" class="form-select">
-                    <option value="">All tables</option>
+                    <option value="">{{ __('All tables') }}</option>
                     @foreach ($tables as $table)
                         <option value="{{ $table }}" @selected(request('table_name') === $table)>{{ $table }}</option>
                     @endforeach
@@ -114,9 +112,9 @@
             </div>
 
             <div class="col-md-6 col-xl-2">
-                <label for="user_role" class="field-label">Role</label>
+                <label for="user_role" class="field-label">{{ __('Role') }}</label>
                 <select id="user_role" name="user_role" class="form-select">
-                    <option value="">All roles</option>
+                    <option value="">{{ __('All roles') }}</option>
                     @foreach ($roles as $role)
                         <option value="{{ $role }}" @selected(request('user_role') === $role)>{{ $role }}</option>
                     @endforeach
@@ -127,36 +125,37 @@
                 <div class="toolbar-actions justify-content-xl-end">
                     <button type="submit" class="btn btn-tabibi">
                         <i class="bi bi-funnel-fill"></i>
-                        Filter
-                    </button>
+                        {{ __('Filter') }}</button>
 
                     <a href="{{ route('SuperAdmin.EventLogs.index') }}" class="ghost-button">
                         <i class="bi bi-arrow-counterclockwise"></i>
-                        Reset
-                    </a>
+                        {{ __('Reset') }}</a>
                 </div>
             </div>
         </form>
     </section>
 
-    @if ($logs->isEmpty())
-        <section class="section-card empty-state">
+    @if ($logs->isEmpty())<section class="section-card empty-state">
             <div class="empty-state__icon">
                 <i class="bi bi-clipboard-x"></i>
             </div>
-            <h2 class="empty-state__title">No event logs match the current filters.</h2>
-            <p class="empty-state__copy">Adjust the filters to inspect more platform activity.</p>
+            <h2 class="empty-state__title">{{ __('No event logs match the current filters.') }}</h2>
+            <p class="empty-state__copy">{{ __('Adjust the filters to inspect more platform activity.') }}</p>
         </section>
     @else
         <section class="section-card">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
                 <div>
-                    <h2 class="section-heading">Audit trail</h2>
-                    <p class="section-copy">Newest events are shown first.</p>
+                    <h2 class="section-heading">{{ __('Audit trail') }}</h2>
+                    <p class="section-copy">{{ __('Newest events are shown first.') }}</p>
                 </div>
                 <span class="helper-badge">
                     <i class="bi bi-clock-history"></i>
-                    Showing {{ $logs->firstItem() }}-{{ $logs->lastItem() }} of {{ $logs->total() }}
+                    {{ __('Showing :first-:last of :total', [
+                        'first' => $logs->firstItem(),
+                        'last' => $logs->lastItem(),
+                        'total' => $logs->total(),
+                    ]) }}
                 </span>
             </div>
 
@@ -165,54 +164,60 @@
                     <table class="table align-middle">
                         <thead>
                             <tr>
-                                <th>Time</th>
-                                <th>Actor</th>
-                                <th>Role</th>
-                                <th>Event</th>
-                                <th>Table</th>
-                                <th>Record</th>
-                                <th>Message</th>
-                                <th>Parameters</th>
+                                <th>{{ __('Time') }}</th>
+                                <th>{{ __('Actor') }}</th>
+                                <th>{{ __('Role') }}</th>
+                                <th>{{ __('Event') }}</th>
+                                <th>{{ __('Table') }}</th>
+                                <th>{{ __('Record') }}</th>
+                                <th>{{ __('Message') }}</th>
+                                <th>{{ __('Parameters') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($logs as $log)
                                 <tr>
                                     <td>
-                                        <div class="fw-bold">{{ $log->created_at?->format('M d, Y') }}</div>
-                                        <div class="record-card__meta">{{ $log->created_at?->format('h:i A') }}</div>
+                                        <div class="fw-bold">{{ $log->created_at?->translatedFormat('M d, Y') }}</div>
+                                        <div class="record-card__meta">{{ $log->created_at?->translatedFormat('h:i A') }}</div>
                                     </td>
                                     <td>
-                                        <div class="fw-bold">{{ $log->user_name ?? 'System' }}</div>
-                                        <div class="record-card__meta">{{ $log->user?->email ?? 'No account linked' }}</div>
+                                        <div class="fw-bold">{{ $log->user_name ?? __('System') }}</div>
+                                        <div class="record-card__meta">{{ $log->user?->email ?? __('No account linked') }}</div>
                                     </td>
                                     <td>
                                         <span class="status-pill status-pill--info">
-                                            {{ $log->user_role ?? 'No role' }}
+                                            {{ $log->user_role ?? __('No role') }}
                                         </span>
                                     </td>
                                     <td>
                                         @if ($log->status === 'add')
                                             <span class="status-pill status-pill--success">
                                                 <i class="bi bi-plus-circle-fill"></i>
-                                                Add
-                                            </span>
+                                                {{ __('Add') }}</span>
                                         @else
                                             <span class="status-pill status-pill--danger">
                                                 <i class="bi bi-trash3-fill"></i>
-                                                Delete
-                                            </span>
+                                                {{ __('Delete') }}</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="fw-bold">{{ $log->table_name }}</div>
-                                        <div class="record-card__meta">{{ $log->model_type ? class_basename($log->model_type) : 'Model' }}</div>
+                                        <div class="record-card__meta">{{ $log->model_type ? class_basename($log->model_type) : __('Model') }}</div>
                                     </td>
                                     <td>#{{ $log->model_id ?? '-' }}</td>
-                                    <td style="min-width: 260px;">{{ $log->message }}</td>
+                                    <td style="min-width: 260px;">
+                                        {{ __(':actor:role :action :record in :table.', [
+                                            'actor' => $log->user_name ?? __('System'),
+                                            'role' => $log->user_role ? ' ('.$log->user_role.')' : '',
+                                            'action' => $log->status === 'add' ? __('added') : __('deleted'),
+                                            'record' => $log->model_id ? __('record #:id', ['id' => $log->model_id]) : __('a record'),
+                                            'table' => $log->table_name,
+                                        ]) }}
+                                    </td>
                                     <td style="min-width: 280px;">
                                         <details class="log-details">
-                                            <summary>View parameters</summary>
+                                            <summary>{{ __('View parameters') }}</summary>
                                             <pre class="log-parameters">{{ json_encode($log->parameters, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                                         </details>
                                     </td>

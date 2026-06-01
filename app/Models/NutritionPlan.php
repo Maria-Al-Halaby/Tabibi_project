@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedValue;
 use Illuminate\Database\Eloquent\Model;
 
 class NutritionPlan extends Model
@@ -26,18 +27,21 @@ class NutritionPlan extends Model
     ];
 
     protected $casts = [
-        'macros' => 'array',
-        'generation_inputs' => 'array',
-        'daily_calories_target' => 'integer',
-        'daily_water_liters' => 'float',
-        'week_plan' => 'array',
-        'saturday_plan' => 'array',
-        'sunday_plan' => 'array',
-        'monday_plan' => 'array',
-        'tuesday_plan' => 'array',
-        'wednesday_plan' => 'array',
-        'thursday_plan' => 'array',
-        'friday_plan' => 'array',
+        'diet_type' => EncryptedValue::class,
+        'macros' => EncryptedValue::class . ':array',
+        'goal_note' => EncryptedValue::class,
+        'generation_inputs' => EncryptedValue::class . ':array',
+        'summary' => EncryptedValue::class,
+        'daily_calories_target' => EncryptedValue::class . ':integer',
+        'daily_water_liters' => EncryptedValue::class . ':float',
+        'week_plan' => EncryptedValue::class . ':array',
+        'saturday_plan' => EncryptedValue::class . ':array',
+        'sunday_plan' => EncryptedValue::class . ':array',
+        'monday_plan' => EncryptedValue::class . ':array',
+        'tuesday_plan' => EncryptedValue::class . ':array',
+        'wednesday_plan' => EncryptedValue::class . ':array',
+        'thursday_plan' => EncryptedValue::class . ':array',
+        'friday_plan' => EncryptedValue::class . ':array',
     ];
 
     public function user()

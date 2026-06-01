@@ -36,11 +36,11 @@ class AuthController extends Controller
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()->withErrors(["message" => "Invalid phone/password"]);
+            return back()->withErrors(["message" => __("Invalid phone/password")]);
         }
 
         if (!$user->hasRole("doctor")) {
-            return back()->withErrors(["message" => "This account is not a doctor account"]);
+            return back()->withErrors(["message" => __("This account is not a doctor account")]);
         }
 
         Auth::login($user);
@@ -50,7 +50,7 @@ class AuthController extends Controller
 
         if (!$dashboardRoute) {
             Auth::logout();
-            return back()->withErrors(["message" => "This account is not configured for the doctor dashboard"]);
+            return back()->withErrors(["message" => __("This account is not configured for the doctor dashboard")]);
         }
 
         return redirect()->route($dashboardRoute);
@@ -89,14 +89,14 @@ class AuthController extends Controller
 
                 if (!$dashboardRoute) {
                     Auth::logout();
-                    return back()->withErrors(["message" => "This account is available only through the mobile app"]);
+                    return back()->withErrors(["message" => __("This account is available only through the mobile app")]);
                 }
 
                 return redirect()->route($dashboardRoute);
             }
         }
 
-        return back()->withErrors(["message" => "Invalid email/password"]);
+        return back()->withErrors(["message" => __("Invalid email/password")]);
     }
 
     public function secretaryLogin(Request $request)
@@ -107,7 +107,7 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return back()->withErrors(['message' => 'Invalid email/password'])->withInput();
+            return back()->withErrors(['message' => __('Invalid email/password')])->withInput();
         }
 
         $request->session()->regenerate();
@@ -119,7 +119,7 @@ class AuthController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return back()->withErrors(['message' => 'This account is not a secretary account'])->withInput();
+            return back()->withErrors(['message' => __('This account is not a secretary account')])->withInput();
         }
 
         return redirect()->route('secretary.dashboard');
@@ -131,7 +131,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route("login")->with("message" , "logged out!!");
+        return redirect()->route("login")->with("message" , __("logged out!!"));
     }
 
     private function resolveDoctorDashboardRoute(?string $doctorType): ?string

@@ -48,7 +48,7 @@ class SpecializationController extends Controller
             "image" => $completeImagePath
         ]);
 
-        return redirect()->route("SuperAdmin.specialization.index")->with("message" , "specialization created successfully!!");
+        return redirect()->route("SuperAdmin.specialization.index")->with("message" , __("specialization created successfully!!"));
     }
 
     /**
@@ -91,7 +91,7 @@ class SpecializationController extends Controller
                                             "image" => $completePath
                                             ]);
 
-        return redirect()->route("SuperAdmin.specialization.index")->with("message" , "specializtion updated successfully!!");
+        return redirect()->route("SuperAdmin.specialization.index")->with("message" , __("specializtion updated successfully!!"));
     }
 
     /**
@@ -101,6 +101,6 @@ class SpecializationController extends Controller
     {
         $specialization->delete();
 
-        return redirect()->route("SuperAdmin.specialization.index")->with("message" , "specialization deleted successfully!!");
+        return redirect()->route("SuperAdmin.specialization.index")->with("message" , __("specialization deleted successfully!!"));
     }
 }

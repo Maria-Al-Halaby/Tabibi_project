@@ -46,7 +46,7 @@ class PromotController extends Controller
             "image" => $imageCompletePath
         ]);
 
-        return redirect()->route("SuperAdmin.Promot.index")->with("message" , "promot added successfully!!");
+        return redirect()->route("SuperAdmin.Promot.index")->with("message" , __("promot added successfully!!"));
     }
 
     /**
@@ -96,7 +96,7 @@ class PromotController extends Controller
             "image" => $imageCompletePath
         ]);
 
-        return redirect()->route("SuperAdmin.Promot.index")->with("message" , "promot updated successfully!!");
+        return redirect()->route("SuperAdmin.Promot.index")->with("message" , __("promot updated successfully!!"));
     }
 
     /**
@@ -106,6 +106,6 @@ class PromotController extends Controller
     {
         $promot->delete();
 
-        return redirect()->route("SuperAdmin.Promot.index")->with("message" , "promot deleted successfully!!");
+        return redirect()->route("SuperAdmin.Promot.index")->with("message" , __("promot deleted successfully!!"));
     }
 }

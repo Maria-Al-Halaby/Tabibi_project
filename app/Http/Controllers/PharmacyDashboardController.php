@@ -101,6 +101,6 @@ class PharmacyDashboardController extends Controller
 
         return redirect()
             ->route('pharmacy.prescriptions.show', $prescription->id)
-            ->with('success', 'Prescription status updated successfully.');
+            ->with('success', __('Prescription status updated successfully.'));
     }
 }

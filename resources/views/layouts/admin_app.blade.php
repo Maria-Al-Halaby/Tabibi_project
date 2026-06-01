@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'Tabiby Dashboard')</title>
+    <title>@yield('title', __('dashboard.defaults.dashboard_title'))</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -40,12 +40,16 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Manrope', 'Cairo', sans-serif;
             color: var(--tabibi-text-color);
             background:
                 radial-gradient(circle at top left, rgba(45, 212, 191, 0.18), transparent 28%),
                 radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 24%),
                 linear-gradient(180deg, #f8fffe 0%, #f4f8fb 45%, #eef4f8 100%);
+        }
+
+        html[dir="rtl"] body {
+            font-family: 'Cairo', 'Manrope', sans-serif;
         }
 
         .tabibi-text-primary {
@@ -307,6 +311,37 @@
             justify-content: flex-end;
         }
 
+        .language-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem;
+            border-radius: 999px;
+            background: rgba(248, 250, 252, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .language-switcher form {
+            margin: 0;
+        }
+
+        .language-switcher__button {
+            border: 0;
+            border-radius: 999px;
+            padding: 0.52rem 0.75rem;
+            color: var(--tabibi-muted-color);
+            background: transparent;
+            font-size: 0.78rem;
+            font-weight: 800;
+            transition: 0.2s ease;
+        }
+
+        .language-switcher__button.active {
+            color: #fff;
+            background: var(--tabibi-primary-color);
+            box-shadow: 0 10px 20px rgba(15, 118, 110, 0.18);
+        }
+
         .topbar-chip {
             display: flex;
             flex-direction: column;
@@ -384,6 +419,15 @@
         .logout-button:hover {
             background: #dc2626;
             color: #fff;
+        }
+
+        html[dir="rtl"] .sidebar-link:hover {
+            transform: translateX(-4px);
+        }
+
+        html[dir="rtl"] .me-2 {
+            margin-right: 0 !important;
+            margin-left: 0.5rem !important;
         }
 
         .content-wrapper {
@@ -1091,9 +1135,10 @@
         $roleNames = method_exists($adminUser, 'getRoleNames') ? $adminUser->getRoleNames()->toArray() : [];
         $doctorType = $adminUser?->doctor?->doctor_type;
         $dashboardCenter = method_exists($adminUser, 'dashboardCenter') ? $adminUser->dashboardCenter() : $adminUser?->clinic_center;
-        $clinicName = $dashboardCenter?->name ?? 'Clinic center';
+        $locale = app()->getLocale();
+        $clinicName = $dashboardCenter?->name ?? __('dashboard.defaults.clinic_center');
         $fullName = trim(($adminUser->name ?? '') . ' ' . ($adminUser->last_name ?? ''));
-        $displayName = $fullName !== '' ? $fullName : 'Dashboard User';
+        $displayName = $fullName !== '' ? $fullName : __('dashboard.defaults.dashboard_user');
         $nameParts = preg_split('/\s+/', trim($displayName)) ?: [];
         $initials = collect($nameParts)
             ->filter()
@@ -1103,84 +1148,84 @@
         $userInitials = $initials !== '' ? $initials : 'TB';
         $currentStatus = request('status', 'pending');
 
-        $brandTitle = 'Tabiby Dashboard';
-        $brandSubtitle = 'Operational workflow center';
+        $brandTitle = __('dashboard.defaults.dashboard_title');
+        $brandSubtitle = __('dashboard.defaults.dashboard_subtitle');
         $brandRoute = url('/');
-        $userRoleLabel = ucfirst(str_replace('_', ' ', $roleNames[0] ?? 'dashboard user'));
+        $userRoleLabel = ucfirst(str_replace('_', ' ', $roleNames[0] ?? __('dashboard.defaults.dashboard_role')));
         $navItems = [];
         $currentCompleteUrl = url()->current();
-        $centerDisplay = $clinicName !== 'Clinic center' ? $clinicName : $userRoleLabel;
-        $workflowCopy = 'Move between the main dashboard controls from one place.';
+        $centerDisplay = $clinicName !== __('dashboard.defaults.clinic_center') ? $clinicName : $userRoleLabel;
+        $workflowCopy = __('dashboard.defaults.workflow');
 
         if (request()->routeIs('Admin.*') || in_array('admin', $roleNames, true)) {
-            $brandTitle = 'Tabiby Admin';
-            $brandSubtitle = 'Operational control center';
+            $brandTitle = __('dashboard.brands.admin_title');
+            $brandSubtitle = __('dashboard.brands.admin_subtitle');
             $brandRoute = route('Admin.index');
             $userRoleLabel = $clinicName;
             $centerDisplay = $clinicName;
-            $workflowCopy = 'Manage clinic operations, appointments, pricing, and pharmacy tools.';
+            $workflowCopy = __('dashboard.brands.admin_workflow');
             $navItems = [
                 [
-                    'label' => 'Overview',
+                    'label' => __('dashboard.nav.overview'),
                     'icon' => 'fa-chart-line',
                     'url' => route('Admin.index'),
                     'active' => request()->routeIs('Admin.index'),
                 ],
                 [
-                    'label' => 'Clinic Management',
+                    'label' => __('dashboard.nav.clinics'),
                     'icon' => 'fa-hospital-user',
                     'url' => route('Admin.ClinicManagement.index'),
                     'active' => request()->routeIs('Admin.ClinicManagement.*') || request()->routeIs('Admin.DoctorSchedule.*'),
                 ],
                 [
-                    'label' => 'Appointments',
+                    'label' => __('dashboard.nav.appointments'),
                     'icon' => 'fa-calendar-check',
                     'url' => route('Admin.Appointment.index'),
                     'active' => request()->routeIs('Admin.Appointment.*'),
                 ],
                 [
-                    'label' => 'Secretaries',
+                    'label' => __('dashboard.nav.secretaries'),
                     'icon' => 'fa-headset',
                     'url' => route('Admin.Secretary.index'),
                     'active' => request()->routeIs('Admin.Secretary.*'),
                 ],
                 [
-                    'label' => 'Pharmacy',
+                    'label' => __('dashboard.nav.pharmacy'),
                     'icon' => 'fa-pills',
                     'url' => route('Admin.Pharmacy.index'),
                     'active' => request()->routeIs('Admin.Pharmacy.*'),
                 ],
                 [
-                    'label' => 'Pricing',
+                    'label' => __('dashboard.nav.pricing'),
                     'icon' => 'fa-tags',
                     'url' => route('Admin.Pricing.index'),
                     'active' => request()->routeIs('Admin.Pricing.*'),
                 ],
             ];
         } elseif (request()->routeIs('secretary.*') || in_array('secretary', $roleNames, true)) {
-            $brandTitle = 'Tabiby Secretary';
-            $brandSubtitle = 'Appointment desk workflow';
+            $brandTitle = __('dashboard.brands.secretary_title');
+            $brandSubtitle = __('dashboard.brands.secretary_subtitle');
             $brandRoute = route('secretary.dashboard');
-            $userRoleLabel = 'Secretary';
+            $userRoleLabel = __('dashboard.roles.secretary');
             $centerDisplay = $clinicName;
-            $workflowCopy = 'Review pending bookings, filter by specialty, and cancel visits when the desk needs to intervene.';
+            $workflowCopy = __('dashboard.brands.secretary_workflow');
             $navItems = [
                 [
-                    'label' => 'Appointments',
+                    'label' => __('dashboard.nav.pending_appointments'),
                     'icon' => 'fa-calendar-days',
                     'url' => route('secretary.dashboard'),
                     'active' => request()->routeIs('secretary.*'),
                 ],
             ];
         } elseif (request()->routeIs('doctor.*') || $doctorType === 'doctor') {
-            $brandTitle = 'Tabiby Doctor';
-            $brandSubtitle = 'Clinical workflow dashboard';
+            $brandTitle = __('dashboard.brands.doctor_title');
+            $brandSubtitle = __('dashboard.brands.doctor_subtitle');
             $brandRoute = route('doctor.dashboard');
-            $userRoleLabel = 'Doctor';
-            $workflowCopy = 'Review appointments, filter the schedule, complete visits, and write prescriptions.';
+            $userRoleLabel = __('dashboard.roles.doctor');
+            $workflowCopy = __('dashboard.brands.doctor_workflow');
             $navItems = [
                 [
-                    'label' => 'Appointments',
+                    'label' => __('dashboard.nav.my_appointments'),
                     'icon' => 'fa-stethoscope',
                     'url' => route('doctor.dashboard'),
                     'active' => request()->routeIs('doctor.dashboard'),
@@ -1188,21 +1233,21 @@
             ];
             if (request()->routeIs('doctor.appointments.complete.form')) {
                 $navItems[] = [
-                    'label' => 'Complete Visit',
+                    'label' => __('dashboard.nav.complete_visit'),
                     'icon' => 'fa-file-prescription',
                     'url' => $currentCompleteUrl,
                     'active' => true,
                 ];
             }
         } elseif (request()->routeIs('radiology.*') || $doctorType === 'radiology') {
-            $brandTitle = 'Tabiby Radiology';
-            $brandSubtitle = 'Imaging workflow dashboard';
+            $brandTitle = __('dashboard.brands.radiology_title');
+            $brandSubtitle = __('dashboard.brands.radiology_subtitle');
             $brandRoute = route('radiology.dashboard');
-            $userRoleLabel = 'Radiology doctor';
-            $workflowCopy = 'Review the imaging queue and complete pending radiology visits.';
+            $userRoleLabel = __('dashboard.roles.radiology_doctor');
+            $workflowCopy = __('dashboard.brands.radiology_workflow');
             $navItems = [
                 [
-                    'label' => 'Radiology Queue',
+                    'label' => __('dashboard.nav.radiology_queue'),
                     'icon' => 'fa-x-ray',
                     'url' => route('radiology.dashboard'),
                     'active' => request()->routeIs('radiology.dashboard'),
@@ -1210,21 +1255,21 @@
             ];
             if (request()->routeIs('radiology.appointments.complete.form')) {
                 $navItems[] = [
-                    'label' => 'Complete Visit',
+                    'label' => __('dashboard.nav.complete_visit'),
                     'icon' => 'fa-file-medical',
                     'url' => $currentCompleteUrl,
                     'active' => true,
                 ];
             }
         } elseif (request()->routeIs('lab.*') || $doctorType === 'lab') {
-            $brandTitle = 'Tabiby Lab';
-            $brandSubtitle = 'Lab workflow dashboard';
+            $brandTitle = __('dashboard.brands.lab_title');
+            $brandSubtitle = __('dashboard.brands.lab_subtitle');
             $brandRoute = route('lab.dashboard');
-            $userRoleLabel = 'Lab doctor';
-            $workflowCopy = 'Review the lab queue and upload the final result for each case.';
+            $userRoleLabel = __('dashboard.roles.lab_doctor');
+            $workflowCopy = __('dashboard.brands.lab_workflow');
             $navItems = [
                 [
-                    'label' => 'Lab Queue',
+                    'label' => __('dashboard.nav.lab_queue'),
                     'icon' => 'fa-flask-vial',
                     'url' => route('lab.dashboard'),
                     'active' => request()->routeIs('lab.dashboard'),
@@ -1232,33 +1277,33 @@
             ];
             if (request()->routeIs('lab.appointments.complete.form')) {
                 $navItems[] = [
-                    'label' => 'Complete Visit',
+                    'label' => __('dashboard.nav.complete_visit'),
                     'icon' => 'fa-file-medical',
                     'url' => $currentCompleteUrl,
                     'active' => true,
                 ];
             }
         } elseif (request()->routeIs('pharmacy.*') || in_array('pharmacist', $roleNames, true)) {
-            $brandTitle = 'Tabiby Pharmacy';
-            $brandSubtitle = 'Prescription workflow dashboard';
+            $brandTitle = __('dashboard.brands.pharmacy_title');
+            $brandSubtitle = __('dashboard.brands.pharmacy_subtitle');
             $brandRoute = route('pharmacy.dashboard');
-            $userRoleLabel = 'Pharmacist';
-            $workflowCopy = 'Track prescription status and keep the dispensing queue moving.';
+            $userRoleLabel = __('dashboard.roles.pharmacist');
+            $workflowCopy = __('dashboard.brands.pharmacy_workflow');
             $navItems = [
                 [
-                    'label' => 'Pending',
+                    'label' => __('dashboard.nav.pending'),
                     'icon' => 'fa-hourglass-half',
                     'url' => route('pharmacy.dashboard', ['status' => 'pending']),
                     'active' => request()->routeIs('pharmacy.*') && $currentStatus === 'pending',
                 ],
                 [
-                    'label' => 'Ready',
+                    'label' => __('dashboard.nav.ready'),
                     'icon' => 'fa-box-open',
                     'url' => route('pharmacy.dashboard', ['status' => 'ready']),
                     'active' => request()->routeIs('pharmacy.*') && $currentStatus === 'ready',
                 ],
                 [
-                    'label' => 'Dispensed',
+                    'label' => __('dashboard.nav.dispensed'),
                     'icon' => 'fa-hand-holding-medical',
                     'url' => route('pharmacy.dashboard', ['status' => 'dispensed']),
                     'active' => request()->routeIs('pharmacy.*') && $currentStatus === 'dispensed',
@@ -1275,14 +1320,14 @@
                 <section class="sidebar-card">
                     <span class="sidebar-card__eyebrow">
                         <i class="fas fa-sliders"></i>
-                        Control Panel
+                        {{ __('dashboard.control_panel') }}
                     </span>
                     <h2 class="sidebar-card__title">{{ $brandTitle }}</h2>
                     <p class="sidebar-card__copy">{{ $workflowCopy }}</p>
                 </section>
 
                 <section class="sidebar-section">
-                    <span class="sidebar-section__label">Navigation</span>
+                    <span class="sidebar-section__label">{{ __('dashboard.navigation') }}</span>
                     <nav class="sidebar-nav">
                         @foreach ($navItems as $navItem)
                             <a href="{{ $navItem['url'] }}" class="sidebar-link @if ($navItem['active']) active @endif">
@@ -1306,13 +1351,13 @@
                 <div class="topbar-inner">
                     <div class="topbar-leading">
                         <button type="button" class="sidebar-toggle d-xl-none" id="sidebarToggle"
-                            aria-label="Open dashboard sidebar">
+                            aria-label="{{ __('dashboard.open_sidebar') }}">
                             <i class="fas fa-bars"></i>
                         </button>
 
                         <a class="brand-block" href="{{ $brandRoute }}">
                             <span class="brand-mark">
-                                <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="Tabiby logo">
+                                <img src="{{ asset('project_icon/logo/logo_white.png') }}" alt="{{ __('Tabiby logo') }}">
                             </span>
 
                             <span class="brand-copy">
@@ -1323,8 +1368,23 @@
                     </div>
 
                     <div class="topbar-meta">
+                        <div class="language-switcher" aria-label="{{ __('dashboard.language') }}">
+                            <form action="{{ route('language.switch', 'en') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="language-switcher__button @if ($locale === 'en') active @endif"
+                                    aria-label="{{ __('dashboard.english') }}">{{ __('EN') }}</button>
+                            </form>
+                            <form action="{{ route('language.switch', 'ar') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="language-switcher__button @if ($locale === 'ar') active @endif"
+                                    aria-label="{{ __('dashboard.arabic') }}">{{ __('AR') }}</button>
+                            </form>
+                        </div>
+
                         <div class="topbar-chip">
-                            <span class="topbar-chip__label">Center</span>
+                            <span class="topbar-chip__label">{{ __('dashboard.center') }}</span>
                             <span class="topbar-chip__value">{{ $centerDisplay }}</span>
                         </div>
 
@@ -1339,7 +1399,7 @@
                         <form action="{{ route('logout') }}" method="POST" class="m-0">
                             @csrf
                             <button type="submit" class="logout-button">
-                                <i class="fas fa-right-from-bracket me-2"></i>Logout
+                                <i class="fas fa-right-from-bracket me-2"></i>{{ __('dashboard.logout') }}
                             </button>
                         </form>
                     </div>
@@ -1348,15 +1408,14 @@
 
             <main class="content-wrapper">
                 <div class="container-xxl px-0">
-                    @if (session('success') || session('error') || $errors->any())
-                        <div class="alert-stack">
+                    @if (session('success') || session('error') || $errors->any())<div class="alert-stack">
                             @if (session('success'))
                                 <div class="alert-banner alert-banner--success">
                                     <span class="alert-banner__icon">
                                         <i class="fas fa-circle-check"></i>
                                     </span>
                                     <div>
-                                        <p class="alert-banner__title">Success</p>
+                                        <p class="alert-banner__title">{{ __('dashboard.success') }}</p>
                                         <p class="alert-banner__copy">{{ session('success') }}</p>
                                     </div>
                                 </div>
@@ -1368,19 +1427,18 @@
                                         <i class="fas fa-circle-exclamation"></i>
                                     </span>
                                     <div>
-                                        <p class="alert-banner__title">Something needs attention</p>
+                                        <p class="alert-banner__title">{{ __('dashboard.attention') }}</p>
                                         <p class="alert-banner__copy">{{ session('error') }}</p>
                                     </div>
                                 </div>
                             @endif
 
-                            @if ($errors->any())
-                                <div class="alert-banner alert-banner--danger">
+                            @if ($errors->any())<div class="alert-banner alert-banner--danger">
                                     <span class="alert-banner__icon">
                                         <i class="fas fa-triangle-exclamation"></i>
                                     </span>
                                     <div>
-                                        <p class="alert-banner__title">Please review the highlighted details</p>
+                                        <p class="alert-banner__title">{{ __('dashboard.review_details') }}</p>
                                         <p class="alert-banner__copy">{{ $errors->first() }}</p>
                                     </div>
                                 </div>

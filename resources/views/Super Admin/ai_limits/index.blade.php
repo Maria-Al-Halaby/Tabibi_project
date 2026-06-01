@@ -1,28 +1,26 @@
 @extends('layouts.app')
 
-@section('title', 'AI Usage Controls')
+@section('title', __('AI Usage Controls'))
 
 @section('content')
     <div class="page-header">
         <div>
             <span class="eyebrow">
                 <i class="bi bi-cpu-fill"></i>
-                AI Limits
-            </span>
-            <h1 class="page-title">Control AI feature quotas and user usage.</h1>
+                {{ __('AI Limits') }}</span>
+            <h1 class="page-title">{{ __('Control AI feature quotas and user usage.') }}</h1>
             <p class="page-subtitle">
-                Tune patient AI access limits by feature, then review and adjust individual usage counters when support needs it.
-            </p>
+                {{ __('Tune patient AI access limits by feature, then review and adjust individual usage counters when support needs it.') }}</p>
         </div>
 
         <div class="helper-badges">
             <span class="helper-badge">
                 <i class="bi bi-sliders"></i>
-                {{ number_format($limits->count()) }} features
+                {{ __(':count features', ['count' => number_format($limits->count())]) }}
             </span>
             <span class="helper-badge helper-badge--accent">
                 <i class="bi bi-activity"></i>
-                {{ number_format($usages->total()) }} usage records
+                {{ __(':count usage records', ['count' => number_format($usages->total())]) }}
             </span>
         </div>
     </div>
@@ -31,8 +29,7 @@
         <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4">{{ session('message') }}</div>
     @endif
 
-    @if ($errors->any())
-        <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+    @if ($errors->any())<div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
             @foreach ($errors->all() as $error)
                 <div>{{ $error }}</div>
             @endforeach
@@ -41,7 +38,7 @@
 
     <div class="toolbar-row">
         <div>
-            <h2 class="section-heading">Feature limits</h2>
+            <h2 class="section-heading">{{ __('Feature limits') }}</h2>
         </div>
     </div>
 
@@ -59,9 +56,9 @@
                             </p>
                         </div>
                         @if ($limit['is_customized'])
-                            <span class="status-pill status-pill--success">Custom</span>
+                            <span class="status-pill status-pill--success">{{ __('Custom') }}</span>
                         @else
-                            <span class="status-pill">Default</span>
+                            <span class="status-pill">{{ __('Default') }}</span>
                         @endif
                     </div>
 
@@ -70,7 +67,7 @@
                         @method('PUT')
 
                         <div class="col-6">
-                            <label class="field-label">Limit</label>
+                            <label class="field-label">{{ __('Limit') }}</label>
                             <input type="number"
                                 name="limit"
                                 min="0"
@@ -81,11 +78,11 @@
                         </div>
 
                         <div class="col-6">
-                            <label class="field-label">Period</label>
+                            <label class="field-label">{{ __('Period') }}</label>
                             <select name="period" class="form-select" required>
                                 @foreach (['day' => 'Daily', 'week' => 'Weekly', 'month' => 'Monthly'] as $period => $label)
                                     <option value="{{ $period }}" @selected(old("limits.$featureType.period", $limit['period']) === $period)>
-                                        {{ $label }}
+                                        {{ __($label) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -94,8 +91,7 @@
                         <div class="col-12 d-flex justify-content-end">
                             <button type="submit" class="btn btn-tabibi">
                                 <i class="bi bi-check2-circle"></i>
-                                Save limit
-                            </button>
+                                {{ __('Save limit') }}</button>
                         </div>
                     </form>
                 </section>
@@ -106,8 +102,8 @@
     <section class="section-card">
         <div class="toolbar-row mb-4">
             <div>
-                <h2 class="section-heading">User usage</h2>
-                <p class="section-copy">Filter usage records, then change the consumed count for a patient and feature period.</p>
+                <h2 class="section-heading">{{ __('User usage') }}</h2>
+                <p class="section-copy">{{ __('Filter usage records, then change the consumed count for a patient and feature period.') }}</p>
             </div>
 
             <form action="{{ route('SuperAdmin.AiLimits.index') }}" method="GET" class="d-flex flex-wrap gap-2">
@@ -116,10 +112,10 @@
                     value="{{ request('search') }}"
                     class="form-control"
                     style="width: 260px"
-                    placeholder="Search patient">
+                    placeholder="{{ __('Search patient') }}">
 
                 <select name="feature_type" class="form-select" style="width: 220px">
-                    <option value="">All features</option>
+                    <option value="">{{ __('All features') }}</option>
                     @foreach ($featureTypes as $featureType)
                         <option value="{{ $featureType }}" @selected(request('feature_type') === $featureType)>
                             {{ \Illuminate\Support\Str::headline($featureType) }}
@@ -129,30 +125,28 @@
 
                 <button type="submit" class="outline-button">
                     <i class="bi bi-search"></i>
-                    Filter
-                </button>
+                    {{ __('Filter') }}</button>
             </form>
         </div>
 
-        @if ($usages->isEmpty())
-            <div class="empty-state">
+        @if ($usages->isEmpty())<div class="empty-state">
                 <div class="empty-state__icon">
                     <i class="bi bi-clipboard-data"></i>
                 </div>
-                <h2 class="empty-state__title">No AI usage records found.</h2>
-                <p class="empty-state__copy mb-0">Usage rows are created when a patient uses an AI feature.</p>
+                <h2 class="empty-state__title">{{ __('No AI usage records found.') }}</h2>
+                <p class="empty-state__copy mb-0">{{ __('Usage rows are created when a patient uses an AI feature.') }}</p>
             </div>
         @else
             <div class="table-shell">
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th>Patient</th>
-                            <th>Feature</th>
-                            <th>Used</th>
-                            <th>Current limit</th>
-                            <th>Period</th>
-                            <th class="text-end">Action</th>
+                            <th>{{ __('Patient') }}</th>
+                            <th>{{ __('Feature') }}</th>
+                            <th>{{ __('Used') }}</th>
+                            <th>{{ __('Current limit') }}</th>
+                            <th>{{ __('Period') }}</th>
+                            <th class="text-end">{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -160,14 +154,14 @@
                             @php
                                 $patientUser = $usage->patient?->user;
                                 $patientName = trim(($patientUser?->name ?? '') . ' ' . ($patientUser?->last_name ?? ''));
-                                $patientName = $patientName !== '' ? $patientName : 'Patient #' . $usage->patient_id;
+                                $patientName = $patientName !== '' ? $patientName : __('Patient #:id', ['id' => $usage->patient_id]);
                                 $featureLimit = $limits->get($usage->feature_type);
                                 $currentLimit = $featureLimit['limit'] ?? null;
                             @endphp
                             <tr>
                                 <td>
                                     <div class="fw-bold">{{ $patientName }}</div>
-                                    <div class="text-muted small">{{ $patientUser?->email ?? 'No email' }}</div>
+                                    <div class="text-muted small">{{ $patientUser?->email ?? __('No email') }}</div>
                                 </td>
                                 <td>{{ \Illuminate\Support\Str::headline($usage->feature_type) }}</td>
                                 <td style="min-width: 150px">
@@ -188,16 +182,15 @@
                                             required>
                                     </form>
                                 </td>
-                                <td>{{ $currentLimit !== null ? number_format($currentLimit) : 'Unknown feature' }}</td>
+                                <td>{{ $currentLimit !== null ? number_format($currentLimit) : __('Unknown feature') }}</td>
                                 <td>
                                     <div>{{ $usage->period_start?->format('Y-m-d H:i') }}</div>
-                                    <div class="text-muted small">to {{ $usage->period_end?->format('Y-m-d H:i') }}</div>
+                                    <div class="text-muted small">{{ __('to :date', ['date' => $usage->period_end?->format('Y-m-d H:i')]) }}</div>
                                 </td>
                                 <td class="text-end">
                                     <button type="submit" form="usage-form-{{ $usage->id }}" class="outline-button">
                                         <i class="bi bi-save"></i>
-                                        Save
-                                    </button>
+                                        {{ __('Save') }}</button>
                                 </td>
                             </tr>
                         @endforeach

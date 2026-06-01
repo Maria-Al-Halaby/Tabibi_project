@@ -17,7 +17,7 @@ class LabDashboardController extends Controller
             $doctor = auth()->user()?->doctor;
 
             if (!$doctor || $doctor->doctor_type !== 'lab') {
-                abort(403, 'Unauthorized');
+                abort(403, __('Unauthorized'));
             }
 
             return $next($request);
@@ -81,15 +81,15 @@ class LabDashboardController extends Controller
             ->firstOrFail();
 
         if ($appointment->status === 'canceled') {
-            return back()->with('error', 'Cannot complete a canceled appointment.');
+            return back()->with('error', __('Cannot complete a canceled appointment.'));
         }
 
         if ($appointment->status === 'completed') {
-            return back()->with('error', 'Appointment already finished.');
+            return back()->with('error', __('Appointment already finished.'));
         }
 
         if ($appointment->labResult) {
-            return back()->with('error', 'Lab result already uploaded.');
+            return back()->with('error', __('Lab result already uploaded.'));
         }
 
         DB::transaction(function () use ($appointment, $request, $data) {
@@ -108,6 +108,6 @@ class LabDashboardController extends Controller
 
         return redirect()
             ->route('lab.dashboard')
-            ->with('success', 'Lab appointment completed successfully.');
+            ->with('success', __('Lab appointment completed successfully.'));
     }
 }

@@ -61,7 +61,7 @@ class ClinicCenterController extends Controller
             
         ]);
 
-        return redirect()->route("SuperAdmin.ClinicCenter.index")->with("message" , "clinic center created successfully!!");
+        return redirect()->route("SuperAdmin.ClinicCenter.index")->with("message" , __("clinic center created successfully!!"));
     }
 
     /**
@@ -117,7 +117,7 @@ class ClinicCenterController extends Controller
             "address" => $validateData["address"]
         ]);
 
-        return redirect()->route("SuperAdmin.ClinicCenter.index")->with("message" , "clinic center updated successfully!!");
+        return redirect()->route("SuperAdmin.ClinicCenter.index")->with("message" , __("clinic center updated successfully!!"));
     }
 
     /**
@@ -127,6 +127,6 @@ class ClinicCenterController extends Controller
     {
         $clinicCenter->delete();
 
-        return redirect()->route("SuperAdmin.ClinicCenter.index")->with("message" , "clinic center deleted successfully");
+        return redirect()->route("SuperAdmin.ClinicCenter.index")->with("message" , __("clinic center deleted successfully"));
     }
 }

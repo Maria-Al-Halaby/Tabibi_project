@@ -302,16 +302,21 @@ class SecretaryWorkflowTest extends TestCase
             'doctor_id' => $doctor->id,
             'clinic_center_id' => $center->id,
             'patient_id' => null,
-            'temp_patient_name' => 'Walk In Patient',
-            'temp_patient_phone' => '0999555123',
-            'temp_patient_gender' => 'female',
-            'temp_patient_age' => 31,
             'type' => 'radiology',
             'status' => 'pending',
             'price' => 85,
         ]);
 
-        $appointment = Appointment::where('temp_patient_name', 'Walk In Patient')->firstOrFail();
+        $appointment = Appointment::where('doctor_id', $doctor->id)
+            ->where('clinic_center_id', $center->id)
+            ->where('type', 'radiology')
+            ->firstOrFail();
+
+        $this->assertSame('Walk In Patient', $appointment->temp_patient_name);
+        $this->assertSame('0999555123', $appointment->temp_patient_phone);
+        $this->assertSame('female', $appointment->temp_patient_gender);
+        $this->assertSame(31, $appointment->temp_patient_age);
+        $this->assertNotSame('Walk In Patient', $appointment->getRawOriginal('temp_patient_name'));
 
         $this->assertDatabaseHas('radiology_appointments', [
             'appointment_id' => $appointment->id,
@@ -405,12 +410,16 @@ class SecretaryWorkflowTest extends TestCase
 
         $this->assertDatabaseHas('appointments', [
             'doctor_id' => $doctor->id,
-            'temp_patient_name' => 'Lab Walk In',
             'type' => 'lab',
             'price' => 35,
         ]);
 
-        $appointment = Appointment::where('temp_patient_name', 'Lab Walk In')->firstOrFail();
+        $appointment = Appointment::where('doctor_id', $doctor->id)
+            ->where('type', 'lab')
+            ->firstOrFail();
+
+        $this->assertSame('Lab Walk In', $appointment->temp_patient_name);
+        $this->assertNotSame('Lab Walk In', $appointment->getRawOriginal('temp_patient_name'));
 
         $this->assertDatabaseHas('appointment_lab_tests', [
             'appointment_id' => $appointment->id,

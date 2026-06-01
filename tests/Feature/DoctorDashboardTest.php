@@ -104,10 +104,13 @@ class DoctorDashboardTest extends TestCase
         $this->assertDatabaseHas('appointments', [
             'id' => $appointment->id,
             'status' => 'completed',
-            'doctor_note' => 'Patient is stable.',
         ]);
 
-        $this->assertNotNull($appointment->fresh()->end_at);
+        $completedAppointment = $appointment->fresh();
+
+        $this->assertNotNull($completedAppointment->end_at);
+        $this->assertSame('Patient is stable.', $completedAppointment->doctor_note);
+        $this->assertNotSame('Patient is stable.', $completedAppointment->getRawOriginal('doctor_note'));
 
         $this->assertDatabaseHas('prescriptions', [
             'appointment_id' => $appointment->id,

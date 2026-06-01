@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Statistics Dashboard')
+@section('title', __('Statistics Dashboard'))
 
 @section('content')
     @php
-        $today = \Carbon\Carbon::now()->format('M d, Y');
+        $today = \Carbon\Carbon::now()->translatedFormat('M d, Y');
         $totalEntities = $ClinicCount + $DoctorCount + $PatientCount + $AppointmentCount;
         $doctorsPerClinic = $ClinicCount > 0 ? number_format($DoctorCount / $ClinicCount, 1) : '0.0';
         $appointmentsPerDoctor = $DoctorCount > 0 ? number_format($AppointmentCount / $DoctorCount, 1) : '0.0';
@@ -13,57 +13,56 @@
         $activeDoctorRate = $DoctorCount > 0 ? round(($ActiveDoctorCount / $DoctorCount) * 100) : 0;
         $stats = [
             [
-                'label' => 'Clinic centers',
+                'label' => __('Clinic centers'),
                 'value' => $ClinicCount,
-                'description' => 'Total locations currently configured on the platform.',
+                'description' => __('Total locations currently configured on the platform.'),
                 'icon' => 'bi-hospital-fill',
                 'color' => 'linear-gradient(135deg, #0f766e, #2dd4bf)',
             ],
             [
-                'label' => 'Doctors',
+                'label' => __('Doctors'),
                 'value' => $DoctorCount,
-                'description' => 'Medical providers available across all managed centers.',
+                'description' => __('Medical providers available across all managed centers.'),
                 'icon' => 'bi-person-badge-fill',
                 'color' => 'linear-gradient(135deg, #2563eb, #60a5fa)',
             ],
             [
-                'label' => 'Patients',
+                'label' => __('Patients'),
                 'value' => $PatientCount,
-                'description' => 'Registered patients currently represented in the system.',
+                'description' => __('Registered patients currently represented in the system.'),
                 'icon' => 'bi-people-fill',
                 'color' => 'linear-gradient(135deg, #f59e0b, #fbbf24)',
             ],
             [
-                'label' => 'Appointments',
+                'label' => __('Appointments'),
                 'value' => $AppointmentCount,
-                'description' => 'Platform-wide appointment activity across all centers.',
+                'description' => __('Platform-wide appointment activity across all centers.'),
                 'icon' => 'bi-calendar2-check-fill',
                 'color' => 'linear-gradient(135deg, #7c3aed, #a78bfa)',
             ],
         ];
+        $chartLabels = [__('Clinics'), __('Doctors'), __('Patients'), __('Appointments')];
     @endphp
 
     <div class="page-header">
         <div>
             <span class="eyebrow">
                 <i class="bi bi-stars"></i>
-                Super Admin Dashboard
-            </span>
-            <h1 class="page-title">Run the platform with better visibility and better flow.</h1>
+                {{ __('Super Admin Dashboard') }}</span>
+            <h1 class="page-title">{{ __('Run the platform with better visibility and better flow.') }}</h1>
             <p class="page-subtitle">
-                The dashboard now prioritizes oversight, quick navigation, and high-level signals that matter to a
-                platform operator, not just raw counts.
-            </p>
+                {{ __('The dashboard now prioritizes oversight, quick navigation, and high-level signals that matter to a
+                platform operator, not just raw counts.') }}</p>
         </div>
 
         <div class="helper-badges">
             <span class="helper-badge">
                 <i class="bi bi-calendar3"></i>
-                Updated {{ $today }}
+                {{ __('Updated :date', ['date' => $today]) }}
             </span>
             <span class="helper-badge helper-badge--accent">
                 <i class="bi bi-layers-fill"></i>
-                {{ number_format($totalEntities) }} platform records
+                {{ __(':count platform records', ['count' => number_format($totalEntities)]) }}
             </span>
         </div>
     </div>
@@ -73,30 +72,29 @@
             <section class="section-card h-100">
                 <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
                     <div class="flex-grow-1">
-                        <h2 class="section-heading">Platform command center</h2>
+                        <h2 class="section-heading">{{ __('Platform command center') }}</h2>
                         <p class="section-copy mb-4">
-                            Use this view to understand network health, then jump directly into the management surface
-                            you need without wading through dense pages first.
-                        </p>
+                            {{ __('Use this view to understand network health, then jump directly into the management surface
+                            you need without wading through dense pages first.') }}</p>
 
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <div class="mini-metric h-100">
-                                    <div class="mini-metric__label">Doctors per clinic</div>
+                                    <div class="mini-metric__label">{{ __('Doctors per clinic') }}</div>
                                     <p class="mini-metric__value">{{ $doctorsPerClinic }}</p>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mini-metric h-100">
-                                    <div class="mini-metric__label">Appointments per doctor</div>
+                                    <div class="mini-metric__label">{{ __('Appointments per doctor') }}</div>
                                     <p class="mini-metric__value">{{ $appointmentsPerDoctor }}</p>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mini-metric h-100">
-                                    <div class="mini-metric__label">Patients per clinic</div>
+                                    <div class="mini-metric__label">{{ __('Patients per clinic') }}</div>
                                     <p class="mini-metric__value">{{ $patientsPerClinic }}</p>
                                 </div>
                             </div>
@@ -108,16 +106,16 @@
                             <span class="action-tile__icon">
                                 <i class="bi bi-person-badge-fill"></i>
                             </span>
-                            <div class="action-tile__title">Manage doctors</div>
-                            <p class="action-tile__copy">Review provider coverage, edit records, and keep the roster clean.</p>
+                            <div class="action-tile__title">{{ __('Manage doctors') }}</div>
+                            <p class="action-tile__copy">{{ __('Review provider coverage, edit records, and keep the roster clean.') }}</p>
                         </a>
 
                         <a href="{{ route('SuperAdmin.ClinicCenter.index') }}" class="action-tile">
                             <span class="action-tile__icon">
                                 <i class="bi bi-hospital-fill"></i>
                             </span>
-                            <div class="action-tile__title">Manage clinics</div>
-                            <p class="action-tile__copy">Adjust center records, verify activity, and maintain network quality.</p>
+                            <div class="action-tile__title">{{ __('Manage clinics') }}</div>
+                            <p class="action-tile__copy">{{ __('Adjust center records, verify activity, and maintain network quality.') }}</p>
                         </a>
                     </div>
                 </div>
@@ -126,8 +124,8 @@
 
         <div class="col-12 col-xl-4">
             <section class="section-card h-100">
-                <h2 class="section-heading">Governance highlights</h2>
-                <p class="section-copy mb-4">Readable signals for network health and platform balance.</p>
+                <h2 class="section-heading">{{ __('Governance highlights') }}</h2>
+                <p class="section-copy mb-4">{{ __('Readable signals for network health and platform balance.') }}</p>
 
                 <div class="insight-list">
                     <div class="insight-item">
@@ -135,10 +133,13 @@
                             <i class="bi bi-check2-circle"></i>
                         </span>
                         <div>
-                            <h3 class="insight-item__title">Active clinic coverage</h3>
+                            <h3 class="insight-item__title">{{ __('Active clinic coverage') }}</h3>
                             <p class="insight-item__copy">
-                                {{ $ActiveClinicCount }} of {{ $ClinicCount }} clinics are active, which is
-                                {{ $activeClinicRate }}% of the current network.
+                                {{ __(':active of :total clinics are active, which is :rate% of the current network.', [
+                                    'active' => number_format($ActiveClinicCount),
+                                    'total' => number_format($ClinicCount),
+                                    'rate' => $activeClinicRate,
+                                ]) }}
                             </p>
                         </div>
                     </div>
@@ -148,10 +149,12 @@
                             <i class="bi bi-person-check-fill"></i>
                         </span>
                         <div>
-                            <h3 class="insight-item__title">Active doctor footprint</h3>
+                            <h3 class="insight-item__title">{{ __('Active doctor footprint') }}</h3>
                             <p class="insight-item__copy">
-                                {{ $ActiveDoctorCount }} of {{ $DoctorCount }} doctors are marked active, giving you a quick
-                                staffing quality signal.
+                                {{ __(':active of :total doctors are marked active, giving you a quick staffing quality signal.', [
+                                    'active' => number_format($ActiveDoctorCount),
+                                    'total' => number_format($DoctorCount),
+                                ]) }}
                             </p>
                         </div>
                     </div>
@@ -161,10 +164,12 @@
                             <i class="bi bi-activity"></i>
                         </span>
                         <div>
-                            <h3 class="insight-item__title">Network activity</h3>
+                            <h3 class="insight-item__title">{{ __('Network activity') }}</h3>
                             <p class="insight-item__copy">
-                                Appointment volume currently sits at {{ $AppointmentCount }}, with an active-doctor rate of
-                                {{ $activeDoctorRate }}%.
+                                {{ __('Appointment volume currently sits at :appointments, with an active-doctor rate of :rate%.', [
+                                    'appointments' => number_format($AppointmentCount),
+                                    'rate' => $activeDoctorRate,
+                                ]) }}
                             </p>
                         </div>
                     </div>
@@ -199,13 +204,12 @@
             <section class="section-card h-100">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                     <div>
-                        <h2 class="section-heading mb-1">Platform overview</h2>
-                        <p class="section-copy">Balanced spacing, clearer labels, and easier comparison across core entities.</p>
+                        <h2 class="section-heading mb-1">{{ __('Platform overview') }}</h2>
+                        <p class="section-copy">{{ __('Balanced spacing, clearer labels, and easier comparison across core entities.') }}</p>
                     </div>
                     <span class="helper-badge">
                         <i class="bi bi-bar-chart-fill"></i>
-                        Bar view
-                    </span>
+                        {{ __('Bar view') }}</span>
                 </div>
 
                 <div class="chart-wrap">
@@ -215,20 +219,16 @@
                 <div class="chart-legend">
                     <span class="chart-legend__item">
                         <span class="chart-legend__dot" style="background: #0f766e;"></span>
-                        Clinics
-                    </span>
+                        {{ __('Clinics') }}</span>
                     <span class="chart-legend__item">
                         <span class="chart-legend__dot" style="background: #2563eb;"></span>
-                        Doctors
-                    </span>
+                        {{ __('Doctors') }}</span>
                     <span class="chart-legend__item">
                         <span class="chart-legend__dot" style="background: #f59e0b;"></span>
-                        Patients
-                    </span>
+                        {{ __('Patients') }}</span>
                     <span class="chart-legend__item">
                         <span class="chart-legend__dot" style="background: #7c3aed;"></span>
-                        Appointments
-                    </span>
+                        {{ __('Appointments') }}</span>
                 </div>
             </section>
         </div>
@@ -237,13 +237,12 @@
             <section class="section-card h-100">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                     <div>
-                        <h2 class="section-heading mb-1">Distribution snapshot</h2>
-                        <p class="section-copy">Relative share across your system at a glance.</p>
+                        <h2 class="section-heading mb-1">{{ __('Distribution snapshot') }}</h2>
+                        <p class="section-copy">{{ __('Relative share across your system at a glance.') }}</p>
                     </div>
                     <span class="helper-badge">
                         <i class="bi bi-pie-chart-fill"></i>
-                        Doughnut
-                    </span>
+                        {{ __('Doughnut') }}</span>
                 </div>
 
                 <div class="chart-wrap">
@@ -258,13 +257,12 @@
             <section class="section-card">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
                     <div>
-                        <h2 class="section-heading mb-1">Quick management routes</h2>
-                        <p class="section-copy">The most important areas are now surfaced as direct, descriptive actions.</p>
+                        <h2 class="section-heading mb-1">{{ __('Quick management routes') }}</h2>
+                        <p class="section-copy">{{ __('The most important areas are now surfaced as direct, descriptive actions.') }}</p>
                     </div>
                     <span class="helper-badge helper-badge--accent">
                         <i class="bi bi-compass-fill"></i>
-                        Faster navigation
-                    </span>
+                        {{ __('Faster navigation') }}</span>
                 </div>
 
                 <div class="row g-3">
@@ -273,8 +271,8 @@
                             <span class="action-tile__icon">
                                 <i class="bi bi-grid-1x2-fill"></i>
                             </span>
-                            <div class="action-tile__title">Specializations</div>
-                            <p class="action-tile__copy">Control taxonomy and keep medical categories organized.</p>
+                            <div class="action-tile__title">{{ __('Specializations') }}</div>
+                            <p class="action-tile__copy">{{ __('Control taxonomy and keep medical categories organized.') }}</p>
                         </a>
                     </div>
 
@@ -283,8 +281,8 @@
                             <span class="action-tile__icon">
                                 <i class="bi bi-person-badge-fill"></i>
                             </span>
-                            <div class="action-tile__title">Doctors</div>
-                            <p class="action-tile__copy">Edit profiles, maintain quality, and review staffing coverage.</p>
+                            <div class="action-tile__title">{{ __('Doctors') }}</div>
+                            <p class="action-tile__copy">{{ __('Edit profiles, maintain quality, and review staffing coverage.') }}</p>
                         </a>
                     </div>
 
@@ -293,8 +291,8 @@
                             <span class="action-tile__icon">
                                 <i class="bi bi-megaphone-fill"></i>
                             </span>
-                            <div class="action-tile__title">Promotions</div>
-                            <p class="action-tile__copy">Manage promotional visibility and support platform growth.</p>
+                            <div class="action-tile__title">{{ __('Promotions') }}</div>
+                            <p class="action-tile__copy">{{ __('Manage promotional visibility and support platform growth.') }}</p>
                         </a>
                     </div>
 
@@ -303,8 +301,8 @@
                             <span class="action-tile__icon">
                                 <i class="bi bi-stars"></i>
                             </span>
-                            <div class="action-tile__title">Doctor ratings</div>
-                            <p class="action-tile__copy">Review feedback quality and intervene when performance drops.</p>
+                            <div class="action-tile__title">{{ __('Doctor ratings') }}</div>
+                            <p class="action-tile__copy">{{ __('Review feedback quality and intervene when performance drops.') }}</p>
                         </a>
                     </div>
                 </div>
@@ -317,7 +315,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const labels = ['Clinics', 'Doctors', 'Patients', 'Appointments'];
+            const labels = @json($chartLabels);
             const values = [
                 {{ $ClinicCount }},
                 {{ $DoctorCount }},

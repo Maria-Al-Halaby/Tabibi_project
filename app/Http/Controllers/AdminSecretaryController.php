@@ -15,7 +15,7 @@ class AdminSecretaryController extends Controller
         $center = Auth::user()?->clinic_center;
 
         if (! $center) {
-            abort(404, 'Center not found for this admin');
+            abort(404, __('Center not found for this admin'));
         }
 
         $secretaries = DB::table('clinic_center_secretaries')
@@ -48,7 +48,7 @@ class AdminSecretaryController extends Controller
         $center = Auth::user()?->clinic_center;
 
         if (! $center) {
-            return back()->withErrors(['message' => 'Center not found for this admin'])->withInput();
+            return back()->withErrors(['message' => __('Center not found for this admin')])->withInput();
         }
 
         DB::transaction(function () use ($data, $center) {
@@ -72,7 +72,7 @@ class AdminSecretaryController extends Controller
 
         return redirect()
             ->route('Admin.Secretary.index')
-            ->with('success', 'Secretary added successfully.');
+            ->with('success', __('Secretary added successfully.'));
     }
 
     public function edit(User $user)
@@ -112,7 +112,7 @@ class AdminSecretaryController extends Controller
 
         return redirect()
             ->route('Admin.Secretary.index')
-            ->with('success', 'Secretary updated successfully.');
+            ->with('success', __('Secretary updated successfully.'));
     }
 
     public function destroy(User $user)
@@ -134,7 +134,7 @@ class AdminSecretaryController extends Controller
 
         return redirect()
             ->route('Admin.Secretary.index')
-            ->with('success', 'Secretary deleted successfully.');
+            ->with('success', __('Secretary deleted successfully.'));
     }
 
     private function secretaryBelongsToCenter(User $user, int $centerId): bool

@@ -32,7 +32,7 @@ class LabTestController extends Controller
 
         return redirect()
             ->route('SuperAdmin.labTest.index')
-            ->with('message', 'Lab test created successfully.');
+            ->with('message', __('Lab test created successfully.'));
     }
 
     public function edit(LabTest $labTest)
@@ -50,7 +50,7 @@ class LabTestController extends Controller
 
         return redirect()
             ->route('SuperAdmin.labTest.index')
-            ->with('message', 'Lab test updated successfully.');
+            ->with('message', __('Lab test updated successfully.'));
     }
 
     public function destroy(LabTest $labTest)
@@ -59,6 +59,6 @@ class LabTestController extends Controller
 
         return redirect()
             ->route('SuperAdmin.labTest.index')
-            ->with('message', 'Lab test deleted successfully.');
+            ->with('message', __('Lab test deleted successfully.'));
     }
 }

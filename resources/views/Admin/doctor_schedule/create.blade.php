@@ -1,18 +1,18 @@
 @extends('layouts.admin_app')
 
-@section('title', 'Add Doctor Schedule')
+@section('title', __('Add Doctor Schedule'))
 
 @section('content')
 
 @php
     $days = [
-        0 => 'Sunday',
-        1 => 'Monday',
-        2 => 'Tuesday',
-        3 => 'Wednesday',
-        4 => 'Thursday',
-        5 => 'Friday',
-        6 => 'Saturday',
+        0 => __('Sunday'),
+        1 => __('Monday'),
+        2 => __('Tuesday'),
+        3 => __('Wednesday'),
+        4 => __('Thursday'),
+        5 => __('Friday'),
+        6 => __('Saturday'),
     ];
 
     $existingSchedules = [];
@@ -32,19 +32,17 @@
     <div>
         <span class="eyebrow">
             <i class="fas fa-calendar-plus"></i>
-            Doctor Schedule
-        </span>
+            {{ __('Doctor Schedule') }}</span>
         <h1 class="page-title">
-            Add a working schedule for {{ $doctor->user->name }}.
+            {{ __('Add a working schedule for :name.', ['name' => $doctor->user->name]) }}
         </h1>
         <p class="page-subtitle">
-            Configure working days, clinic hours, and appointment price in one clear form.
-        </p>
+            {{ __('Configure working days, clinic hours, and appointment price in one clear form.') }}</p>
     </div>
     <div class="helper-badges">
         <span class="helper-badge">
             <i class="fas fa-user-doctor"></i>
-            {{ $doctor->specialization?->name ?? 'Doctor' }}
+            {{ $doctor->specialization?->name ?? __('Doctor') }}
         </span>
     </div>
 </div>
@@ -54,11 +52,11 @@
 
         <div class="col-lg-4">
             <div class="mini-metric mb-3">
-                <div class="mini-metric__label">Doctor</div>
+                <div class="mini-metric__label">{{ __('Doctor') }}</div>
                 <p class="mini-metric__value">{{ $doctor->user->name }}</p>
             </div>
             <div class="mini-metric">
-                <div class="mini-metric__label">Clinic</div>
+                <div class="mini-metric__label">{{ __('Clinic') }}</div>
                 <p class="mini-metric__value">
                     {{ auth()->user()->clinic_center?->name ?? auth()->user()->name }}
                 </p>
@@ -71,19 +69,19 @@
 
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <label class="field-label">Appointment Price</label>
+                        <label class="field-label">{{ __('Appointment Price') }}</label>
                         <input type="number"
                                name="price"
                                class="form-control @error('price') is-invalid @enderror"
                                value="{{ old('price', $currentPrice ?? '') }}"
-                               placeholder="Enter appointment price">
+                               placeholder="{{ __('Enter appointment price') }}">
                         @error('price')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="field-label">Appointment Duration (minutes)</label>
+                        <label class="field-label">{{ __('Appointment Duration (minutes)') }}</label>
                         <input type="number"
                                name="appointment_duration_minutes"
                                min="5"
@@ -131,7 +129,7 @@
 
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="field-label">Start Time</label>
+                                        <label class="field-label">{{ __('Start Time') }}</label>
                                         <input type="time"
                                                name="schedules[{{ $key }}][start_time]"
                                                class="form-control @error('schedules.'.$key.'.start_time') is-invalid @enderror"
@@ -143,7 +141,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="field-label">End Time</label>
+                                        <label class="field-label">{{ __('End Time') }}</label>
                                         <input type="time"
                                                name="schedules[{{ $key }}][end_time]"
                                                class="form-control @error('schedules.'.$key.'.end_time') is-invalid @enderror"
@@ -162,12 +160,10 @@
                 <div class="toolbar-actions mt-4">
                     <button type="submit" class="btn btn-tabibi">
                         <i class="fas fa-save"></i>
-                        Save schedule
-                    </button>
+                        {{ __('Save schedule') }}</button>
                     <a href="{{ route('Admin.DoctorSchedule.show', $doctor->id) }}" class="ghost-button">
                         <i class="fas fa-arrow-left"></i>
-                        Back to schedule
-                    </a>
+                        {{ __('Back to schedule') }}</a>
                 </div>
 
             </form>

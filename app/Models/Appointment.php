@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedValue;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 
@@ -32,7 +33,15 @@ class Appointment extends Model
     protected $casts = [
         "start_at" => "datetime" , 
         "end_at" => "datetime" ,
-        'price' => "float"
+        'price' => 'float',
+        'temp_patient_name' => EncryptedValue::class,
+        'temp_patient_phone' => EncryptedValue::class,
+        'temp_patient_gender' => EncryptedValue::class,
+        'temp_patient_age' => EncryptedValue::class . ':integer',
+        'result_ratio' => EncryptedValue::class . ':float',
+        'expected_disease' => EncryptedValue::class,
+        'doctor_note' => EncryptedValue::class,
+        'note' => EncryptedValue::class,
     ];
 
     public function patient()

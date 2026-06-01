@@ -16,7 +16,7 @@ class RadiologyDashboardController extends Controller
             $doctor = auth()->user()?->doctor;
 
             if (!$doctor || $doctor->doctor_type !== 'radiology') {
-                abort(403, 'Unauthorized');
+                abort(403, __('Unauthorized'));
             }
 
             return $next($request);
@@ -80,15 +80,15 @@ class RadiologyDashboardController extends Controller
             ->firstOrFail();
 
         if ($appointment->status === 'canceled') {
-            return back()->with('error', 'Cannot complete a canceled appointment.');
+            return back()->with('error', __('Cannot complete a canceled appointment.'));
         }
 
         if ($appointment->status === 'completed') {
-            return back()->with('error', 'Appointment already finished.');
+            return back()->with('error', __('Appointment already finished.'));
         }
 
         if ($appointment->radiologyResult) {
-            return back()->with('error', 'Radiology result already uploaded.');
+            return back()->with('error', __('Radiology result already uploaded.'));
         }
 
         DB::transaction(function () use ($appointment, $request, $data) {
@@ -107,6 +107,6 @@ class RadiologyDashboardController extends Controller
 
         return redirect()
             ->route('radiology.dashboard')
-            ->with('success', 'Radiology appointment completed successfully.');
+            ->with('success', __('Radiology appointment completed successfully.'));
     }
 }

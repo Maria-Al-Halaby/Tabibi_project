@@ -27,7 +27,7 @@ class AppointmentController extends Controller
         $center = $this->resolveCenterForUser();
 
         if (! $center) {
-            abort(404, 'Center not found for this account');
+            abort(404, __('Center not found for this account'));
         }
 
         $selectedSpecializationId = $request->integer('specialization_id') ?: null;
@@ -108,7 +108,7 @@ class AppointmentController extends Controller
         $center = $this->resolveCenterForUser();
 
         if (! $center) {
-            return back()->withErrors(['message' => 'Center not found for this account.'])->withInput();
+            return back()->withErrors(['message' => __('Center not found for this account.')])->withInput();
         }
 
         $data = $request->validate([
@@ -133,27 +133,27 @@ class AppointmentController extends Controller
             ->first();
 
         if (! $pivot) {
-            return back()->withErrors(['doctor_id' => 'Selected doctor does not belong to this center.'])->withInput();
+            return back()->withErrors(['doctor_id' => __('Selected doctor does not belong to this center.')])->withInput();
         }
 
         if (! empty($data['specialization_id']) && (int) $doctor->specialization_id !== (int) $data['specialization_id']) {
-            return back()->withErrors(['specialization_id' => 'Selected doctor does not belong to the selected specialty.'])->withInput();
+            return back()->withErrors(['specialization_id' => __('Selected doctor does not belong to the selected specialty.')])->withInput();
         }
 
         if ($doctor->doctor_type === 'lab' && empty($data['lab_tests'])) {
-            return back()->withErrors(['lab_tests' => 'Please select at least one lab test for lab appointments.'])->withInput();
+            return back()->withErrors(['lab_tests' => __('Please select at least one lab test for lab appointments.')])->withInput();
         }
 
         if ($doctor->doctor_type === 'radiology' && empty($data['type_of_medical_image_id'])) {
-            return back()->withErrors(['type_of_medical_image_id' => 'Please select the image type for radiology appointments.'])->withInput();
+            return back()->withErrors(['type_of_medical_image_id' => __('Please select the image type for radiology appointments.')])->withInput();
         }
 
         if ($doctor->doctor_type !== 'lab' && ! empty($data['lab_tests'])) {
-            return back()->withErrors(['lab_tests' => 'Lab tests can only be selected for lab doctors.'])->withInput();
+            return back()->withErrors(['lab_tests' => __('Lab tests can only be selected for lab doctors.')])->withInput();
         }
 
         if ($doctor->doctor_type !== 'radiology' && ! empty($data['type_of_medical_image_id'])) {
-            return back()->withErrors(['type_of_medical_image_id' => 'Image type can only be selected for radiology doctors.'])->withInput();
+            return back()->withErrors(['type_of_medical_image_id' => __('Image type can only be selected for radiology doctors.')])->withInput();
         }
 
         if ($doctor->doctor_type === 'lab' && ! empty($data['lab_tests'])) {
@@ -163,7 +163,7 @@ class AppointmentController extends Controller
                 ->count();
 
             if ($centerLabTestCount !== count($data['lab_tests'])) {
-                return back()->withErrors(['lab_tests' => 'One or more selected lab tests are not available in this center.'])->withInput();
+                return back()->withErrors(['lab_tests' => __('One or more selected lab tests are not available in this center.')])->withInput();
             }
         }
 
@@ -174,7 +174,7 @@ class AppointmentController extends Controller
                 ->exists();
 
             if (! $imageTypeExists) {
-                return back()->withErrors(['type_of_medical_image_id' => 'The selected image type is not available in this center.'])->withInput();
+                return back()->withErrors(['type_of_medical_image_id' => __('The selected image type is not available in this center.')])->withInput();
             }
         }
 
@@ -182,15 +182,15 @@ class AppointmentController extends Controller
             $dateObj = Carbon::createFromFormat('Y-m-d', $data['appointment_date'])->startOfDay();
             $startAt = Carbon::createFromFormat('Y-m-d H:i', $data['appointment_date'].' '.$data['appointment_time']);
         } catch (\Throwable $e) {
-            return back()->withErrors(['appointment_date' => 'Invalid appointment date or time.'])->withInput();
+            return back()->withErrors(['appointment_date' => __('Invalid appointment date or time.')])->withInput();
         }
 
         if ($dateObj->lt(Carbon::today())) {
-            return back()->withErrors(['appointment_date' => 'Appointment date must be today or later.'])->withInput();
+            return back()->withErrors(['appointment_date' => __('Appointment date must be today or later.')])->withInput();
         }
 
         if ($startAt->lt(Carbon::now())) {
-            return back()->withErrors(['appointment_time' => 'Cannot book an appointment in the past.'])->withInput();
+            return back()->withErrors(['appointment_time' => __('Cannot book an appointment in the past.')])->withInput();
         }
 
         $schedules = DoctorSchedules::where('doctor_id', $doctor->id)
@@ -200,14 +200,14 @@ class AppointmentController extends Controller
             ->get();
 
         if ($schedules->isEmpty()) {
-            return back()->withErrors(['appointment_time' => 'Selected time is outside the doctor schedule.'])->withInput();
+            return back()->withErrors(['appointment_time' => __('Selected time is outside the doctor schedule.')])->withInput();
         }
 
         $appointmentDuration = $this->appointmentDurationForPivot($pivot);
         $availableSlots = $this->buildAvailableSlotsForDate($doctor, $center->id, $dateObj, $schedules, $appointmentDuration);
 
         if (! in_array($startAt->format('H:i'), $availableSlots, true)) {
-            return back()->withErrors(['appointment_time' => 'Selected time is not available for this doctor schedule.'])->withInput();
+            return back()->withErrors(['appointment_time' => __('Selected time is not available for this doctor schedule.')])->withInput();
         }
 
         $isBooked = Appointment::where('doctor_id', $doctor->id)
@@ -217,7 +217,7 @@ class AppointmentController extends Controller
             ->exists();
 
         if ($isBooked) {
-            return back()->withErrors(['appointment_time' => 'This time is already booked.'])->withInput();
+            return back()->withErrors(['appointment_time' => __('This time is already booked.')])->withInput();
         }
 
         $price = (float) ($pivot->price ?? 0);
@@ -266,7 +266,7 @@ class AppointmentController extends Controller
 
         return redirect()
             ->route('secretary.dashboard')
-            ->with('message', 'Walk-in appointment scheduled successfully.');
+            ->with('message', __('Walk-in appointment scheduled successfully.'));
     }
 
     /**
@@ -309,7 +309,7 @@ class AppointmentController extends Controller
         if ($appointments->status === 'completed') {
             return redirect()
                 ->route($this->appointmentRouteName(), request()->only('specialization_id'))
-                ->withErrors(['message' => 'Completed appointments cannot be canceled.']);
+                ->withErrors(['message' => __('Completed appointments cannot be canceled.')]);
         }
 
         if ($appointments->status !== 'canceled') {
@@ -322,7 +322,7 @@ class AppointmentController extends Controller
 
         return redirect()
             ->route($this->appointmentRouteName(), request()->only('specialization_id'))
-            ->with('message', 'appointment canceled successfully!!');
+            ->with('message', __('appointment canceled successfully!!'));
     }
 
     public function availableDays(Request $request, Doctor $doctor)
@@ -340,7 +340,7 @@ class AppointmentController extends Controller
         if (! $pivot) {
             return response()->json([
                 'status' => false,
-                'message' => 'Doctor does not belong to this center.',
+                'message' => __('Doctor does not belong to this center.'),
                 'data' => ['days' => []],
             ], 404);
         }
@@ -386,7 +386,7 @@ class AppointmentController extends Controller
                         ->values()
                         ->implode(', ');
 
-                    $label = $date->format('l, M d Y');
+                    $label = $date->translatedFormat('l, M d Y');
 
                     if ($timeWindows !== '') {
                         $label .= ' | '.$timeWindows;
@@ -423,7 +423,7 @@ class AppointmentController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid date format. Use Y-m-d.',
+                'message' => __('Invalid date format. Use Y-m-d.'),
                 'data' => ['times' => []],
             ], 422);
         }
@@ -435,7 +435,7 @@ class AppointmentController extends Controller
         if (! $pivot) {
             return response()->json([
                 'status' => false,
-                'message' => 'Doctor does not belong to this center.',
+                'message' => __('Doctor does not belong to this center.'),
                 'data' => ['times' => []],
             ], 404);
         }

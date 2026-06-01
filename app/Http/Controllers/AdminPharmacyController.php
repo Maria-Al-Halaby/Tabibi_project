@@ -18,7 +18,7 @@ class AdminPharmacyController extends Controller
         $center = $user->clinic_center;
 
         if (!$center) {
-            abort(404, 'Center not found for this admin');
+            abort(404, __('Center not found for this admin'));
         }
 
         $pharmacists = DB::table('clinic_center_pharmacists')
@@ -51,7 +51,7 @@ class AdminPharmacyController extends Controller
         $center = $admin->clinic_center;
 
         if (!$center) {
-            return back()->withErrors(['message' => 'Center not found for this admin']);
+            return back()->withErrors(['message' => __('Center not found for this admin')]);
         }
 
         DB::transaction(function () use ($request, $center) {
@@ -75,7 +75,7 @@ class AdminPharmacyController extends Controller
 
         return redirect()
             ->route('Admin.Pharmacy.index')
-            ->with('success', 'Pharmacist added successfully.');
+            ->with('success', __('Pharmacist added successfully.'));
     }
 
     public function edit(User $user)
@@ -127,7 +127,7 @@ class AdminPharmacyController extends Controller
 
         return redirect()
             ->route('Admin.Pharmacy.index')
-            ->with('success', 'Pharmacist updated successfully.');
+            ->with('success', __('Pharmacist updated successfully.'));
 }
 
     public function destroy(User $user)
@@ -155,6 +155,6 @@ class AdminPharmacyController extends Controller
 
         return redirect()
             ->route('Admin.Pharmacy.index')
-            ->with('success', 'Pharmacist deleted successfully.');
+            ->with('success', __('Pharmacist deleted successfully.'));
     }
 }

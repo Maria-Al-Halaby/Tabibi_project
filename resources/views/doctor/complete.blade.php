@@ -1,29 +1,31 @@
 @extends('layouts.admin_app')
 
-@section('title', 'Complete Doctor Appointment')
+@section('title', __('Complete Doctor Appointment'))
 
 @section('content')
     <div class="page-header">
         <div>
             <span class="eyebrow">
                 <i class="fas fa-file-prescription"></i>
-                Complete Clinical Appointment
-            </span>
-            <h1 class="page-title">Finish the visit with notes, prescriptions, and follow-up requests.</h1>
+                {{ __('Complete Clinical Appointment') }}</span>
+            <h1 class="page-title">{{ __('Finish the visit with notes, prescriptions, and follow-up requests.') }}</h1>
             <p class="page-subtitle">
-                This dashboard flow mirrors the mobile doctor API: clinical note, prescription items, optional pharmacy
-                send, lab tests, and radiology requests.
-            </p>
+                {{ __('This dashboard flow mirrors the mobile doctor API: clinical note, prescription items, optional pharmacy
+                send, lab tests, and radiology requests.') }}</p>
         </div>
 
         <div class="helper-badges">
             <span class="helper-badge">
                 <i class="fas fa-hashtag"></i>
-                Appointment #{{ $appointment->id }}
+                {{ __('Appointment #:id', ['id' => $appointment->id]) }}
             </span>
             <span class="helper-badge helper-badge--accent">
                 <i class="fas fa-circle"></i>
-                {{ ucfirst($appointment->status) }}
+                {{ match ($appointment->status) {
+                    'completed' => __('Completed'),
+                    'canceled' => __('Canceled'),
+                    default => __('Pending'),
+                } }}
             </span>
         </div>
     </div>
@@ -31,35 +33,34 @@
     <div class="row g-4">
         <div class="col-12 col-xl-4">
             <section class="section-card h-100">
-                <h2 class="section-heading">Appointment summary</h2>
-                <p class="section-copy mb-4">Review the visit before submitting the clinical outcome.</p>
+                <h2 class="section-heading">{{ __('Appointment summary') }}</h2>
+                <p class="section-copy mb-4">{{ __('Review the visit before submitting the clinical outcome.') }}</p>
 
                 <div class="d-grid gap-3">
                     <div class="mini-metric">
-                        <div class="mini-metric__label">Patient</div>
+                        <div class="mini-metric__label">{{ __('Patient') }}</div>
                         <p class="mini-metric__value">{{ $appointment->patient_display_name }}</p>
-                        <p class="record-card__meta mb-0">{{ $appointment->patient_display_phone ?? 'No phone' }}</p>
+                        <p class="record-card__meta mb-0">{{ $appointment->patient_display_phone ?? __('No phone') }}</p>
                     </div>
 
                     <div class="mini-metric">
-                        <div class="mini-metric__label">Center</div>
+                        <div class="mini-metric__label">{{ __('Center') }}</div>
                         <p class="mini-metric__value">{{ $appointment->clinic_center?->name ?? '---' }}</p>
                     </div>
 
                     <div class="mini-metric">
-                        <div class="mini-metric__label">Visit time</div>
-                        <p class="mini-metric__value">{{ optional($appointment->start_at)->format('M d, Y - H:i') ?? '---' }}</p>
+                        <div class="mini-metric__label">{{ __('Visit time') }}</div>
+                        <p class="mini-metric__value">{{ optional($appointment->start_at)->translatedFormat('M d, Y - H:i') ?? '---' }}</p>
                     </div>
 
                     <div class="mini-metric">
-                        <div class="mini-metric__label">Patient note</div>
+                        <div class="mini-metric__label">{{ __('Patient note') }}</div>
                         <p class="record-card__copy mb-0">{{ $appointment->note ?: '---' }}</p>
                     </div>
 
                     <div class="mini-metric">
-                        <div class="mini-metric__label">Attached medical files</div>
-                        @if ($attachedMedicalRecords->isEmpty())
-                            <p class="record-card__meta mb-0">No files were attached to this appointment.</p>
+                        <div class="mini-metric__label">{{ __('Attached medical files') }}</div>
+                        @if ($attachedMedicalRecords->isEmpty())<p class="record-card__meta mb-0">{{ __('No files were attached to this appointment.') }}</p>
                         @else
                             <div class="list-pills mt-3">
                                 @foreach ($attachedMedicalRecords as $record)
@@ -79,15 +80,14 @@
             <section class="section-card form-panel h-100">
                 <div class="toolbar-row">
                     <div>
-                        <h2 class="section-heading">Clinical completion</h2>
-                        <p class="section-copy">Add only the sections needed for this visit.</p>
+                        <h2 class="section-heading">{{ __('Clinical completion') }}</h2>
+                        <p class="section-copy">{{ __('Add only the sections needed for this visit.') }}</p>
                     </div>
 
                     <div class="toolbar-actions">
                         <a href="{{ route('doctor.dashboard') }}" class="ghost-button">
                             <i class="fas fa-arrow-left"></i>
-                            Back to dashboard
-                        </a>
+                            {{ __('Back to dashboard') }}</a>
                     </div>
                 </div>
 
@@ -96,38 +96,37 @@
                     <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
 
                     <div class="col-12">
-                        <label for="note" class="field-label">Doctor clinical note</label>
+                        <label for="note" class="field-label">{{ __('Doctor clinical note') }}</label>
                         <textarea name="note" id="note" class="form-control" rows="4"
-                            placeholder="Write the clinical assessment and visit notes" required>{{ old('note', $appointment->doctor_note) }}</textarea>
+                            placeholder="{{ __('Write the clinical assessment and visit notes') }}" required>{{ old('note', $appointment->doctor_note) }}</textarea>
                     </div>
 
                     <div class="col-12">
                         <div class="mini-metric">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                                 <div>
-                                    <div class="mini-metric__label">Prescription</div>
-                                    <p class="section-copy mb-0">Add medicine items and a general note when needed.</p>
+                                    <div class="mini-metric__label">{{ __('Prescription') }}</div>
+                                    <p class="section-copy mb-0">{{ __('Add medicine items and a general note when needed.') }}</p>
                                 </div>
                                 <button type="button" class="outline-button" id="addPrescriptionItem">
                                     <i class="fas fa-plus"></i>
-                                    Add medicine
-                                </button>
+                                    {{ __('Add medicine') }}</button>
                             </div>
 
                             <div class="mb-3">
-                                <label for="prescription_note" class="field-label">General prescription note</label>
+                                <label for="prescription_note" class="field-label">{{ __('General prescription note') }}</label>
                                 <textarea name="prescription_note" id="prescription_note" class="form-control"
-                                    placeholder="Optional note for the whole prescription">{{ old('prescription_note') }}</textarea>
+                                    placeholder="{{ __('Optional note for the whole prescription') }}">{{ old('prescription_note') }}</textarea>
                             </div>
 
                             @if ($hasPharmacist)
                                 <div class="form-check mb-3">
                                     <input type="checkbox" name="send_to_pharmacy" value="1" id="send_to_pharmacy"
                                         class="form-check-input" @checked(old('send_to_pharmacy'))>
-                                    <label for="send_to_pharmacy" class="form-check-label">Send prescription to pharmacy</label>
+                                    <label for="send_to_pharmacy" class="form-check-label">{{ __('Send prescription to pharmacy') }}</label>
                                 </div>
                             @else
-                                <p class="field-note mb-3">This center does not have a pharmacist, so pharmacy sending is unavailable.</p>
+                                <p class="field-note mb-3">{{ __('This center does not have a pharmacist, so pharmacy sending is unavailable.') }}</p>
                             @endif
 
                             <div id="prescriptionItems" class="d-grid gap-3"></div>
@@ -136,13 +135,13 @@
 
                     <div class="col-12">
                         <div class="mini-metric">
-                            <div class="mini-metric__label">Lab requests</div>
-                            <p class="section-copy">Select tests if the patient needs lab follow-up.</p>
+                            <div class="mini-metric__label">{{ __('Lab requests') }}</div>
+                            <p class="section-copy">{{ __('Select tests if the patient needs lab follow-up.') }}</p>
 
                             <div class="mb-3">
-                                <label for="lab_request_note" class="field-label">Lab request note</label>
+                                <label for="lab_request_note" class="field-label">{{ __('Lab request note') }}</label>
                                 <textarea name="lab_request_note" id="lab_request_note" class="form-control"
-                                    placeholder="Optional note for requested lab tests">{{ old('lab_request_note') }}</textarea>
+                                    placeholder="{{ __('Optional note for requested lab tests') }}">{{ old('lab_request_note') }}</textarea>
                             </div>
 
                             <div class="row g-2">
@@ -164,13 +163,12 @@
                         <div class="mini-metric">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                                 <div>
-                                    <div class="mini-metric__label">Radiology requests</div>
-                                    <p class="section-copy mb-0">Add image requests if the patient needs imaging follow-up.</p>
+                                    <div class="mini-metric__label">{{ __('Radiology requests') }}</div>
+                                    <p class="section-copy mb-0">{{ __('Add image requests if the patient needs imaging follow-up.') }}</p>
                                 </div>
                                 <button type="button" class="outline-button" id="addRadiologyRequest">
                                     <i class="fas fa-plus"></i>
-                                    Add request
-                                </button>
+                                    {{ __('Add request') }}</button>
                             </div>
 
                             <div id="radiologyRequests" class="d-grid gap-3"></div>
@@ -179,8 +177,7 @@
 
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit" class="btn btn-tabibi">
-                            <i class="fas fa-circle-check me-2"></i>Complete appointment
-                        </button>
+                            <i class="fas fa-circle-check me-2"></i>{{ __('Complete appointment') }}</button>
                     </div>
                 </form>
             </section>
@@ -190,31 +187,31 @@
     <template id="prescriptionItemTemplate">
         <div class="row g-3 align-items-end prescription-item">
             <div class="col-md-6">
-                <label class="field-label">Medicine name</label>
-                <input type="text" data-name="medicine_name" class="form-control" placeholder="Medicine">
+                <label class="field-label">{{ __('Medicine name') }}</label>
+                <input type="text" data-name="medicine_name" class="form-control" placeholder="{{ __('Medicine') }}">
             </div>
             <div class="col-md-3">
-                <label class="field-label">Dose</label>
-                <input type="text" data-name="dose" class="form-control" placeholder="500mg">
+                <label class="field-label">{{ __('Dose') }}</label>
+                <input type="text" data-name="dose" class="form-control" placeholder="{{ __('500mg') }}">
             </div>
             <div class="col-md-3">
-                <label class="field-label">Frequency</label>
-                <input type="text" data-name="frequency" class="form-control" placeholder="Twice daily">
+                <label class="field-label">{{ __('Frequency') }}</label>
+                <input type="text" data-name="frequency" class="form-control" placeholder="{{ __('Twice daily') }}">
             </div>
             <div class="col-md-3">
-                <label class="field-label">Start date</label>
+                <label class="field-label">{{ __('Start date') }}</label>
                 <input type="date" data-name="start_date" class="form-control">
             </div>
             <div class="col-md-3">
-                <label class="field-label">End date</label>
+                <label class="field-label">{{ __('End date') }}</label>
                 <input type="date" data-name="end_date" class="form-control">
             </div>
             <div class="col-md-5">
-                <label class="field-label">Instructions</label>
-                <input type="text" data-name="instructions" class="form-control" placeholder="After food">
+                <label class="field-label">{{ __('Instructions') }}</label>
+                <input type="text" data-name="instructions" class="form-control" placeholder="{{ __('After food') }}">
             </div>
             <div class="col-md-1">
-                <button type="button" class="ghost-button remove-row" aria-label="Remove medicine">
+                <button type="button" class="ghost-button remove-row" aria-label="{{ __('Remove medicine') }}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -224,20 +221,20 @@
     <template id="radiologyRequestTemplate">
         <div class="row g-3 align-items-end radiology-request">
             <div class="col-md-5">
-                <label class="field-label">Image type</label>
+                <label class="field-label">{{ __('Image type') }}</label>
                 <select data-name="type_of_medical_image_id" class="form-select">
-                    <option value="">Select image type</option>
+                    <option value="">{{ __('Select image type') }}</option>
                     @foreach ($medicalImageTypes as $type)
                         <option value="{{ $type->id }}">{{ $type->name }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-md-6">
-                <label class="field-label">Notes</label>
-                <input type="text" data-name="notes" class="form-control" placeholder="Optional request note">
+                <label class="field-label">{{ __('Notes') }}</label>
+                <input type="text" data-name="notes" class="form-control" placeholder="{{ __('Optional request note') }}">
             </div>
             <div class="col-md-1">
-                <button type="button" class="ghost-button remove-row" aria-label="Remove radiology request">
+                <button type="button" class="ghost-button remove-row" aria-label="{{ __('Remove radiology request') }}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>

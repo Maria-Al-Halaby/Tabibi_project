@@ -26,7 +26,7 @@ class DoctorDashboardController extends Controller
             $doctor = auth()->user()?->doctor;
 
             if (! $doctor || $doctor->doctor_type !== 'doctor') {
-                abort(403, 'Unauthorized');
+                abort(403, __('Unauthorized'));
             }
 
             return $next($request);
@@ -140,17 +140,17 @@ class DoctorDashboardController extends Controller
             ->firstOrFail();
 
         if ($appointment->status === 'canceled') {
-            return back()->with('error', 'Cannot complete a canceled appointment.')->withInput();
+            return back()->with('error', __('Cannot complete a canceled appointment.'))->withInput();
         }
 
         if ($appointment->status === 'completed') {
-            return back()->with('error', 'Appointment already completed.')->withInput();
+            return back()->with('error', __('Appointment already completed.'))->withInput();
         }
 
         $sendToPharmacy = $request->boolean('send_to_pharmacy', false);
 
         if ($sendToPharmacy && ! $this->centerHasPharmacist((int) $appointment->clinic_center_id)) {
-            return back()->with('error', 'This center does not have a pharmacist.')->withInput();
+            return back()->with('error', __('This center does not have a pharmacist.'))->withInput();
         }
 
         DB::transaction(function () use ($appointment, $data, $sendToPharmacy) {
@@ -205,7 +205,7 @@ class DoctorDashboardController extends Controller
 
         return redirect()
             ->route('doctor.dashboard')
-            ->with('success', 'Appointment completed successfully.');
+            ->with('success', __('Appointment completed successfully.'));
     }
 
     public function cancel(Appointment $appointment)
@@ -217,7 +217,7 @@ class DoctorDashboardController extends Controller
         }
 
         if ($appointment->status === 'completed') {
-            return back()->with('error', 'Cannot cancel a completed appointment.');
+            return back()->with('error', __('Cannot cancel a completed appointment.'));
         }
 
         if ($appointment->status !== 'canceled') {
@@ -225,7 +225,7 @@ class DoctorDashboardController extends Controller
             $this->notifyPatientAppointmentCancelled($appointment);
         }
 
-        return back()->with('success', 'Appointment canceled successfully.');
+        return back()->with('success', __('Appointment canceled successfully.'));
     }
 
     private function applyDateFilter($query, ?string $dateFilter, ?string $specificDate): void
