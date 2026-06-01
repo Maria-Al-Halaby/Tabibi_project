@@ -11,6 +11,7 @@ use App\Models\PrescriptionItem;
 use App\Models\TypeOfMedicalImage;
 use App\Notifications\AppointmentAlertNotification;
 use App\Support\AppointmentMedicalRecordPresenter;
+use App\Support\AppointmentNotificationMessage;
 use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -294,8 +295,9 @@ class DoctorDashboardController extends Controller
             return;
         }
 
-        $title = 'Appointment Completed';
-        $body = 'Your appointment on '.$appointment->start_at->format('Y-m-d H:i').' has been completed. We hope you are feeling better.';
+        $message = AppointmentNotificationMessage::completed($appointment);
+        $title = $message['title'];
+        $body = $message['body'];
         $data = [
             'type' => 'appointment_completed',
             'appointment_id' => (string) $appointment->id,
@@ -321,8 +323,9 @@ class DoctorDashboardController extends Controller
             return;
         }
 
-        $title = 'Appointment Cancelled';
-        $body = 'Your appointment scheduled on '.$appointment->start_at->format('Y-m-d H:i').' has been cancelled by the doctor.';
+        $message = AppointmentNotificationMessage::cancelledByDoctor($appointment);
+        $title = $message['title'];
+        $body = $message['body'];
         $data = [
             'type' => 'appointment_cancelled',
             'appointment_id' => (string) $appointment->id,

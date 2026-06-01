@@ -24,8 +24,8 @@ class NotificationApiTest extends TestCase
         $user = User::factory()->create();
 
         $user->notify(new AppointmentAlertNotification(
-            title: 'Appointment Completed',
-            body: 'Your appointment has been completed.',
+            title: 'تم إكمال الموعد',
+            body: 'تم إكمال موعدك.',
             type: 'appointment_completed',
             appointmentId: 15,
         ));
@@ -39,7 +39,7 @@ class NotificationApiTest extends TestCase
             ->assertJsonPath('status', true)
             ->assertJsonPath('data.unread_count', 1)
             ->assertJsonPath('data.items.0.id', $notification->id)
-            ->assertJsonPath('data.items.0.title', 'Appointment Completed')
+            ->assertJsonPath('data.items.0.title', 'تم إكمال الموعد')
             ->assertJsonPath('data.items.0.type', 'appointment_completed')
             ->assertJsonPath('data.items.0.appointment_id', 15)
             ->assertJsonPath('data.items.0.is_read', false);
@@ -50,8 +50,8 @@ class NotificationApiTest extends TestCase
         $user = User::factory()->create();
 
         $user->notify(new AppointmentAlertNotification(
-            title: 'Appointment Cancelled',
-            body: 'The doctor cancelled your appointment.',
+            title: 'تم إلغاء الموعد',
+            body: 'تم إلغاء موعدك من قبل الطبيب.',
             type: 'appointment_cancelled',
             appointmentId: 21,
         ));
@@ -129,6 +129,8 @@ class NotificationApiTest extends TestCase
         $notification = $patientUser->notifications()->first();
 
         $this->assertNotNull($notification);
+        $this->assertSame('تم إلغاء الموعد', $notification->data['title']);
+        $this->assertStringContainsString('من قبل الطبيب', $notification->data['body']);
         $this->assertSame('appointment_cancelled', $notification->data['type']);
         $this->assertSame($appointment->id, $notification->data['appointment_id']);
     }
@@ -207,7 +209,8 @@ class NotificationApiTest extends TestCase
         $notification = $doctorUser->notifications()->first();
 
         $this->assertNotNull($notification);
-        $this->assertSame('New Appointment Booked', $notification->data['title']);
+        $this->assertSame('تم حجز موعد جديد', $notification->data['title']);
+        $this->assertStringContainsString('تم حجز موعد جديد بواسطة', $notification->data['body']);
         $this->assertSame('new_appointment', $notification->data['type']);
         $this->assertSame($appointment->id, $notification->data['appointment_id']);
     }
@@ -274,6 +277,8 @@ class NotificationApiTest extends TestCase
         $notification = $patientUser->notifications()->first();
 
         $this->assertNotNull($notification);
+        $this->assertSame('تم إكمال الموعد', $notification->data['title']);
+        $this->assertStringContainsString('نتمنى لك الصحة والعافية', $notification->data['body']);
         $this->assertSame('appointment_completed', $notification->data['type']);
         $this->assertSame($appointment->id, $notification->data['appointment_id']);
     }

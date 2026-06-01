@@ -9,6 +9,7 @@ use App\Models\DoctorSchedules;
 use App\Models\RadiologyAppointment;
 use App\Models\Specialization;
 use App\Notifications\AppointmentAlertNotification;
+use App\Support\AppointmentNotificationMessage;
 use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -582,10 +583,9 @@ class AppointmentController extends Controller
             return;
         }
 
-        $title = 'Appointment Cancelled';
-        $body = 'Your appointment scheduled on '
-            .$appointment->start_at->format('Y-m-d H:i')
-            .' has been cancelled by the clinic staff.';
+        $message = AppointmentNotificationMessage::cancelledByStaff($appointment);
+        $title = $message['title'];
+        $body = $message['body'];
 
         $data = [
             'type' => 'appointment_cancelled',

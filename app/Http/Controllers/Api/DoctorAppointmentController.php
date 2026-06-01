@@ -13,6 +13,7 @@ use App\Models\DoctorLabRequest;
 use App\Models\RadiologyResult;
 use App\Models\LabResult;
 use App\Notifications\AppointmentAlertNotification;
+use App\Support\AppointmentNotificationMessage;
 use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -501,11 +502,9 @@ class DoctorAppointmentController extends Controller
             return;
         }
 
-        $title = 'Appointment Completed';
-
-        $body = 'Your appointment on '
-            . $appointment->start_at->format('Y-m-d H:i')
-            . ' has been completed. We hope you are feeling better.';
+        $message = AppointmentNotificationMessage::completed($appointment);
+        $title = $message['title'];
+        $body = $message['body'];
 
         $data = [
             'type' => 'appointment_completed',

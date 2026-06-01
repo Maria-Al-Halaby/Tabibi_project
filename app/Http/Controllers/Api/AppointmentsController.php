@@ -13,6 +13,7 @@ use App\Models\PatientMedicalRecord;
 use App\Models\RadiologyAppointment;
 use App\Models\RadiologyResult;
 use App\Notifications\AppointmentAlertNotification;
+use App\Support\AppointmentNotificationMessage;
 use App\Traits\PushNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -709,13 +710,9 @@ class AppointmentsController extends Controller
     private function notifyDoctorNewAppointment(Appointment $appointment)
     {
         $doctorUser = $appointment->doctor->user;
-        $patientName = $appointment->patient_display_name;
-
-        $title = 'New Appointment Booked';
-        $body = 'A new appointment has been booked by '
-            .$patientName
-            .' on '
-            .$appointment->start_at->format('Y-m-d H:i');
+        $message = AppointmentNotificationMessage::newAppointment($appointment);
+        $title = $message['title'];
+        $body = $message['body'];
 
         $data = [
             'type' => 'new_appointment',
@@ -1067,11 +1064,9 @@ class AppointmentsController extends Controller
             return;
         }
 
-        $title = 'Appointment Cancelled';
-
-        $body = 'Your appointment scheduled on '
-        .$appointment->start_at->format('Y-m-d H:i')
-        .' has been cancelled by the doctor.';
+        $message = AppointmentNotificationMessage::cancelledByDoctor($appointment);
+        $title = $message['title'];
+        $body = $message['body'];
 
         $data = [
             'type' => 'appointment_cancelled',

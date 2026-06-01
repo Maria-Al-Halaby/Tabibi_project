@@ -251,6 +251,8 @@ class SecretaryWorkflowTest extends TestCase
         $notification = $patient->user->fresh()->notifications()->first();
 
         $this->assertNotNull($notification);
+        $this->assertSame('تم إلغاء الموعد', $notification->data['title']);
+        $this->assertStringContainsString('من قبل موظفي المركز', $notification->data['body']);
         $this->assertSame('appointment_cancelled', $notification->data['type']);
         $this->assertSame($appointment->id, $notification->data['appointment_id']);
     }
